@@ -38,7 +38,7 @@ const HomePage = () => {
             <div className="flex justify-between">
                <h1 className="text-2xl font-bold mb-6">Available Courts</h1>
                <Link to={"/add_court"}>
-                  <button className="p-2 bg-green-500 hover:bg-green-600">
+                  <button className="p-2 text-black bg-green-500 hover:bg-green-600 rounded">
                      Add Court
                   </button>
                </Link>
