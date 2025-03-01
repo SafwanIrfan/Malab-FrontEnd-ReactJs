@@ -19,8 +19,57 @@ const AddCourtPage = () => {
       { day: "Saturday", startingTime: "", endingTime: "" },
       { day: "Sunday", startingTime: "", endingTime: "" },
    ]);
-   const [daysCount, setDaysCount] = useState(0);
-   const [errorMessage, setErrorMessage] = useState("");
+   const allTimeSlots = [
+      "12:00 AM",
+      "12:30 AM",
+      "1:00 AM",
+      "1:30 AM",
+      "2:00 AM",
+      "2:30 AM",
+      "3:00 AM",
+      "3:30 AM",
+      "4:00 AM",
+      "4:30 AM",
+      "5:00 AM",
+      "5:30 AM",
+      "6:00 AM",
+      "6:30 AM",
+      "7:00 AM",
+      "7:30 AM",
+      "8:00 AM",
+      "8:30 AM",
+      "9:00 AM",
+      "9:30 AM",
+      "10:00 AM",
+      "10:30 AM",
+      "11:00 AM",
+      "11:30 AM",
+      "12:00 PM",
+      "12:30 PM",
+      "1:00 PM",
+      "1:30 PM",
+      "2:00 PM",
+      "2:30 PM",
+      "3:00 PM",
+      "3:30 PM",
+      "4:00 PM",
+      "4:30 PM",
+      "5:00 PM",
+      "5:30 PM",
+      "6:00 PM",
+      "6:07 PM",
+      "6:30 PM",
+      "7:00 PM",
+      "7:30 PM",
+      "8:00 PM",
+      "8:30 PM",
+      "9:00 PM",
+      "9:30 PM",
+      "10:00 PM",
+      "10:30 PM",
+      "11:00 PM",
+      "11:30 PM",
+   ];
 
    const handleInputChange = (e) => {
       const { name, value } = e.target;
@@ -34,6 +83,7 @@ const AddCourtPage = () => {
       setTimings((prevTimings) => {
          const updatedTimings = [...prevTimings];
          updatedTimings[index] = { ...updatedTimings[index], [field]: value };
+
          return updatedTimings;
       });
    };
@@ -47,6 +97,13 @@ const AddCourtPage = () => {
       setLoading(true);
       console.log("Final Court Data: ", { ...court, timings });
       try {
+         for (let timing of timings) {
+            if (timing.startingTime === timing.endingTime) {
+               alert(`Opening and closing cannot be same at ${timing.day}`);
+               setLoading(false);
+               return;
+            }
+         }
          court.pricePerHour = Number(court.pricePerHour);
          console.log("Court", court);
          // 1️⃣ Save Court (without images)
@@ -231,7 +288,33 @@ const AddCourtPage = () => {
                            >
                               Opening Time :{" "}
                            </label>
-                           <input
+                           <select
+                              defaultValue=""
+                              name="startingTime"
+                              id={`startingTime-${index}`}
+                              onChange={(e) =>
+                                 handleTimingsChange(
+                                    index,
+                                    "startingTime",
+                                    e.target.value
+                                 )
+                              }
+                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                           >
+                              <option value="" disabled hidden>
+                                 00:00
+                              </option>
+                              {allTimeSlots.map((slot) => (
+                                 <option
+                                    className="p-2  "
+                                    key={slot}
+                                    value={slot || ""}
+                                 >
+                                    {slot}
+                                 </option>
+                              ))}
+                           </select>
+                           {/* <input
                               type="time"
                               id={`startingTime-${index}`}
                               value={timing.startingTime}
@@ -245,7 +328,7 @@ const AddCourtPage = () => {
                               className=" p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
                               placeholder="Enter starting time :"
                               required
-                           />
+                           /> */}
                         </div>
                         <div className="flex p-2">
                            <label
@@ -254,10 +337,10 @@ const AddCourtPage = () => {
                            >
                               Closing Time :{" "}
                            </label>
-                           <input
-                              type="time"
+                           <select
+                              defaultValue=""
+                              name="endingTime"
                               id={`endingTime-${index}`}
-                              value={timing.endingTime}
                               onChange={(e) =>
                                  handleTimingsChange(
                                     index,
@@ -265,10 +348,21 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
-                              placeholder="Enter ending time :"
-                              required
-                           />
+                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                           >
+                              <option value="" disabled hidden>
+                                 00:00
+                              </option>
+                              {allTimeSlots.map((slot) => (
+                                 <option
+                                    className="p-2  "
+                                    key={slot}
+                                    value={slot || ""}
+                                 >
+                                    {slot}
+                                 </option>
+                              ))}
+                           </select>
                         </div>
                      </div>
                   ))}

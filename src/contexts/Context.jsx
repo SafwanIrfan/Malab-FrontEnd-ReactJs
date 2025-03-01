@@ -12,6 +12,7 @@ export const AppProvider = ({ children }) => {
    const [isError, setIsError] = useState("");
    const [favourite, setFavourite] = useState(false);
    const [slots, setSlots] = useState([]);
+   const [courts, setCourts] = useState(undefined);
    const { id } = useParams();
 
    // const fetchSlots = async () => {
@@ -38,6 +39,17 @@ export const AppProvider = ({ children }) => {
          setIsError(error);
       }
    };
+   useEffect(() => {
+      const fetchCourts = async () => {
+         try {
+            const response = await axios.get("http://localhost:8080/courts");
+            setCourts(response.data); // Directly use the fetched courts
+         } catch (error) {
+            console.log("Error fetching courts:", error);
+         }
+      };
+      fetchCourts();
+   }, []);
 
    const getOneWeek = () => {
       const dates = [];
@@ -68,7 +80,7 @@ export const AppProvider = ({ children }) => {
             refreshData,
             favourite,
             setFavourite,
-
+            courts,
             setSlots,
             slots,
             getOneWeek,

@@ -11,6 +11,7 @@ import { format, addMinutes, isAfter, parse } from "date-fns";
 
 const SlotsPage = () => {
    const { day, id, date } = useParams();
+   const { courts } = useContext(AppContext);
 
    const { getOneWeek } = useContext(AppContext);
    const [timingsForDay, setTimingsForDay] = useState([]);
@@ -31,6 +32,7 @@ const SlotsPage = () => {
    const [allSlots, setAllSlots] = useState([]);
    const [bookedSlotStartTime, setBookedSlotStartTime] = useState([]);
    const [bookedSlotEndTime, setBookedSlotEndTime] = useState([]);
+   const [priceCalc, setPriceCalc] = useState(0);
    const allTimeSlots = [
       "12:00 AM",
       "12:30 AM",
@@ -45,7 +47,6 @@ const SlotsPage = () => {
       "5:00 AM",
       "5:30 AM",
       "6:00 AM",
-      "6:07 AM",
       "6:30 AM",
       "7:00 AM",
       "7:30 AM",
@@ -146,7 +147,7 @@ const SlotsPage = () => {
          );
          setAllSlots(response.data);
       } catch (error) {
-         confirm.log(`Error fetching slots for ${day} - ${date} : ${error}`);
+         console.log(`Error fetching slots for ${day} - ${date} : ${error}`);
       }
    };
 
@@ -388,6 +389,7 @@ const SlotsPage = () => {
                timings only within the court&apos;s opening and closing hours.
                Additionally, already booked slots cannot be chosen.
             </p>
+            <p>{priceCalc}</p>
             <div className="flex justify-center mt-6 ">
                <button
                   className="p-4 bg-green-500 hover:bg-green-600 w-40 h-14 text-black font-bold rounded transition-all"
