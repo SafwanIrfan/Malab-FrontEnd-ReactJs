@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { format, parse } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const AddCourtPage = () => {
+   const navigate = useNavigate();
+
    const [court, setCourt] = useState({
       name: "",
       description: "",
       pricePerHour: "",
       location: "",
    });
-   const [selectedImages, setSelectedImages] = useState(null);
+   const [selectedImages, setSelectedImages] = useState([]);
    const [loading, setLoading] = useState(false);
    const [timings, setTimings] = useState([
       { day: "Monday", startingTime: "", endingTime: "" },
@@ -80,12 +84,17 @@ const AddCourtPage = () => {
    };
 
    const handleTimingsChange = (index, field, value) => {
+      const parseTime = parse(value, "h:mm a", new Date());
+      const formattedTime = format(parseTime, "HH:mm:ss ");
       setTimings((prevTimings) => {
          const updatedTimings = [...prevTimings];
-         updatedTimings[index] = { ...updatedTimings[index], [field]: value };
-
+         updatedTimings[index] = {
+            ...updatedTimings[index],
+            [field]: formattedTime,
+         };
          return updatedTimings;
       });
+      console.log(formattedTime);
    };
 
    const handleImageChange = (e) => {
@@ -155,6 +164,7 @@ const AddCourtPage = () => {
          ]);
 
          setSelectedImages([]);
+         navigate("/");
       } catch (error) {
          setLoading(false);
          console.error("Error adding court:", error);
@@ -258,9 +268,11 @@ const AddCourtPage = () => {
                      accept="image/*"
                   />
 
-                  <p className="py-2 text-red-600">
-                     Note: Uploading no images result in bad impression
-                  </p>
+                  {selectedImages.length == 0 && (
+                     <p className="py-2 text-red-600">
+                        Note: Uploading no images result in bad impression
+                     </p>
+                  )}
                </div>
             </div>
 

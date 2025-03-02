@@ -12,7 +12,7 @@ export const AppProvider = ({ children }) => {
    const [isError, setIsError] = useState("");
    const [favourite, setFavourite] = useState(false);
    const [slots, setSlots] = useState([]);
-   const [courts, setCourts] = useState(undefined);
+   const [courts, setCourts] = useState([]);
    const { id } = useParams();
 
    // const fetchSlots = async () => {

@@ -29,6 +29,7 @@ const SlotsPage = () => {
       bookedDate: "",
    });
 
+   const [booked, setBooked] = useState(false);
    const [allSlots, setAllSlots] = useState([]);
    const [bookedSlotStartTime, setBookedSlotStartTime] = useState([]);
    const [bookedSlotEndTime, setBookedSlotEndTime] = useState([]);
@@ -47,6 +48,7 @@ const SlotsPage = () => {
       "5:00 AM",
       "5:30 AM",
       "6:00 AM",
+      "6:07 AM",
       "6:30 AM",
       "7:00 AM",
       "7:30 AM",
@@ -86,6 +88,9 @@ const SlotsPage = () => {
    ];
 
    const [availableSlots, setAvailableSlots] = useState([]);
+
+   const court = courts.find((court) => court.id == id);
+   console.log(court?.pricePerHour || "Price not available");
 
    const formatTime = (time) => {
       if (!time) return "";
@@ -192,8 +197,7 @@ const SlotsPage = () => {
       console.log("AJEEB SCN : ", bookedSlots.bookedTime);
       console.log("Condition Met! Saving...");
 
-      console.log(bookedSlots.startTime);
-      if (bookedSlots.startTime && bookedSlots.endTime) {
+      if (bookedSlots.startTime && bookedSlots.endTime && booked) {
          axios.post(
             `http://localhost:8080/court/${id}/${day}/book`,
             bookedSlots,
@@ -203,6 +207,7 @@ const SlotsPage = () => {
          );
          alert("Booked! We'll see you there.");
          fetchBookedSlotsByDay();
+         setBooked(false);
          setBookedSlots({
             day: day || "",
             date: date || "",
@@ -228,6 +233,15 @@ const SlotsPage = () => {
       console.log("Formatted Time:", formattedTime); // ✅ Check output
       setBookedSlots((prevSlots) => ({ ...prevSlots, [name]: formattedTime }));
       console.log(bookedSlots);
+
+      const formattedStartTime = formatTime(bookedSlots.startTime);
+      const formattedEndTime = formatTime(bookedSlots.endTime);
+      const startingIndex = allTimeSlots.indexOf(formattedStartTime);
+      const endingIndex = allTimeSlots.indexOf(formattedEndTime);
+      const finalPrice =
+         (court.pricePerHour * (endingIndex - startingIndex)) / 2;
+      console.log(finalPrice);
+      setPriceCalc(finalPrice);
    };
 
    const isBooked = (slot) => {
@@ -280,6 +294,7 @@ const SlotsPage = () => {
       // }
 
       try {
+         setBooked(true);
          const today = DateTime.now();
          const currentTime = today.toFormat("HH:mm:ss");
          const currentDay = today.toFormat("EEEE");

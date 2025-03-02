@@ -9,6 +9,7 @@ import CourtsPage from "./pages/CourtsPage";
 import AddCourtPage from "./pages/AddCourtPage";
 import { ToastContainer } from "react-toastify";
 import SlotsPage from "./pages/SlotsPage";
+import FinalBooking from "./pages/FinalBooking";
 
 function App() {
    return (
@@ -24,6 +25,7 @@ function App() {
                <Route path="/timings/:id/:day/:date" element={<SlotsPage />} />
                <Route path="/identification" element={<Identification />} />
                <Route path="/user-signup" element={<UserSignup />} />
+               <Route path="/booking" element={<FinalBooking />} />
             </Routes>
          </BrowserRouter>
       </AppProvider>

@@ -6,20 +6,21 @@ import AppContext from "../contexts/Context";
 import test from "../assets/test.jpg";
 
 const HomePage = () => {
-   const { favourite, setFavourite, courts } = useContext(AppContext);
+   const { favourite, setFavourite } = useContext(AppContext);
+   const [courts, setCourts] = useState([]);
    const [countFav, setCountFav] = useState(0);
 
-   // useEffect(() => {
-   //    const fetchCourts = async () => {
-   //       try {
-   //          const response = await axios.get("http://localhost:8080/courts");
-   //          setCourts(response.data); // Directly use the fetched courts
-   //       } catch (error) {
-   //          console.log("Error fetching courts:", error);
-   //       }
-   //    };
-   //    fetchCourts();
-   // }, []);
+   useEffect(() => {
+      const fetchCourts = async () => {
+         try {
+            const response = await axios.get("http://localhost:8080/courts");
+            setCourts(response.data); // Directly use the fetched courts
+         } catch (error) {
+            console.log("Error fetching courts:", error);
+         }
+      };
+      fetchCourts();
+   }, []);
 
    if (!courts) {
       return (
