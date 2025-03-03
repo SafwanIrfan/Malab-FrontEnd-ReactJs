@@ -1,19 +1,21 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import AppContext from "../contexts/Context";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
-import dayjs from "dayjs";
 import { DateTime } from "luxon";
-import { format, addMinutes, isAfter, parse } from "date-fns";
+import { format, parse } from "date-fns";
+import BookingPopup from "../smallcomponents/BookingPopup";
 
 const SlotsPage = () => {
+   const navigate = useNavigate();
+
    const { day, id, date } = useParams();
    const { courts } = useContext(AppContext);
 
-   const { getOneWeek } = useContext(AppContext);
+   const [isPopupOpen, setPopupOpen] = useState(false);
+
    const [timingsForDay, setTimingsForDay] = useState([]);
    const [bookingTime, setBookingTime] = useState();
    const [bookingDay, setBookingDay] = useState();
@@ -48,7 +50,6 @@ const SlotsPage = () => {
       "5:00 AM",
       "5:30 AM",
       "6:00 AM",
-      "6:07 AM",
       "6:30 AM",
       "7:00 AM",
       "7:30 AM",
@@ -73,7 +74,6 @@ const SlotsPage = () => {
       "5:00 PM",
       "5:30 PM",
       "6:00 PM",
-      "6:07 PM",
       "6:30 PM",
       "7:00 PM",
       "7:30 PM",
@@ -233,15 +233,6 @@ const SlotsPage = () => {
       console.log("Formatted Time:", formattedTime); // ✅ Check output
       setBookedSlots((prevSlots) => ({ ...prevSlots, [name]: formattedTime }));
       console.log(bookedSlots);
-
-      const formattedStartTime = formatTime(bookedSlots.startTime);
-      const formattedEndTime = formatTime(bookedSlots.endTime);
-      const startingIndex = allTimeSlots.indexOf(formattedStartTime);
-      const endingIndex = allTimeSlots.indexOf(formattedEndTime);
-      const finalPrice =
-         (court.pricePerHour * (endingIndex - startingIndex)) / 2;
-      console.log(finalPrice);
-      setPriceCalc(finalPrice);
    };
 
    const isBooked = (slot) => {
@@ -282,17 +273,15 @@ const SlotsPage = () => {
          return;
       }
 
-      // const bookStartTime = DateTime.fromFormat(
-      //    bookedSlots.startTime,
-      //    "HH:mm a"
-      // );
-      // const bookEndTime = DateTime.fromFormat(bookedSlots.endTime, "HH:mm a");
+      const finalPrice =
+         (court.pricePerHour * (endingIndex - startingIndex)) / 2;
+      console.log(finalPrice);
+      setPriceCalc(finalPrice);
 
-      // if (handleCondition(bookStartTime, bookEndTime)) {
-      //    alert("Slot already Booked !!!");
-      //    return;
-      // }
+      setPopupOpen(true);
+   };
 
+   const handleTransaction = () => {
       try {
          setBooked(true);
          const today = DateTime.now();
@@ -302,11 +291,6 @@ const SlotsPage = () => {
          setBookingTime(currentTime); // ✅ Update bookingTime first
          setBookingDate(currentDate);
          setBookingDay(currentDay);
-
-         // setBookedSlots((prevSlots) => ({
-         //    ...prevSlots,
-         //    bookedTime: DateTime.now().toFormat("HH:mm:ss"),
-         // }));
       } catch (error) {
          console.error(
             "Booking failed:",
@@ -404,7 +388,6 @@ const SlotsPage = () => {
                timings only within the court&apos;s opening and closing hours.
                Additionally, already booked slots cannot be chosen.
             </p>
-            <p>{priceCalc}</p>
             <div className="flex justify-center mt-6 ">
                <button
                   className="p-4 bg-green-500 hover:bg-green-600 w-40 h-14 text-black font-bold rounded transition-all"
@@ -413,6 +396,14 @@ const SlotsPage = () => {
                   Book Slot
                </button>
             </div>
+            <BookingPopup
+               isOpen={isPopupOpen}
+               onClose={() => setPopupOpen(false)}
+               onConfirm={handleTransaction}
+               start={formatTime(bookedSlots.startTime)}
+               end={formatTime(bookedSlots.endTime)}
+               price={priceCalc}
+            />
          </div>
 
          <div className="px-8 mb-8">
