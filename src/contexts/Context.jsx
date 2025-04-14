@@ -13,23 +13,10 @@ export const AppProvider = ({ children }) => {
    const [favourite, setFavourite] = useState(false);
    const [slots, setSlots] = useState([]);
    const [courts, setCourts] = useState([]);
-   const { id } = useParams();
-
-   // const fetchSlots = async () => {
-   //    try {
-   //       const response = await axios.get(
-   //          `http://localhost:8080/court/${id}/slots`
-   //       );
-   //       console.log(response.data);
-   //       setSlots(response.data);
-   //    } catch (error) {
-   //       console.log("Error Fetching Slots : ", error);
-   //    }
-   // };
-
-   // useEffect(() => {
-   //    fetchSlots();
-   // }, []);
+   const [noResults, setNoResults] = useState(false);
+   const [searchFocused, setSearchFocused] = useState(false);
+   const [searchCourtsResults, setSearchCourtsResults] = useState([]);
+   const [input, setInput] = useState("");
 
    const refreshData = async () => {
       try {
@@ -50,6 +37,27 @@ export const AppProvider = ({ children }) => {
       };
       fetchCourts();
    }, []);
+
+   const handleSearching = async (value) => {
+      setInput(value);
+      if (value.length >= 1) {
+         try {
+            const response = await axios.get(
+               `http://localhost:8080/courts/search?keyword=${value}`
+            );
+            setSearchCourtsResults(response.data);
+            console.log(response.data);
+
+            setNoResults(response.data?.length === 0);
+            console.log(response.data);
+         } catch (error) {
+            console.error("Error searching:", error);
+         }
+      } else {
+         setSearchCourtsResults([]);
+         setNoResults(false);
+      }
+   };
 
    const getOneWeek = () => {
       const dates = [];
@@ -84,6 +92,12 @@ export const AppProvider = ({ children }) => {
             setSlots,
             slots,
             getOneWeek,
+            handleSearching,
+            noResults,
+            searchFocused,
+            searchCourtsResults,
+            input,
+            setSearchFocused,
          }}
       >
          {children}

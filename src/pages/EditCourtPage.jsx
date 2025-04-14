@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format, parse } from "date-fns";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const AddCourtPage = () => {
    const navigate = useNavigate();
-
    const jwtToken = localStorage.getItem("token");
+
+   const { id } = useParams();
 
    const [court, setCourt] = useState({
       name: "",
@@ -76,6 +79,45 @@ const AddCourtPage = () => {
       "11:30 PM",
    ];
 
+   useEffect(() => {
+      const fetchCourt = async () => {
+         try {
+            const response = await axios.get(
+               `http://localhost:8080/court/${id}`,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                  },
+               }
+            );
+
+            const data = response.data;
+            setCourt({
+               name: data.name,
+               description: data.description,
+               pricePerHour: data.pricePerHour,
+               location: data.location,
+            });
+            setTimings(data.timings); // Assuming backend sends timings array
+            setSelectedImages(data.imageUrls || []); // Assuming backend sends image URLs
+            console.log(data.imageUrls);
+         } catch (error) {
+            console.log("Error fetching court : ", error);
+         }
+      };
+      fetchCourt();
+   }, []);
+
+   const convertTo12Hr = (time) => {
+      if (!time) return ""; // check if time is empty or null
+      try {
+         return format(parse(time, "HH:mm:ss", new Date()), "h:mm a"); // first format : coming input , second format : desired value
+      } catch (error) {
+         console.log("Invalid time value:", time, " Err :", error);
+         return "";
+      }
+   };
+
    const handleInputChange = (e) => {
       const { name, value } = e.target;
       setCourt((prevCourt) => ({
@@ -102,6 +144,16 @@ const AddCourtPage = () => {
       setSelectedImages([...e.target.files]);
    };
 
+   const handleImageDelete = (indexToRemove) => {
+      const confirm = window.confirm("Do you want to delete this picture?");
+      if (confirm) {
+         setSelectedImages((prevImages) =>
+            prevImages.filter((_, index) => index !== indexToRemove)
+         );
+         toast.success("Image removed successfully.");
+      }
+   };
+
    const submitHandler = async (e) => {
       e.preventDefault();
       setLoading(true);
@@ -117,18 +169,11 @@ const AddCourtPage = () => {
          court.pricePerHour = Number(court.pricePerHour);
          console.log("Court", court);
          // 1️⃣ Save Court (without images)
-         const courtResponse = await axios.post(
-            "http://localhost:8080/court/add",
-            court,
-            {
-               headers: {
-                  Authorization: `Bearer ${jwtToken}`,
-               },
-            }
+         const courtResponse = await axios.put(
+            `http://localhost:8080/court/${id}/edit`,
+            court
          );
          const courtId = courtResponse.data.id;
-
-         console.log(selectedImages);
 
          // 2️⃣ Upload Images (if selected)
          if (selectedImages.length > 0) {
@@ -139,12 +184,8 @@ const AddCourtPage = () => {
                await axios.post(
                   `http://localhost:8080/court/${courtId}/addImage`,
                   formData,
-
                   {
-                     headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: `Bearer ${jwtToken}`,
-                     },
+                     headers: { "Content-Type": "multipart/form-data" },
                   }
                );
             }
@@ -154,12 +195,7 @@ const AddCourtPage = () => {
          await axios.post(
             `http://localhost:8080/court/${courtId}/add_timings`,
             timings,
-            {
-               headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwtToken}`,
-               },
-            }
+            { headers: { "Content-Type": "application/json" } }
          );
 
          setLoading(false);
@@ -189,10 +225,8 @@ const AddCourtPage = () => {
    };
 
    return (
-      <div className="p-8 w-auto mx-auto text-black  shadow-md space-y-4">
-         <h2 className="text-4xl font-black border-b-2 border-green-color text-center p-4">
-            Add Court
-         </h2>
+      <div className="p-8 w-auto mx-auto bg-black text-white  shadow-md space-y-4">
+         <h2 className="text-4xl  border-b-2 text-center p-4">Add Court</h2>
          <form onSubmit={submitHandler}>
             <div className="pt-4 grid grid-cols-2 gap-6">
                {/* Court Name Input */}
@@ -209,7 +243,7 @@ const AddCourtPage = () => {
                      id="name"
                      value={court.name}
                      onChange={handleInputChange}
-                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-color focus:border-sgreen-color"
+                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-400 focus:border-blue-400"
                      placeholder="Enter court name"
                      required
                   />
@@ -227,7 +261,7 @@ const AddCourtPage = () => {
                      id="description"
                      value={court.description}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
                      placeholder="Enter court description"
                      required
                   />
@@ -246,7 +280,7 @@ const AddCourtPage = () => {
                      id="pricePerHour"
                      value={court.pricePerHour}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
                      placeholder="Enter court price/hour"
                      required
                   />
@@ -265,7 +299,7 @@ const AddCourtPage = () => {
                      id="location"
                      value={court.location}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
                      placeholder="Enter court location"
                      required
                   />
@@ -287,10 +321,28 @@ const AddCourtPage = () => {
                      accept="image/*"
                   />
 
-                  {selectedImages.length == 0 && (
+                  {selectedImages.length == 0 ? (
                      <p className="py-2 text-red-600">
                         Note: Uploading no images result in bad impression
                      </p>
+                  ) : (
+                     <div className="flex gap-4 mt-2">
+                        {selectedImages.map((image, index) => (
+                           <div key={index} className="relative">
+                              <button
+                                 onClick={() => handleImageDelete(index)}
+                                 className="absolute top-1 right-1 bg-red-400 rounded-full p-1 hover:bg-red-500 transition"
+                              >
+                                 <FaTrash />
+                              </button>
+                              <img
+                                 className="border-2 cursor-pointer w-24 h-24"
+                                 src={image}
+                                 onClick={() => window.open(image, "_blank")}
+                              ></img>
+                           </div>
+                        ))}
+                     </div>
                   )}
                </div>
             </div>
@@ -300,19 +352,17 @@ const AddCourtPage = () => {
                   {" "}
                   <span className="text-red-500">*</span> Add Timings
                </h4>
-               <div className="border-2 border-green-color rounded">
+               <div className="border-2 rounded">
                   {timings.map((timing, index) => (
                      <div
                         className={
                            index < timings.length - 1
-                              ? "grid grid-cols-3 place-items-center p-4 border-b-2 border-sgreen-color"
+                              ? "grid grid-cols-3 place-items-center p-4 border-b-2"
                               : "grid grid-cols-3 place-items-center p-4"
                         }
                         key={index}
                      >
-                        <h3 className="text-black font-semibold text-xl">
-                           {timing.day}
-                        </h3>
+                        <h3 className="text-green-400 text-xl">{timing.day}</h3>
 
                         <div className=" flex p-2">
                            <label
@@ -322,7 +372,7 @@ const AddCourtPage = () => {
                               Opening Time :{" "}
                            </label>
                            <select
-                              defaultValue=""
+                              value={convertTo12Hr(timing.startingTime)}
                               name="startingTime"
                               id={`startingTime-${index}`}
                               onChange={(e) =>
@@ -332,7 +382,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
                            >
                               <option value="" disabled hidden>
                                  00:00
@@ -358,7 +408,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                              className=" p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
                               placeholder="Enter starting time :"
                               required
                            /> */}
@@ -371,7 +421,7 @@ const AddCourtPage = () => {
                               Closing Time :{" "}
                            </label>
                            <select
-                              defaultValue=""
+                              value={convertTo12Hr(timing.endingTime)}
                               name="endingTime"
                               id={`endingTime-${index}`}
                               onChange={(e) =>
@@ -381,7 +431,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className="p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
                            >
                               <option value="" disabled hidden>
                                  00:00
@@ -407,10 +457,10 @@ const AddCourtPage = () => {
             {/* Submit Button */}
             <button
                type="submit"
-               className="w-full text-xl font-bold mt-6 bg-green-color text-white p-4 rounded-md hover:bg-sgreen-color hover:text-black transition-all"
+               className="w-full text-xl font-bold mt-6 bg-green-500  p-4 rounded-md hover:bg-green-600 text-black transition-all"
                disabled={loading}
             >
-               {loading ? "Submitting..." : "ADD COURT"}
+               {loading ? "Submitting..." : "Add Court"}
             </button>
          </form>
       </div>

@@ -29,13 +29,12 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
       <Modal
          isOpen={isOpen}
          onRequestClose={onClose}
-         className="bg-black border-2 border-green-400 text-white p-6 rounded-lg shadow-lg w-full mx-10 "
-         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex  items-center"
+         className="bg-white-color border-2 border-green-color text-black p-6 rounded-lg shadow-lg w-full mx-10 transition-all"
+         overlayClassName="fixed inset-0 bg-black bg-white/10 backdrop-blur-sm flex items-center "
       >
-         <h2 className="text-2xl font-semibold ">Confirm Your Booking</h2>
-         <div className="text-center text-2xl font-semibold border-b-2 border-white p-4 my-4">
+         <div className="text-center text-2xl font-semibold border-b-2 border-green-color p-4 my-4">
             <div>
-               {start} | {end}
+               {start} <span className="text-3xl font-black">-</span> {end}
             </div>
          </div>
          <form onSubmit={handleSubmit}>
@@ -49,7 +48,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                      value={formData.name}
                      onChange={handleChange}
                      required
-                     className="bg-white text-black w-full p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                     className="bg-white text-black w-full p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
                   />
                </div>
 
@@ -62,7 +61,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                      value={formData.contact}
                      onChange={handleChange}
                      required
-                     className="bg-white text-black w-full p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400  rounded"
+                     className="bg-white text-black w-full p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color  rounded"
                   />
                </div>
             </div>
@@ -74,15 +73,14 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                name="paymentMethod"
                value={formData.paymentMethod}
                onChange={handleChange}
-               className="bg-white text-black w-auto p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+               className="bg-white text-black w-auto p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
             >
                <option value="card">Credit/Debit Card</option>
                <option value="cash">Cash</option>
             </select>
 
             <h3 className="text-2xl text-center w-auto p-2">
-               Final Amount :{" "}
-               <span className="font-semibold text-green-400">{price}/-</span>
+               Final Amount : <span className="font-semibold">{price}/-</span>
             </h3>
 
             <div className="flex justify-between mt-4">
@@ -95,7 +93,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                </button>
                <button
                   type="submit"
-                  className="bg-green-500 hover:bg-green-600 font-semibold text-black px-4 py-2 rounded transition-all"
+                  className="bg-green-color text-white hover:bg-sgreen-color font-semibold hover:text-black px-4 py-2 rounded transition-all"
                >
                   Confirm Booking
                </button>

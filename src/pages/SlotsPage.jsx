@@ -7,11 +7,13 @@ import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import { format, parse } from "date-fns";
 import BookingPopup from "../smallcomponents/BookingPopup";
+import { FaSpinner } from "react-icons/fa6";
 
 const SlotsPage = () => {
    const navigate = useNavigate();
 
    const { day, id, date } = useParams();
+   const { userId } = useParams();
    const { courts } = useContext(AppContext);
 
    const [isPopupOpen, setPopupOpen] = useState(false);
@@ -29,6 +31,8 @@ const SlotsPage = () => {
       bookedTime: "",
       bookedDay: "",
       bookedDate: "",
+      courtId: id,
+      usersId: null,
    });
 
    const [booked, setBooked] = useState(false);
@@ -89,6 +93,13 @@ const SlotsPage = () => {
 
    const [availableSlots, setAvailableSlots] = useState([]);
 
+   const jwtToken = localStorage.getItem("token");
+   console.log("JWT : ", jwtToken);
+
+   const user = localStorage.getItem("user");
+   const usersId = user.usersId;
+   console.log("USERID : ", usersId);
+
    const court = courts.find((court) => court.id == id);
    console.log(court?.pricePerHour || "Price not available");
 
@@ -116,9 +127,6 @@ const SlotsPage = () => {
       const startIndex = allTimeSlots.indexOf(formatStartTime);
       const endIndex = allTimeSlots.indexOf(formatEndTime);
 
-      console.log(startIndex);
-      console.log(endIndex);
-
       if (startIndex !== -1 && endIndex !== -1) {
          setAvailableSlots(
             endIndex > startIndex
@@ -135,7 +143,11 @@ const SlotsPage = () => {
       const fetchTimingsByDay = async () => {
          try {
             const response = await axios.get(
-               `http://localhost:8080/court/${id}/timings/${day}`
+               `http://localhost:8080/court/${id}/timings/${day}`,
+               {
+                  withCredentials: true,
+                  headers: { Authorization: `Bearer ${jwtToken}` },
+               }
             );
             setTimingsForDay(response.data);
          } catch (error) {
@@ -148,7 +160,11 @@ const SlotsPage = () => {
    const fetchBookedSlotsByDay = async () => {
       try {
          const response = await axios.get(
-            `http://localhost:8080/court/${id}/${day}/booked_slots`
+            `http://localhost:8080/court/${id}/${day}/booked_slots`,
+            {
+               withCredentials: true,
+               headers: { Authorization: `Bearer ${jwtToken}` },
+            }
          );
          setAllSlots(response.data);
       } catch (error) {
@@ -198,13 +214,26 @@ const SlotsPage = () => {
       console.log("Condition Met! Saving...");
 
       if (bookedSlots.startTime && bookedSlots.endTime && booked) {
-         axios.post(
-            `http://localhost:8080/court/${id}/${day}/book`,
-            bookedSlots,
-            {
-               headers: { "Content-Type": "application/json" },
-            }
-         );
+         axios
+            .post(
+               `http://localhost:8080/court/${id}/${day}/book/${userId}`,
+               bookedSlots,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                     "Content-Type": "application/json",
+                  },
+               }
+            )
+            .then((response) => {
+               console.log("Booking Successful : ", response.data);
+            })
+            .catch((error) =>
+               console.error(
+                  "POST Failed:",
+                  error.response?.data || error.message
+               )
+            );
          alert("Booked! We'll see you there.");
          fetchBookedSlotsByDay();
          setBooked(false);
@@ -300,36 +329,52 @@ const SlotsPage = () => {
       }
    };
 
+   if (timingsForDay.length == 0) {
+      return (
+         <div className="bg-black h-screen flex justify-center items-center ">
+            <h2 className="text-white font-bold text-6xl">
+               <FaSpinner className={"text-white animate-spin"} />
+            </h2>
+         </div>
+      );
+   }
+
    return (
-      <div className="bg-black text-white px-8 py-10 ">
-         <div className=" mx-8 rounded shadow-xl  ">
-            <div className="border-b-2   flex justify-center   font-bold  p-4">
+      <div className="text-black px-8 py-10 ">
+         <div className=" mx-8 rounded  ">
+            <div className="border-b-2  border-green-color flex justify-center font-black  p-4">
                <h3 className="text-4xl">{day.toUpperCase()}</h3>
             </div>
             <div className="py-8">
                <div className=" flex justify-evenly">
                   <div>
-                     <h4 className="text-2xl text-green-600 font-bold">
+                     <h4 className="text-2xl text-green-color font-bold">
                         Opening time{" "}
                      </h4>
-                     <p className="font-bold text-xl">{formatStartTime}</p>
+                     <p className="font-bold text-xl">
+                        {formatStartTime ? formatStartTime : "CLOSED"}
+                     </p>
                   </div>
                   <div>
                      <h4 className="text-2xl text-red-600 font-bold">
                         Closing time{" "}
                      </h4>
-                     <p className="font-bold text-xl">{formatEndTime}</p>
+                     <p className="font-bold text-xl">
+                        {formatEndTime ? formatEndTime : "CLOSED"}
+                     </p>
                   </div>
                </div>
             </div>
          </div>
 
-         <div className=" border-2  p-6 mx-8 mb-10  rounded shadow-xl">
-            <h2 className="text-4xl font-bold p-4 text-center">Enter Slot</h2>
+         <div className=" border-2 border-green-color p-6 mx-8 mb-10 rounded ">
+            <h2 className="text-3xl font-bold mb-4 text-center">
+               Choose your slot
+            </h2>
             <div className="grid grid-cols-2 place-items-center">
                <div>
-                  <label htmlFor="startTime" className="mr-2">
-                     Enter Starting Time
+                  <label htmlFor="startTime" className="mr-2 font-semibold">
+                     Starting Time
                   </label>
                   <select
                      defaultValue=""
@@ -337,7 +382,7 @@ const SlotsPage = () => {
                      id="startTime"
                      onChange={handleSlotChange}
                      onFocus=""
-                     className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                     className="bg-black text-white p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
                   >
                      <option value="" disabled hidden>
                         00:00
@@ -355,15 +400,15 @@ const SlotsPage = () => {
                   </select>
                </div>
                <div>
-                  <label htmlFor="endTime" className="mr-2">
-                     Enter Ending Time
+                  <label htmlFor="endTime" className="mr-2 font-semibold">
+                     Ending Time
                   </label>
                   <select
                      defaultValue=""
                      name="endTime"
                      id="endTime"
                      onChange={handleSlotChange}
-                     className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 "
+                     className="bg-black text-white p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded "
                   >
                      <option value="" disabled hidden>
                         00:00
@@ -390,7 +435,7 @@ const SlotsPage = () => {
             </p>
             <div className="flex justify-center mt-6 ">
                <button
-                  className="p-4 bg-green-500 hover:bg-green-600 w-40 h-14 text-black font-bold rounded transition-all"
+                  className="p-4 text-white bg-green-color hover:bg-sgreen-color w-40 h-14 hover:text-black font-semibold rounded transition-all"
                   onClick={handleBookSlot}
                >
                   Book Slot
@@ -407,7 +452,7 @@ const SlotsPage = () => {
          </div>
 
          <div className="px-8 mb-8">
-            <h3 className="text-3xl font-bold text-center mb-6 border-b-2  p-4">
+            <h3 className="text-3xl font-bold text-center mb-6 border-b-2 border-green-color  p-4">
                {allSlots.length > 0
                   ? "Slots that are booked"
                   : "Ohoo! All slots are available"}

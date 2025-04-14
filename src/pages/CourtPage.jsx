@@ -1,11 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
    FaArrowLeft,
    FaArrowRight,
+   FaEdit,
    FaHeart,
    FaSpinner,
+   FaTrash,
    FaTruckLoading,
 } from "react-icons/fa";
 import { FaLocationPin } from "react-icons/fa6";
@@ -19,13 +21,19 @@ const CourtPage = () => {
    const [imageIndex, setImageIndex] = useState(0);
    const { favourite, setFavourite, getOneWeek } = useContext(AppContext);
 
+   const navigate = useNavigate();
    const oneWeek = getOneWeek();
+
+   const jwtToken = localStorage.getItem("token");
 
    useEffect(() => {
       const fetchCourt = async () => {
          try {
             const response = await axios.get(
-               `http://localhost:8080/court/${id}`
+               `http://localhost:8080/court/${id}`,
+               {
+                  headers: { Authorization: `Bearer ${jwtToken}` },
+               }
             );
             const courtData = response.data;
 
@@ -37,13 +45,19 @@ const CourtPage = () => {
       fetchCourt();
    }, [id]);
 
-   const handleDelete = async (id) => {
+   const handleDelete = async () => {
       if (window.confirm("Are you sure you want to delete this court?")) {
          try {
-            await axios.delete(`http://localhost:8080/court/${id}/delete`);
-            setCourt(court.filter((court) => court.id !== id));
+            await axios.delete(`http://localhost:8080/court/${id}/delete`, {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            });
+            navigate("/");
+            toast.success(`${court.name} successfully deleted.`);
          } catch (error) {
             console.log("Error deleting court : ", error);
+            toast.error(`There was a problem occur in deleting ${court.name}`);
          }
       }
    };
@@ -52,21 +66,21 @@ const CourtPage = () => {
       return (
          <div className="h-96 flex justify-center items-center ">
             <h2 className="text-black font-bold text-6xl">
-               <FaSpinner className={<FaSpinner /> ? "animate-spin" : ""} />
+               <FaSpinner className="text-white-color animate-spin" />
             </h2>
          </div>
       );
    }
 
    return (
-      <div className="px-8 py-10 bg-black text-white">
+      <div className="px-8 py-10 text-black transition-all">
          <div>
             {court.imageUrls.length > 1 ? (
                <div className="items-center gap-2  flex justify-center">
                   <button
                      className={
                         imageIndex > 0
-                           ? "bg-gray-100 rounded-full w-10 h-10 hover:bg-gray-200 text-black transition-all"
+                           ? "bg-gray-800 rounded-full w-10 h-10 hover:bg-black text-white-color transition-all"
                            : "invisible"
                      }
                      onClick={() => {
@@ -77,14 +91,14 @@ const CourtPage = () => {
                      <FaArrowLeft className="mx-3" />
                   </button>
                   <img
-                     src={court.imageUrls[imageIndex]}
+                     src={court.imageUrls[imageIndex].url}
                      alt="Court Image"
                      className="h-60 w-[693px] md:h-80 rounded "
                   />
                   <button
                      className={
                         imageIndex < court.imageUrls.length - 1
-                           ? "bg-gray-100 rounded-full w-10 h-10 hover:bg-gray-200 text-black transition-all "
+                           ? "bg-gray-800 rounded-full w-10 h-10 hover:bg-black text-white-color transition-all "
                            : "invisible"
                      }
                      onClick={() => {
@@ -102,10 +116,30 @@ const CourtPage = () => {
                   className="w-full h-60 rounded "
                />
             )}
-            <div className="text-center my-10">
-               <p className="text-5xl font-sans font-bold">{court.name}</p>
+            <div className="grid grid-cols-3 place-items-center gap-4 w-full my-10">
+               <div className="w-full">
+                  <button
+                     onClick={() => navigate(`/court/${id}/edit`)}
+                     className="text-xl text-white-color bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-4"
+                  >
+                     <FaEdit />
+                  </button>
+               </div>
+               <div>
+                  <p className=" text-4xl font-sans font-black">
+                     {court.name.toUpperCase()}
+                  </p>
+               </div>
+               <div className="w-full text-right">
+                  <button
+                     onClick={handleDelete}
+                     className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-4 text-black"
+                  >
+                     <FaTrash />
+                  </button>
+               </div>
             </div>
-            <div className="p-6 border-2 border-green-600 rounded  mt-4">
+            <div className="p-6 border-2 border-sgreen-color rounded  mt-4">
                <div className="flex justify-between">
                   <p className="text-3xl font-bold mb-4">
                      Rs {court.pricePerHour}
@@ -124,7 +158,7 @@ const CourtPage = () => {
                <div className="flex gap-2">
                   <FaLocationPin className="text-red-600 mt-1 h-5 w-5" />
 
-                  <p className="text-gray-400 text-xl">{court.location}</p>
+                  <p className="text-gray-700 text-xl">{court.location}</p>
                </div>
             </div>
             <div>
@@ -135,7 +169,7 @@ const CourtPage = () => {
                         <Link
                            to={`/timings/${court.id}/${week.day}/${week.date}`}
                            key={index}
-                           className=" bg-green-600 p-4 text-white hover:font-bold rounded shadow-xl transition-all"
+                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color hover:text-black  rounded shadow-xl transition-all"
                         >
                            <p>{week.day.toUpperCase()}</p>
                            <p>{week.date}</p>
