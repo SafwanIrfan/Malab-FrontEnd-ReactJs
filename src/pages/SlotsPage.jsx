@@ -31,8 +31,6 @@ const SlotsPage = () => {
       bookedTime: "",
       bookedDay: "",
       bookedDate: "",
-      courtId: id,
-      usersId: null,
    });
 
    const [booked, setBooked] = useState(false);
@@ -216,7 +214,7 @@ const SlotsPage = () => {
       if (bookedSlots.startTime && bookedSlots.endTime && booked) {
          axios
             .post(
-               `http://localhost:8080/court/${id}/${day}/book/${userId}`,
+               `http://localhost:8080/court/${id}/${day}/book`,
                bookedSlots,
                {
                   headers: {

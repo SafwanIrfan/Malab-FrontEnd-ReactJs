@@ -22,8 +22,6 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 
 const PrivateRoute = ({ children }) => {
-   const jwtToken = localStorage.getItem("token");
-
    // useEffect(()=>{
    //    const decodedToken = jwtDecode(jwtToken);
    //    const currentTime = Date.now() / 1000;
@@ -33,11 +31,15 @@ const PrivateRoute = ({ children }) => {
    //    }
    // },[])
 
+   const jwtToken = localStorage.getItem("token");
+
    if (!jwtToken) {
+      console.log("APP :", jwtToken);
       return <Navigate to="/auth/login" />;
    }
 
    try {
+      console.log(jwtToken);
       const decodedToken = jwtDecode(jwtToken);
       const currentTime = Date.now() / 1000; // Convert to seconds
 
@@ -54,6 +56,17 @@ const PrivateRoute = ({ children }) => {
       return <Navigate to="/auth/login" />;
    }
 };
+
+const jwtToken = localStorage.getItem("token");
+
+const decodedToken = jwtToken ? jwtDecode(jwtToken) : "";
+const currentTime = Date.now() / 1000; // Convert to seconds
+
+// Check if the token is expired
+if (decodedToken.exp < currentTime) {
+   localStorage.removeItem("token"); // Remove expired token
+   localStorage.removeItem("user"); // Remove expired token
+}
 
 function App() {
    return (

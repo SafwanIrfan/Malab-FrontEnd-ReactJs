@@ -15,6 +15,9 @@ const HomePage = () => {
    const [courts, setCourts] = useState([]);
 
    const user = JSON.parse(localStorage.getItem("user"));
+   const jwtToken = localStorage.getItem("token");
+
+   console.log(jwtToken);
 
    useEffect(() => {
       const fetchCourts = async () => {

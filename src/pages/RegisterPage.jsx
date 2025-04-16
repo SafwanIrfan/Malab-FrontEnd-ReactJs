@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
+import appLogo from "../assets/applogo.svg";
 
 const RegisterPage = () => {
    const { register } = useAuth();
@@ -52,25 +53,20 @@ const RegisterPage = () => {
    };
 
    return (
-      <div className="">
-         <p className="font-semibold text-3xl text-white text-center pt-10">
-            MAL<span className="text-green-500 text-3xl">ع</span>
-            AB
-         </p>
-         <h3 className="pt-2 text-3xl font-semibold text-center text-green-500 ">
-            Book your slots Digitally.
-         </h3>
-
+      <div className="bg-white-color min-h-screen">
          <div className="flex justify-center items-center my-10">
-            <div className="bg-green-400 w-96 border-4  p-6 rounded-lg">
-               <h2 className="text-3xl font-semibold mb-4 text-center">
-                  Login
+            <div className="text-black w-96 p-6 rounded-lg bg-white shadow-2xl transition-all">
+               <h2 className="text-3xl font-black mb-4 text-center text-green-color">
+                  Register
                </h2>
+
                <form className="" onSubmit={handleSubmit}>
                   <div>
-                     <label className="block mb-2 text-xl">Username</label>
+                     <label className="block mb-2 text-xl text-green-color">
+                        Username
+                     </label>
                      <input
-                        className="focus:outline-none bg-gray-200 focus:bg-white focus:shadow-2xl  p-2 rounded w-full "
+                        className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
                         type="text"
                         name="username"
                         placeholder="Username"
@@ -78,10 +74,13 @@ const RegisterPage = () => {
                         required
                      />
                   </div>
+
                   <div className="mt-4">
-                     <label className="block mb-2 text-xl">Password</label>
+                     <label className="block mb-2 text-xl text-green-color">
+                        Password
+                     </label>
                      <input
-                        className="focus:outline-none bg-gray-200 focus:bg-white focus:shadow-2xl  p-2 rounded w-full "
+                        className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
                         type="password"
                         name="password"
                         placeholder="Password"
@@ -89,29 +88,33 @@ const RegisterPage = () => {
                         required
                      />
                   </div>
-                  <div className="text-center px-1 py-2 bg-black text-green-400 hover:text-green-600 mt-4 cursor-pointer rounded transition-all">
-                     <button className="font-semibold" type="submit">
+
+                  <div className="text-center px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all">
+                     <button
+                        className="font-semibold"
+                        type="submit"
+                        onClick={handleSubmit}
+                     >
                         {loading ? (
-                           <FaSpinner className={"animate-spin text-xl"} />
+                           <FaSpinner className="animate-spin text-xl" />
                         ) : (
                            "Register"
                         )}
                      </button>
                   </div>
                </form>
+
                <div className="text-center my-4">
                   <button
-                     className="bg-black hover:text-green-500 text-green-400 text-center p-4 rounded font-semibold"
+                     className="bg-green-color hover:bg-sgreen-color text-white-color text-center p-4 rounded font-semibold"
                      onClick={handleGoogleLogin}
                   >
                      Sign in with Google
                   </button>
                </div>
-               <Link className="text-center font-bold" to="/">
-                  <p>
-                     MAL<span className=" text-3xl">ع</span>
-                     AB
-                  </p>
+
+               <Link className="flex justify-center text-green-color" to="/">
+                  <img className="w-20" src={appLogo} />
                </Link>
             </div>
          </div>

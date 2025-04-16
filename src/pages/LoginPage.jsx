@@ -65,7 +65,7 @@ const LoginPage = () => {
       <div className="bg-white-color min-h-screen">
          <div className="flex justify-center items-center my-10">
             <div className="text-black w-96 p-6 rounded-lg bg-white shadow-2xl transition-all">
-               <h2 className="text-3xl font-semibold mb-4 text-center text-green-color">
+               <h2 className="text-3xl font-black mb-4 text-center text-green-color">
                   Login
                </h2>
 
