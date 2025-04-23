@@ -19,6 +19,20 @@ const HomePage = () => {
 
    console.log(jwtToken);
 
+   if (jwtToken) {
+      navigator.geolocation.getCurrentPosition(
+         (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            console.log("User location:", lat, lng); // 24.8152064 67.0728192
+            // Send to backend here
+         },
+         (err) => {
+            console.error(err);
+         }
+      );
+   }
+
    useEffect(() => {
       const fetchCourts = async () => {
          try {

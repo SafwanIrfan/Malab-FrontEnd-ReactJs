@@ -101,8 +101,7 @@ const LoginPage = () => {
                   <div className="text-center px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all">
                      <button
                         className="font-semibold"
-                        type="submit"
-                        onClick={handleSubmit}
+                        onClick={(e) => handleSubmit(e)}
                      >
                         {loading ? (
                            <FaSpinner className="animate-spin text-xl" />
@@ -122,7 +121,7 @@ const LoginPage = () => {
 
                <div className="text-center my-4">
                   <button
-                     className="bg-green-color hover:bg-sgreen-color text-white-color text-center p-4 rounded font-semibold"
+                     className="bg-green-color hover:bg-sgreen-color text-white-color text-center p-4 rounded font-semibold  transition-all"
                      onClick={handleGoogleLogin}
                   >
                      Sign in with Google

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format, parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { FaTrash } from "react-icons/fa";
 
 const AddCourtPage = () => {
    const navigate = useNavigate();
@@ -76,6 +77,10 @@ const AddCourtPage = () => {
       "11:30 PM",
    ];
 
+   useEffect(() => {
+      console.log(selectedImages);
+   }, [selectedImages]);
+
    const handleInputChange = (e) => {
       const { name, value } = e.target;
       setCourt((prevCourt) => ({
@@ -99,8 +104,42 @@ const AddCourtPage = () => {
    };
 
    const handleImageChange = (e) => {
-      setSelectedImages([...e.target.files]);
+      const files = Array.from(e.target.files);
+
+      setSelectedImages((prev) => [...prev, ...files]);
    };
+
+   const handleRemoveImage = (indexToRemove) => {
+      setSelectedImages((prev) =>
+         prev.filter((_, index) => index !== indexToRemove)
+      );
+   };
+
+   // for (const file of files) {
+   //    const formData = new FormData();
+   //    formData.append("file", file);
+   //    formData.append("upload_preset", "play_with_ease"); // 👈 Must match exactly
+   //    formData.append("cloud_name", "dz95leiax"); // if using direct Cloudinary endpoint
+   //    try {
+   //       const response = await fetch(
+   //          "https://api.cloudinary.com/v1_1/dz95leiax/image/upload",
+   //          {
+   //             method: "POST",
+   //             body: formData,
+   //          }
+   //       );
+
+   //       const data = await response.json();
+
+   //       if (data.secure_url) {
+   //          setSelectedImages((prev) => [...prev, data.secure_url]);
+   //       } else {
+   //          console.error("No secure_url returned:", data);
+   //       }
+   //    } catch (error) {
+   //       console.error("Upload failed:", error);
+   //    }
+   // }
 
    const submitHandler = async (e) => {
       e.preventDefault();
@@ -281,16 +320,37 @@ const AddCourtPage = () => {
                   <input
                      type="file"
                      id="images"
-                     onChange={handleImageChange}
+                     onChange={(e) => handleImageChange(e)}
                      multiple
-                     className="w-60 cursor-pointer"
+                     className=""
                      accept="image/*"
                   />
 
-                  {selectedImages.length == 0 && (
+                  {selectedImages.length == 0 ? (
                      <p className="py-2 text-red-600">
                         Note: Uploading no images result in bad impression
                      </p>
+                  ) : (
+                     <div>
+                        {selectedImages.map((file, index) => (
+                           <div
+                              key={index}
+                              className="relative inline-block m-2"
+                           >
+                              <img
+                                 src={URL.createObjectURL(file)}
+                                 alt={`Selected ${index}`}
+                                 className="w-28 h-28 object-cover border-2 shadow-lg border-green-color"
+                              />
+                              <button
+                                 onClick={() => handleRemoveImage(index)}
+                                 className="absolute top-0 right-0 bg-black  text-red-600 rounded-full p-2 text-xs hover:text-sm transition-all"
+                              >
+                                 <FaTrash />
+                              </button>
+                           </div>
+                        ))}
+                     </div>
                   )}
                </div>
             </div>

@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 const AddCourtPage = () => {
    const navigate = useNavigate();
    const jwtToken = localStorage.getItem("token");
-
    const { id } = useParams();
 
    const [court, setCourt] = useState({
@@ -17,7 +16,8 @@ const AddCourtPage = () => {
       pricePerHour: "",
       location: "",
    });
-   const [selectedImages, setSelectedImages] = useState([]);
+   const [oldImages, setOldImages] = useState([]);
+   const [newImages, setNewImages] = useState([]);
    const [loading, setLoading] = useState(false);
    const [timings, setTimings] = useState([
       { day: "Monday", startingTime: "", endingTime: "" },
@@ -80,31 +80,37 @@ const AddCourtPage = () => {
    ];
 
    useEffect(() => {
-      const fetchCourt = async () => {
-         try {
-            const response = await axios.get(
-               `http://localhost:8080/court/${id}`,
-               {
-                  headers: {
-                     Authorization: `Bearer ${jwtToken}`,
-                  },
-               }
-            );
+      console.log(oldImages);
+   }, [oldImages]);
 
-            const data = response.data;
-            setCourt({
-               name: data.name,
-               description: data.description,
-               pricePerHour: data.pricePerHour,
-               location: data.location,
-            });
-            setTimings(data.timings); // Assuming backend sends timings array
-            setSelectedImages(data.imageUrls || []); // Assuming backend sends image URLs
-            console.log(data.imageUrls);
-         } catch (error) {
-            console.log("Error fetching court : ", error);
-         }
-      };
+   const courtId = court.id;
+
+   const fetchCourt = async () => {
+      try {
+         const response = await axios.get(`http://localhost:8080/court/${id}`, {
+            headers: {
+               Authorization: `Bearer ${jwtToken}`,
+            },
+         });
+
+         const data = response.data;
+         setCourt({
+            id: data.id,
+            name: data.name,
+            description: data.description,
+            pricePerHour: data.pricePerHour,
+            location: data.location,
+            imageUrls: data.imageUrls,
+         });
+         setTimings(data.timings); // Assuming backend sends timings array
+         setOldImages(data.imageUrls || []); // Assuming backend sends image URLs
+         console.log(data.imageUrls);
+      } catch (error) {
+         console.log("Error fetching court : ", error);
+      }
+   };
+
+   useEffect(() => {
       fetchCourt();
    }, []);
 
@@ -141,20 +147,38 @@ const AddCourtPage = () => {
    };
 
    const handleImageChange = (e) => {
-      setSelectedImages([...e.target.files]);
+      const files = Array.from(e.target.files);
+      setNewImages((prev) => [...prev, ...files]);
    };
 
    const handleImageDelete = (indexToRemove) => {
-      const confirm = window.confirm("Do you want to delete this picture?");
+      console.log(courtId);
+      console.log("DELETE IMG : ", indexToRemove);
+      // setSelectedImages((prevImages) =>
+      //    prevImages.filter((_, index) => index !== indexToRemove)
+      const confirm = window.confirm(
+         "Are you sure you want to permenantly delete this picture?"
+      );
       if (confirm) {
-         setSelectedImages((prevImages) =>
-            prevImages.filter((_, index) => index !== indexToRemove)
-         );
-         toast.success("Image removed successfully.");
+         try {
+            axios.delete(
+               `http://localhost:8080/court/${courtId}/image/${indexToRemove}`,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                  },
+               }
+            );
+            navigate(`/court/${id}/edit`);
+            toast.success("Image removed successfully.");
+         } catch (error) {
+            console.log("Error deleting image : ", error);
+            toast.error("Failed to delete image.");
+         }
       }
    };
 
-   const submitHandler = async (e) => {
+   const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
       console.log("Final Court Data: ", { ...court, timings });
@@ -169,33 +193,44 @@ const AddCourtPage = () => {
          court.pricePerHour = Number(court.pricePerHour);
          console.log("Court", court);
          // 1️⃣ Save Court (without images)
-         const courtResponse = await axios.put(
-            `http://localhost:8080/court/${id}/edit`,
-            court
-         );
-         const courtId = courtResponse.data.id;
+         await axios.put(`http://localhost:8080/court/${id}/edit`, court, {
+            headers: {
+               Authorization: `Bearer ${jwtToken}`,
+               "Content-Type": "application/json",
+            },
+         });
+         // const courtId = courtResponse.data.id;
 
          // 2️⃣ Upload Images (if selected)
-         if (selectedImages.length > 0) {
-            for (let image of selectedImages) {
-               const formData = new FormData();
-               formData.append("file", image);
+         if (newImages.length > 0) {
+            const formData = new FormData();
+            console.log(newImages);
+            newImages.forEach((img) => {
+               formData.append("files", img);
+            });
 
-               await axios.post(
-                  `http://localhost:8080/court/${courtId}/addImage`,
-                  formData,
-                  {
-                     headers: { "Content-Type": "multipart/form-data" },
-                  }
-               );
-            }
+            await axios.post(
+               `http://localhost:8080/court/${courtId}/addImage`,
+               formData,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                     "Content-Type": "multipart/form-data",
+                  },
+               }
+            );
          }
          console.log("Timings : ", timings);
 
          await axios.post(
             `http://localhost:8080/court/${courtId}/add_timings`,
             timings,
-            { headers: { "Content-Type": "application/json" } }
+            {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+                  "Content-Type": "application/json",
+               },
+            }
          );
 
          setLoading(false);
@@ -216,7 +251,7 @@ const AddCourtPage = () => {
             { day: "Sunday", startingTime: "", endingTime: "" },
          ]);
 
-         setSelectedImages([]);
+         setOldImages([]);
          navigate("/");
       } catch (error) {
          setLoading(false);
@@ -225,9 +260,11 @@ const AddCourtPage = () => {
    };
 
    return (
-      <div className="p-8 w-auto mx-auto bg-black text-white  shadow-md space-y-4">
-         <h2 className="text-4xl  border-b-2 text-center p-4">Add Court</h2>
-         <form onSubmit={submitHandler}>
+      <div className="p-8 w-auto mx-auto text-black space-y-4">
+         <h2 className="text-4xl font-black  border-b-2 border-green-color text-center p-4">
+            Add Court
+         </h2>
+         <div>
             <div className="pt-4 grid grid-cols-2 gap-6">
                {/* Court Name Input */}
                <div>
@@ -243,7 +280,7 @@ const AddCourtPage = () => {
                      id="name"
                      value={court.name}
                      onChange={handleInputChange}
-                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-400 focus:border-blue-400"
+                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-color focus:border-sgreen-color"
                      placeholder="Enter court name"
                      required
                   />
@@ -261,7 +298,7 @@ const AddCourtPage = () => {
                      id="description"
                      value={court.description}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
                      placeholder="Enter court description"
                      required
                   />
@@ -280,7 +317,7 @@ const AddCourtPage = () => {
                      id="pricePerHour"
                      value={court.pricePerHour}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
                      placeholder="Enter court price/hour"
                      required
                   />
@@ -299,7 +336,7 @@ const AddCourtPage = () => {
                      id="location"
                      value={court.location}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
+                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
                      placeholder="Enter court location"
                      required
                   />
@@ -321,48 +358,77 @@ const AddCourtPage = () => {
                      accept="image/*"
                   />
 
-                  {selectedImages.length == 0 ? (
+                  {oldImages.length == 0 && newImages.length == 0 ? (
                      <p className="py-2 text-red-600">
                         Note: Uploading no images result in bad impression
                      </p>
                   ) : (
                      <div className="flex gap-4 mt-2">
-                        {selectedImages.map((image, index) => (
+                        {oldImages.map((image, index) => (
                            <div key={index} className="relative">
                               <button
-                                 onClick={() => handleImageDelete(index)}
-                                 className="absolute top-1 right-1 bg-red-400 rounded-full p-1 hover:bg-red-500 transition"
+                                 onClick={() =>
+                                    handleImageDelete(court.imageUrls[index].id)
+                                 }
+                                 className="absolute top-1 right-1 bg-red-500 rounded-full p-1 hover:text-lg transition-all"
                               >
                                  <FaTrash />
                               </button>
                               <img
-                                 className="border-2 cursor-pointer w-24 h-24"
-                                 src={image}
-                                 onClick={() => window.open(image, "_blank")}
+                                 className="border-2 border-black object-cover cursor-pointer w-24 h-24"
+                                 src={image.url}
+                                 onClick={() =>
+                                    window.open(image.url, "_blank")
+                                 }
                               ></img>
                            </div>
                         ))}
+                        <div className="flex gap-4">
+                           {newImages.map((file, index) => (
+                              <div
+                                 key={index}
+                                 className=" relative  inline-block"
+                              >
+                                 <img
+                                    src={URL.createObjectURL(file)}
+                                    alt={`Selected ${index}`}
+                                    onClick={() =>
+                                       window.open(
+                                          URL.createObjectURL(file),
+                                          "_blank"
+                                       )
+                                    }
+                                    className="w-24 h-24 object-cover cursor-pointer border-2 shadow-lg border-green-color transition-all"
+                                 />
+                                 <p className="absolute  text-red-600 font-bold rounded-full p-2 text-xs transition-all">
+                                    Not saved yet
+                                 </p>
+                              </div>
+                           ))}
+                        </div>
                      </div>
                   )}
                </div>
             </div>
 
-            <div className="mt-6">
-               <h4 className="text-2xl font-normal mb-4">
+            <div className="mt-10">
+               <h4 className="text-xl mb-2 font-medium">
                   {" "}
                   <span className="text-red-500">*</span> Add Timings
                </h4>
-               <div className="border-2 rounded">
+               <div className="border-2 rounded border-green-color">
                   {timings.map((timing, index) => (
                      <div
                         className={
                            index < timings.length - 1
-                              ? "grid grid-cols-3 place-items-center p-4 border-b-2"
+                              ? "grid grid-cols-3 place-items-center p-4 border-b-2 border-green-color"
                               : "grid grid-cols-3 place-items-center p-4"
                         }
                         key={index}
                      >
-                        <h3 className="text-green-400 text-xl">{timing.day}</h3>
+                        <h3 className="text-green-color font-black text-xl">
+                           {timing.day}
+                        </h3>
 
                         <div className=" flex p-2">
                            <label
@@ -382,7 +448,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                              className=" p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
                            >
                               <option value="" disabled hidden>
                                  00:00
@@ -408,7 +474,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2  focus:outline-none border-2 border-green-400 focus:border-blue-400 rounded-md text-black"
+                              className=" p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
                               placeholder="Enter starting time :"
                               required
                            /> */}
@@ -431,7 +497,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className="bg-black p-2 border-2 border-green-400 focus:outline-none focus:border-blue-400 rounded"
+                              className="p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
                            >
                               <option value="" disabled hidden>
                                  00:00
@@ -456,13 +522,14 @@ const AddCourtPage = () => {
 
             {/* Submit Button */}
             <button
+               onClick={handleSubmit}
                type="submit"
                className="w-full text-xl font-bold mt-6 bg-green-500  p-4 rounded-md hover:bg-green-600 text-black transition-all"
                disabled={loading}
             >
-               {loading ? "Submitting..." : "Add Court"}
+               {loading ? "Submitting..." : "Save Court"}
             </button>
-         </form>
+         </div>
       </div>
    );
 };

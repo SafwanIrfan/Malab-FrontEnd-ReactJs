@@ -75,7 +75,7 @@ const CourtPage = () => {
    return (
       <div className="px-8 py-10 text-black transition-all">
          <div>
-            {court.imageUrls.length > 1 ? (
+            {court.imageUrls.length > 0 ? (
                <div className="items-center gap-2  flex justify-center">
                   <button
                      className={
