@@ -105,7 +105,6 @@ const AddCourtPage = () => {
 
    const handleImageChange = (e) => {
       const files = Array.from(e.target.files);
-
       setSelectedImages((prev) => [...prev, ...files]);
    };
 
@@ -173,7 +172,7 @@ const AddCourtPage = () => {
          if (selectedImages.length > 0) {
             for (let image of selectedImages) {
                const formData = new FormData();
-               formData.append("file", image);
+               formData.append("files", image);
 
                await axios.post(
                   `http://localhost:8080/court/${courtId}/addImage`,

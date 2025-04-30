@@ -8,7 +8,6 @@ import {
    FaHeart,
    FaSpinner,
    FaTrash,
-   FaTruckLoading,
 } from "react-icons/fa";
 import { FaLocationPin } from "react-icons/fa6";
 import AppContext from "../contexts/Context";
@@ -43,6 +42,7 @@ const CourtPage = () => {
          }
       };
       fetchCourt();
+      console.log(court);
    }, [id]);
 
    const handleDelete = async () => {

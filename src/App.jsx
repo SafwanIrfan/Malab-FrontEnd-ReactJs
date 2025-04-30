@@ -20,6 +20,7 @@ import EditCourtPage from "./pages/EditCourtPage";
 import Layout from "./layout/Layout";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
+import MyBookings from "./pages/MyBookings";
 
 const PrivateRoute = ({ children }) => {
    // useEffect(()=>{
@@ -117,6 +118,14 @@ function App() {
                         element={
                            <PrivateRoute>
                               <SlotsPage />
+                           </PrivateRoute>
+                        }
+                     />
+                     <Route
+                        path="/my-bookings"
+                        element={
+                           <PrivateRoute>
+                              <MyBookings />
                            </PrivateRoute>
                         }
                      />

@@ -33,7 +33,7 @@ const Navbar = () => {
    }, []);
 
    return (
-      <div className=" border-b-2 border-sgreen-color shadow-xl">
+      <section className="border-b-2 border-sgreen-color shadow-xl">
          <div className=" px-8 py-4 font-mono flex  justify-between rounded-b-lg ">
             <div className="flex items-center text-center ">
                <NavLink to="/" className="">
@@ -63,23 +63,12 @@ const Navbar = () => {
             </p>{" "}
             {/* <div className="flex items-center gap-6 "> */}
             <div className="absolute  top-2 right-4   p-4 z-50 sm:flex sm:items-center sm:gap-6 sm:z-0 sm:p-0 sm:static">
-               <div className="text-center hidden sm:block">
-                  <label>Location</label>
-                  <select
-                     defaultValue="Choose region"
-                     name="pakistan"
-                     id="pakistan"
-                     className="px-4 text-white ml-2 border-none bg-green-color p-2 w-auto cursor-pointer hover:bg-sgreen-color hover:text-black transition-all"
-                  >
-                     <option value="Karachi">Karachi</option>
-                  </select>
-               </div>
                <div className=" hidden sm:block">
                   <NavLink
-                     className=" p-2  hover:text-gray-300 transition-all"
-                     to="/courts"
+                     className=" p-2  hover:text-green-color transition-all"
+                     to="/my-bookings"
                   >
-                     Courts
+                     My Bookings
                   </NavLink>
                </div>
 
@@ -117,7 +106,7 @@ const Navbar = () => {
                </div>
             </div>
          </div>
-      </div>
+      </section>
    );
 };
 
