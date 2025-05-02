@@ -12,8 +12,11 @@ const Navbar = () => {
    const { handleSearching, input, setSearchFocused, noResults } =
       useContext(AppContext);
    const [showNavbarBuger, setShowNavbarBurger] = useState(false);
+   const [currentUser, setCurrentUser] = useState("");
 
    const jwtToken = localStorage.getItem("token");
+   const username = JSON.parse(localStorage.getItem("user"));
+   console.log(username);
 
    const navigate = useNavigate();
 
@@ -31,6 +34,28 @@ const Navbar = () => {
    useEffect(() => {
       console.log(jwtToken);
    }, []);
+
+   useEffect(() => {
+      const fetchUser = async () => {
+         try {
+            const response = await axios.get(
+               `http://localhost:8080/auth/user/${username}`,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                  },
+               }
+            );
+            console.log(response.data);
+            setCurrentUser(response.data);
+         } catch (error) {
+            console.log("Error Fetching User : ", error);
+         }
+      };
+      fetchUser();
+   }, []);
+
+   const usersId = currentUser.id;
 
    return (
       <section className="border-b-2 border-sgreen-color shadow-xl">
@@ -66,7 +91,7 @@ const Navbar = () => {
                <div className=" hidden sm:block">
                   <NavLink
                      className=" p-2  hover:text-green-color transition-all"
-                     to="/my-bookings"
+                     to={`/user/${usersId}/slots`}
                   >
                      My Bookings
                   </NavLink>

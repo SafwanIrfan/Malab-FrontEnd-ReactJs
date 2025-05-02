@@ -122,7 +122,7 @@ function App() {
                         }
                      />
                      <Route
-                        path="/my-bookings"
+                        path="/user/:usersId/slots"
                         element={
                            <PrivateRoute>
                               <MyBookings />

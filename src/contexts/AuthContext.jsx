@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
          const jwtToken = response.data;
 
          localStorage.setItem("token", jwtToken);
-         localStorage.setItem("user", JSON.stringify(credentials));
+         localStorage.setItem("user", JSON.stringify(credentials.username));
          toast.success("Successfully Logged In!");
          return true;
       } catch (error) {

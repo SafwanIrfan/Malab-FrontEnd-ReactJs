@@ -90,12 +90,7 @@ const SlotsPage = () => {
    const jwtToken = localStorage.getItem("token");
    console.log("JWT : ", jwtToken);
 
-   const user = localStorage.getItem("user");
-   const usersId = user.usersId;
-   console.log("USERID : ", usersId);
-
    const court = courts.find((court) => court.id == id);
-   console.log(court?.pricePerHour || "Price not available");
 
    const formatTime = (time) => {
       if (!time) return "";
@@ -207,7 +202,7 @@ const SlotsPage = () => {
       console.log("AJEEB SCN : ", bookedSlots.bookedTime);
       console.log("Condition Met! Saving...");
 
-      if (bookedSlots.startTime && bookedSlots.endTime && booked) {
+      if (bookingDate && bookingDay && booked) {
          axios
             .post(
                `http://localhost:8080/court/${id}/${day}/book`,
@@ -242,7 +237,7 @@ const SlotsPage = () => {
             bookedDate: "",
          });
       }
-   }, [bookingTime]);
+   }, [bookingTime, bookingDate, bookingDay]);
 
    useEffect(() => {
       console.log(bookedSlots);
@@ -453,9 +448,13 @@ const SlotsPage = () => {
                   <div>
                      {allSlots.length > 0 && (
                         <div className="grid grid-cols-3 place-items-center p-4">
-                           <h3 className="text-xl">Starting Time</h3>
-                           <h3 className="text-xl">Ending Time</h3>
-                           <h3 className="text-xl">Status</h3>
+                           <h3 className="text-xl font-semibold">
+                              Starting Time
+                           </h3>
+                           <h3 className="text-xl font-semibold">
+                              Ending Time
+                           </h3>
+                           <h3 className="text-xl font-semibold">Status</h3>
                         </div>
                      )}
                      <div
@@ -470,8 +469,8 @@ const SlotsPage = () => {
                                 <div
                                    className={
                                       index == allSlots.length - 1
-                                         ? "text-white  rounded grid grid-cols-3 "
-                                         : "border-b-2 border-green-400 text-white  rounded grid grid-cols-3 "
+                                         ? "text-black  rounded grid grid-cols-3 "
+                                         : "border-b-2 border-green-400 text-black  rounded grid grid-cols-3 "
                                    }
                                    key={index}
                                 >

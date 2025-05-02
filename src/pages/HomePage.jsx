@@ -101,7 +101,7 @@ const HomePage = () => {
          {courts.length > 0 && (
             <div className="p-10  text-black">
                <h1 className="text-center text-2xl text-green-500 font-black mb-6">
-                  {user && `Welcome back ${user.username}!`}
+                  {user && `Welcome back ${user}!`}
                </h1>
 
                <div className="flex justify-between mt-10">
