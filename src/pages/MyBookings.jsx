@@ -13,7 +13,14 @@ const MyBookings = () => {
       previousBookings: false,
    });
 
-   console.log(bookings[0].startTime);
+   const today = new Date();
+   const dateString = today.toISOString().split("T")[0];
+   console.log(dateString);
+
+   const startTimeString = `${dateString}T13:00:00`;
+   const endTimeString = `${dateString}T14:00:00`;
+
+   console.log(startTimeString);
 
    // const startSeconds = new Date(bookings[0].startTime).getTime()
    // console.log("START : ", startSeconds)

@@ -5,17 +5,20 @@ import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import appLogo from "../assets/applogo.svg";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const LoginPage = () => {
+   const { login } = useAuth();
+
    const [loading, setLoading] = useState(false);
    const [googleLogin, setGoogleLogin] = useState(false);
-
-   const { login } = useAuth();
-   const navigate = useNavigate();
+   const [showPassword, setShowPassword] = useState(false);
    const [credentials, setCredentials] = useState({
       username: "",
       password: "",
    });
+
+   const navigate = useNavigate();
 
    // useEffect(() => {
    //    const jwtToken = localStorage.getItem("token");
@@ -88,28 +91,39 @@ const LoginPage = () => {
                      <label className="block mb-2 text-xl text-green-color">
                         Password
                      </label>
-                     <input
-                        className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        onChange={handleChange}
-                        required
-                     />
+                     <div className="flex relative">
+                        <input
+                           className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
+                           type={showPassword ? "text" : "password"}
+                           name="password"
+                           placeholder="Password"
+                           onChange={handleChange}
+                           required
+                        />
+                        <button
+                           type="button"
+                           onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                           {showPassword ? (
+                              <FaEyeSlash className="absolute right-4 top-3 " />
+                           ) : (
+                              <FaEye className="absolute right-4 top-3 " />
+                           )}
+                        </button>
+                     </div>
                   </div>
 
-                  <div className="text-center px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all">
-                     <button
-                        className="font-semibold"
-                        onClick={(e) => handleSubmit(e)}
-                     >
-                        {loading ? (
-                           <FaSpinner className="animate-spin text-xl" />
-                        ) : (
-                           "Login"
-                        )}
-                     </button>
-                  </div>
+                  <button
+                     type="submit"
+                     className="text-center w-full px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all"
+                     onClick={() => handleSubmit}
+                  >
+                     {loading ? (
+                        <FaSpinner className="w-full animate-spin text-xl" />
+                     ) : (
+                        "Login"
+                     )}
+                  </button>
 
                   <p className="text-center mt-2">
                      Not have an account?{" "}

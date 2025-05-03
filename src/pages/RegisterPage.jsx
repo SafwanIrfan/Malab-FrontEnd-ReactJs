@@ -4,11 +4,14 @@ import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import appLogo from "../assets/applogo.svg";
+import { FaEye, FaEyeSlash } from "react-icons/fa6";
 
 const RegisterPage = () => {
    const { register } = useAuth();
    const [googleLogin, setGoogleLogin] = useState(false);
    const [loading, setLoading] = useState(false);
+   const [sameUsername, setSameUsername] = useState(false);
+   const [showPassword, setShowPassword] = useState(false);
    const navigate = useNavigate();
    const [credentials, setCredentials] = useState({
       password: "",
@@ -29,6 +32,24 @@ const RegisterPage = () => {
       }
    }, [googleLogin]);
 
+   // const handleUsernameChange = async (username) => {
+   //    try {
+   //       console.log(username);
+   //       const response = await axios.post(
+   //          "http://localhost:8080/auth/verify_username",
+   //          username,
+   //          {
+   //             headers: {
+   //                "Content-Type": "application/json",
+   //             },
+   //          }
+   //       );
+   //       console.log(response.data);
+   //    } catch (error) {
+   //       console.log("Error verifying username : ", error);
+   //    }
+   // };
+
    const handleChange = (e) => {
       setCredentials({ ...credentials, [e.target.name]: e.target.value });
    };
@@ -41,7 +62,7 @@ const RegisterPage = () => {
          setLoading(false);
          navigate("/auth/login"); // Redirect after register
       } else {
-         alert("Fill out all the fields");
+         setSameUsername(true);
          setLoading(false);
       }
    };
@@ -71,37 +92,51 @@ const RegisterPage = () => {
                         name="username"
                         placeholder="Username"
                         onChange={handleChange}
+                        onFocus={() => setSameUsername(false)}
                         required
                      />
+                     {sameUsername && (
+                        <p className="text-red-600">Username already exist!</p>
+                     )}
                   </div>
 
                   <div className="mt-4">
                      <label className="block mb-2 text-xl text-green-color">
                         Password
                      </label>
-                     <input
-                        className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        onChange={handleChange}
-                        required
-                     />
+                     <div className="flex relative">
+                        <input
+                           className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
+                           type={showPassword ? "text" : "password"}
+                           name="password"
+                           placeholder="Password"
+                           onChange={handleChange}
+                           required
+                        />
+                        <button
+                           type="button"
+                           onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                           {showPassword ? (
+                              <FaEyeSlash className="absolute right-4 top-3 " />
+                           ) : (
+                              <FaEye className="absolute right-4 top-3 " />
+                           )}
+                        </button>
+                     </div>
                   </div>
 
-                  <div className="text-center px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all">
-                     <button
-                        className="font-semibold"
-                        type="submit"
-                        onClick={handleSubmit}
-                     >
-                        {loading ? (
-                           <FaSpinner className="animate-spin text-xl" />
-                        ) : (
-                           "Register"
-                        )}
-                     </button>
-                  </div>
+                  <button
+                     className="w-full text-center px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all font-semibold"
+                     type="submit"
+                     onClick={() => handleSubmit}
+                  >
+                     {loading ? (
+                        <FaSpinner className="w-full animate-spin flex text-xl" />
+                     ) : (
+                        "Register"
+                     )}
+                  </button>
                </form>
 
                <div className="text-center my-4">

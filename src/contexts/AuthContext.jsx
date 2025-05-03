@@ -20,12 +20,11 @@ export const AuthProvider = ({ children }) => {
          toast.success("Successfully Registered!");
          return true;
       } catch (error) {
-         console.error("Register failed:", error);
-         toast.error("Register Failed!");
          return false;
       }
    };
    const login = async (credentials) => {
+      console.log(credentials);
       try {
          const response = await axios.post(
             "http://localhost:8080/auth/login",

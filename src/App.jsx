@@ -35,7 +35,6 @@ const PrivateRoute = ({ children }) => {
    const jwtToken = localStorage.getItem("token");
 
    if (!jwtToken) {
-      console.log("APP :", jwtToken);
       return <Navigate to="/auth/login" />;
    }
 

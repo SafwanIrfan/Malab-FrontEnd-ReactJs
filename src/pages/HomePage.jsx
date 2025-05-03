@@ -17,8 +17,6 @@ const HomePage = () => {
    const user = JSON.parse(localStorage.getItem("user"));
    const jwtToken = localStorage.getItem("token");
 
-   console.log(jwtToken);
-
    if (jwtToken) {
       navigator.geolocation.getCurrentPosition(
          (pos) => {
