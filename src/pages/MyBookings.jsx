@@ -1,10 +1,18 @@
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
+import { format } from "date-fns";
+import { useContext, useEffect, useState } from "react";
+import { FaArrowDown } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
+import AppContext from "../contexts/Context";
 
 const MyBookings = () => {
    const [bookings, setBookings] = useState([]);
+   const [compareBookings, setCompareBookings] = useState([]);
+   const { formatTime } = useContext(AppContext);
+   // const [incoming, setIncoming] = useState([]);
+   // const [ongoing, setOngoing] = useState([]);
+   // const [previous, setPrevious] = useState([]);
    const { usersId } = useParams();
 
    const [open, setOpen] = useState({
@@ -13,14 +21,35 @@ const MyBookings = () => {
       previousBookings: false,
    });
 
-   const today = new Date();
-   const dateString = today.toISOString().split("T")[0];
-   console.log(dateString);
+   useEffect(() => {
+      const processedBookings = bookings.map((booking) => {
+         const start = new Date(`${booking.date}T${booking.startTime}`);
+         const end = new Date(`${booking.date}T${booking.endTime}`);
 
-   const startTimeString = `${dateString}T13:00:00`;
-   const endTimeString = `${dateString}T14:00:00`;
+         const startSeconds = start.getTime() / 1000;
+         const endSeconds = end.getTime() / 1000;
 
-   console.log(startTimeString);
+         let status;
+         if (nowSeconds < startSeconds) {
+            status = "incoming";
+         } else if (nowSeconds >= startSeconds && nowSeconds < endSeconds) {
+            status = "ongoing";
+         } else {
+            status = "previous";
+         }
+
+         return {
+            ...booking,
+            startSeconds,
+            endSeconds,
+            status,
+         };
+      });
+      setCompareBookings(processedBookings);
+   }, [bookings]);
+
+   const now = new Date();
+   const nowSeconds = now.getTime() / 1000;
 
    // const startSeconds = new Date(bookings[0].startTime).getTime()
    // console.log("START : ", startSeconds)
@@ -38,7 +67,7 @@ const MyBookings = () => {
                   },
                }
             );
-            console.log(response.data);
+
             setBookings(response.data);
          } catch (error) {
             console.log("Error fetching bookings of user : ", error);
@@ -56,97 +85,157 @@ const MyBookings = () => {
          ...prev,
          [property]: !prev[property],
       }));
+      if (property == "incomingBookings") {
+         setOpen((prev) => ({
+            ...prev,
+            ongoingBookings: false,
+            previousBookings: false,
+         }));
+      } else if (property == "ongoingBookings") {
+         setOpen((prev) => ({
+            ...prev,
+            incomingBookings: false,
+            previousBookings: false,
+         }));
+      } else {
+         setOpen((prev) => ({
+            ...prev,
+            incomingBookings: false,
+            ongoingBookings: false,
+         }));
+      }
+   };
+
+   const formatDate = (date) => {
+      const formattedDate = new Date(date); // 2025-05-10 -> 10th May 2025
+      const formatted = format(formattedDate, "do MMMM yyyy");
+      return formatted;
    };
 
    return (
       <section>
-         <section className="text-balance px-8 py-10">
-            <div className="flex flex-col">
-               <div
-                  className={
-                     open.incomingBookings
-                        ? "flex gap-2 border-b-2 pb-4 transition-all"
-                        : "flex gap-2 transition-all "
-                  }
-               >
-                  <h2 className="text-xl font-semibold">Incoming bookings</h2>
+         <nav className="px-8 pt-8 pb-6  shadow-lg flex gap-8">
+            <section className="text-balance">
+               <div>
                   <button
-                     className=" bg-green-color/90 hover:bg-green-color mt-1/2 p-2 rounded-full transition-all"
                      onClick={() => toggleOpen("incomingBookings")}
+                     className={
+                        open.incomingBookings
+                           ? " border-b-2 pb-2 border-b-green-color  sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                     }
                   >
-                     <FaArrowDown
-                        className={
-                           open.incomingBookings
-                              ? "text-white text-sm rotate-180 transition-all"
-                              : "text-white text-sm transition-all"
-                        }
-                     />
+                     Incoming bookings
                   </button>
                </div>
-            </div>
-         </section>
+            </section>
 
-         <section className="text-balance px-8 py-10">
-            <div className="flex flex-col">
-               <div
-                  className={
-                     open.ongoingBookings
-                        ? "flex gap-2 border-b-2 pb-4 transition-all"
-                        : "flex gap-2 transition-all "
-                  }
-               >
-                  <h2 className="text-xl font-semibold">Ongoing bookings</h2>
+            <section className="text-balance">
+               <div className="flex flex-col">
                   <button
-                     className="bg-green-color/90 hover:bg-green-color mt-1/2 p-2 rounded-full transition-all"
                      onClick={() => toggleOpen("ongoingBookings")}
+                     className={
+                        open.ongoingBookings
+                           ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                     }
                   >
-                     <FaArrowDown
-                        className={
-                           open.ongoingBookings
-                              ? "text-white text-sm rotate-180 transition-all"
-                              : "text-white text-sm transition-all"
-                        }
-                     />
+                     Ongoing bookings
                   </button>
                </div>
-               {open.ongoingBookings && (
-                  <div className="transition-all">
-                     {bookings.map((book) => (
-                        <ul key={book.id}>
-                           <li className="text-black transition-all">
-                              {book.day}
-                           </li>
-                        </ul>
-                     ))}
-                  </div>
-               )}
-            </div>
-         </section>
+            </section>
 
-         <section className="text-balance px-8 py-10">
-            <div className="flex flex-col">
-               <div
-                  className={
-                     open.previousBookings
-                        ? "flex gap-2 border-b-2 pb-4 transition-all"
-                        : "flex gap-2 transition-all "
-                  }
-               >
-                  <h2 className="text-xl font-semibold">Previous bookings</h2>
+            <section className="text-balance">
+               <div className="flex flex-col">
                   <button
-                     className=" bg-green-color/90 hover:bg-green-color mt-1/2 p-2 rounded-full transition-all"
                      onClick={() => toggleOpen("previousBookings")}
+                     className={
+                        open.previousBookings
+                           ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                     }
                   >
-                     <FaArrowDown
-                        className={
-                           open.previousBookings
-                              ? "text-white text-sm rotate-180 transition-all"
-                              : "text-white text-sm transition-all"
-                        }
-                     />
+                     Previous bookings
                   </button>
                </div>
-            </div>
+            </section>
+         </nav>
+
+         <section>
+            {open.incomingBookings && (
+               <div className="flex-col transition-all px-8 py-8">
+                  {compareBookings.map((book) => (
+                     <div className="mt-2" key={book.id}>
+                        {book.status === "incoming" && (
+                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
+                              <h1 className="text-xl  font-semibold">
+                                 {formatDate(book.date)}
+                              </h1>
+                              <p className="transition-all ">{book.day}</p>
+                              <div className="flex gap-2">
+                                 <p className="text-green-color font-semibold">
+                                    {formatTime(book.startTime)}
+                                 </p>
+                                 <p className="text-red-500 font-semibold">
+                                    {formatTime(book.endTime)}
+                                 </p>
+                              </div>
+                           </div>
+                        )}
+                     </div>
+                  ))}
+               </div>
+            )}
+
+            {open.ongoingBookings && (
+               <div className="flex-col transition-all px-8 py-8">
+                  {compareBookings.map((book) => (
+                     <div className="mt-2" key={book.id}>
+                        {book.status === "ongoing" && (
+                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
+                              <h1 className="text-xl  font-semibold">
+                                 {formatDate(book.date)}
+                              </h1>
+                              <p className="transition-all ">{book.day}</p>
+                              <div className="flex gap-2">
+                                 <p className="text-green-color font-semibold">
+                                    {formatTime(book.startTime)}
+                                 </p>
+                                 <p className="text-red-500 font-semibold">
+                                    {formatTime(book.endTime)}
+                                 </p>
+                              </div>
+                           </div>
+                        )}
+                     </div>
+                  ))}
+               </div>
+            )}
+
+            {open.previousBookings && (
+               <div className="flex-col transition-all px-8 py-8">
+                  {compareBookings.map((book) => (
+                     <div className="mt-2" key={book.id}>
+                        {book.status === "previous" && (
+                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
+                              <h1 className="text-xl  font-semibold">
+                                 {formatDate(book.date)}
+                              </h1>
+                              <p className="transition-all ">{book.day}</p>
+                              <div className="flex gap-2">
+                                 <p className="text-green-color font-semibold">
+                                    {formatTime(book.startTime)}
+                                 </p>
+                                 <p className="text-red-500 font-semibold">
+                                    {formatTime(book.endTime)}
+                                 </p>
+                              </div>
+                           </div>
+                        )}
+                     </div>
+                  ))}
+               </div>
+            )}
          </section>
       </section>
    );

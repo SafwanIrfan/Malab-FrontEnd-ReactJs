@@ -10,7 +10,7 @@ import BookingPopup from "../smallcomponents/BookingPopup";
 
 const SlotsPage = () => {
    const { day, id, date } = useParams();
-   const { courts } = useContext(AppContext);
+   const { courts, formatTime } = useContext(AppContext);
 
    const [isPopupOpen, setPopupOpen] = useState(false);
 
@@ -34,6 +34,8 @@ const SlotsPage = () => {
    const [bookedSlotStartTime, setBookedSlotStartTime] = useState([]);
    const [bookedSlotEndTime, setBookedSlotEndTime] = useState([]);
    const [priceCalc, setPriceCalc] = useState(0);
+   const [availableSlots, setAvailableSlots] = useState([]);
+
    const allTimeSlots = [
       "12:00 AM",
       "12:30 AM",
@@ -85,32 +87,13 @@ const SlotsPage = () => {
       "11:30 PM",
    ];
 
-   const [availableSlots, setAvailableSlots] = useState([]);
-
    const jwtToken = localStorage.getItem("token");
-   console.log("JWT : ", jwtToken);
 
    const court = courts.find((court) => court.id == id);
 
-   const formatTime = (time) => {
-      if (!time) return "";
-      const [hours, minutes] = time.split(":");
-      const date = new Date();
-      date.setHours(hours, minutes);
-      return date.toLocaleTimeString("en-US", {
-         hour: "numeric",
-         minute: "numeric",
-         hour12: true,
-      });
-   };
+   const formatStartTime = formatTime(timingsForDay.startingTime);
 
-   const formatStartTime = timingsForDay.startingTime
-      ? formatTime(timingsForDay.startingTime)
-      : "N/A";
-
-   const formatEndTime = timingsForDay.endingTime
-      ? formatTime(timingsForDay.endingTime)
-      : "N/A";
+   const formatEndTime = formatTime(timingsForDay.endingTime);
 
    useEffect(() => {
       const startIndex = allTimeSlots.indexOf(formatStartTime);
@@ -174,35 +157,43 @@ const SlotsPage = () => {
       }
    }, [allSlots]);
 
-   useEffect(() => {
-      if (bookingTime) {
-         console.log("Updated bookingTime:", bookingTime);
-         setBookedSlots((prevSlots) => ({
-            ...prevSlots,
-            bookedTime: bookingTime,
-         }));
-      }
-      if (bookingDay) {
-         console.log("Updated bookingDay:", bookingDay);
-         setBookedSlots((prevSlots) => ({
-            ...prevSlots,
-            bookedDay: bookingDay,
-         }));
-      }
-      if (bookingDate) {
-         console.log("Updated bookingDate:", bookingDate);
-         setBookedSlots((prevSlots) => ({
-            ...prevSlots,
-            bookedDate: bookingDate,
-         }));
-      }
-   }, [bookingTime, bookingDate, bookingDay]);
+   const handleBookSlotSchedule = (key, value) => {
+      console.log("KEY : ", key);
+      setBookedSlots((prevSlots) => ({
+         ...prevSlots,
+         [key]: value,
+      }));
+   };
+
+   // useEffect(() => {
+   //    if (bookingTime) {
+   //       console.log("Updated bookingTime:", bookingTime);
+   //       setBookedSlots((prevSlots) => ({
+   //          ...prevSlots,
+   //          bookedTime: bookingTime,
+   //       }));
+   //    }
+   //    if (bookingDay) {
+   //       console.log("Updated bookingDay:", bookingDay);
+   //       setBookedSlots((prevSlots) => ({
+   //          ...prevSlots,
+   //          bookedDay: bookingDay,
+   //       }));
+   //    }
+   //    if (bookingDate) {
+   //       console.log("Updated bookingDate:", bookingDate);
+   //       setBookedSlots((prevSlots) => ({
+   //          ...prevSlots,
+   //          bookedDate: bookingDate,
+   //       }));
+   //    }
+   // }, [bookingTime, bookingDate, bookingDay]);
 
    useEffect(() => {
       console.log("AJEEB SCN : ", bookedSlots.bookedTime);
       console.log("Condition Met! Saving...");
 
-      if (bookingDate && bookingDay && booked) {
+      if (booked) {
          axios
             .post(
                `http://localhost:8080/court/${id}/${day}/book`,
@@ -237,7 +228,7 @@ const SlotsPage = () => {
             bookedDate: "",
          });
       }
-   }, [bookingTime, bookingDate, bookingDay]);
+   }, [booked]);
 
    useEffect(() => {
       console.log(bookedSlots);
@@ -300,22 +291,17 @@ const SlotsPage = () => {
    };
 
    const handleTransaction = () => {
-      try {
-         setBooked(true);
-         const today = DateTime.now();
-         const currentTime = today.toFormat("HH:mm:ss");
-         const currentDay = today.toFormat("EEEE");
-         const currentDate = today.toFormat("yyyy-MM-dd");
-         setBookingTime(currentTime); // ✅ Update bookingTime first
-         setBookingDate(currentDate);
-         setBookingDay(currentDay);
-      } catch (error) {
-         console.error(
-            "Booking failed:",
-            error.response?.data || error.message
-         );
-         alert("Booking failed. Please check your input.");
-      }
+      setBooked(true);
+      const today = DateTime.now();
+      const currentTime = today.toFormat("HH:mm:ss");
+      const currentDay = today.toFormat("EEEE");
+      const currentDate = today.toFormat("yyyy-MM-dd");
+      handleBookSlotSchedule("bookedTime", currentTime);
+      handleBookSlotSchedule("bookedDay", currentDay);
+      handleBookSlotSchedule("bookedDate", currentDate);
+      // setBookingTime(currentTime); // ✅ Update bookingTime first
+      // setBookingDate(currentDate);
+      // setBookingDay(currentDay);
    };
 
    return (

@@ -1,5 +1,5 @@
 import { FaBars } from "react-icons/fa6";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import NavbarBuger from "../smallcomponents/NavbarBuger";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,6 +19,9 @@ const Navbar = () => {
    console.log(username);
 
    const navigate = useNavigate();
+
+   const location = useLocation();
+   const isHomePage = location.pathname === "/";
 
    const handleLogout = async () => {
       localStorage.removeItem("token");
@@ -65,27 +68,36 @@ const Navbar = () => {
                   <img className=" w-20" src={appLogo} />
                </NavLink>
             </div>
-            <div className="flex bg-gray-200  w-max p-3 mt-2 px-8 rounded-full">
-               <input
-                  className="text-black focus:outline-none  bg-inherit w-96"
-                  type="search"
-                  placeholder="Search by name,description or location"
-                  value={input}
-                  onChange={(e) => {
-                     handleSearching(e.target.value);
-                  }}
-                  onFocus={() => setSearchFocused(true)} // Set searchFocused to true when search bar is focused
-                  onBlur={() => setSearchFocused(false)} // Set searchFocused to false when search bar loses focus
-               />
-               <FaSearch className="text-xl text-black rotate-90 ml-4 mt-1" />
-            </div>
-            <p
-               className={
-                  noResults ? "text-red-500 mt-4 font-bold " : "invisible"
-               }
-            >
-               No Court found...
-            </p>{" "}
+            {isHomePage && (
+               <div>
+                  <div className="flex flex-cols bg-gray-200  w-max p-3 mt-2 px-8 rounded-full">
+                     <input
+                        className="text-black focus:outline-none  bg-inherit w-96"
+                        type="search"
+                        placeholder="Search by name,description or location"
+                        value={input}
+                        onChange={(e) => {
+                           handleSearching(e.target.value);
+                        }}
+                        onFocus={() => setSearchFocused(true)} // Set searchFocused to true when search bar is focused
+                        onBlur={() => setSearchFocused(false)} // Set searchFocused to false when search bar loses focus
+                     />
+                     <FaSearch className="text-xl text-black rotate-90 ml-4 mt-1" />
+                  </div>
+                  <div className="fixed mx-6">
+                     <p
+                        className={
+                           noResults
+                              ? "text-red-500 font-bold p-2 bg-gray-200  "
+                              : "invisible"
+                        }
+                     >
+                        No Court found...
+                     </p>{" "}
+                  </div>
+               </div>
+            )}
+
             {/* <div className="flex items-center gap-6 "> */}
             <div className="absolute  top-2 right-4   p-4 z-50 sm:flex sm:items-center sm:gap-6 sm:z-0 sm:p-0 sm:static">
                <div className=" hidden sm:block">

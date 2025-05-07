@@ -59,6 +59,18 @@ export const AppProvider = ({ children }) => {
       }
    };
 
+   const formatTime = (time) => {
+      if (!time) return "";
+      const [hours, minutes] = time.split(":");
+      const date = new Date();
+      date.setHours(hours, minutes);
+      return date.toLocaleTimeString("en-US", {
+         hour: "numeric",
+         minute: "numeric",
+         hour12: true,
+      });
+   };
+
    const getOneWeek = () => {
       const dates = [];
       const today = new Date();
@@ -98,6 +110,7 @@ export const AppProvider = ({ children }) => {
             searchCourtsResults,
             input,
             setSearchFocused,
+            formatTime,
          }}
       >
          {children}
