@@ -23,16 +23,31 @@ const MyBookings = () => {
 
    useEffect(() => {
       const processedBookings = bookings.map((booking) => {
-         const start = new Date(`${booking.date}T${booking.startTime}`);
-         const end = new Date(`${booking.date}T${booking.endTime}`);
+         const startTime = booking.startTime;
+         const endTime = booking.endTime;
 
-         const startSeconds = start.getTime() / 1000;
-         const endSeconds = end.getTime() / 1000;
+         let startDate = new Date(booking.date);
+         let endDate = new Date(booking.date);
+
+         // ONLY adjust endDate if it crosses midnight
+         if (endTime > startTime) {
+            endDate.setDate(endDate.getDate() + 1);
+         }
+
+         const startDateStr = startDate.toISOString().split("T")[0];
+         const endDateStr = endDate.toISOString().split("T")[0];
+
+         const start = new Date(`${startDateStr}T${startTime}`);
+         const end = new Date(`${endDateStr}T${endTime}`);
+         const now = new Date();
 
          let status;
-         if (nowSeconds < startSeconds) {
+
+         console.log(now);
+
+         if (now < start) {
             status = "incoming";
-         } else if (nowSeconds >= startSeconds && nowSeconds < endSeconds) {
+         } else if (now >= start && now < end) {
             status = "ongoing";
          } else {
             status = "previous";
@@ -40,16 +55,11 @@ const MyBookings = () => {
 
          return {
             ...booking,
-            startSeconds,
-            endSeconds,
             status,
          };
       });
       setCompareBookings(processedBookings);
    }, [bookings]);
-
-   const now = new Date();
-   const nowSeconds = now.getTime() / 1000;
 
    // const startSeconds = new Date(bookings[0].startTime).getTime()
    // console.log("START : ", startSeconds)
@@ -74,10 +84,7 @@ const MyBookings = () => {
          }
       };
       fetchSlotsByUsersId();
-   }, []);
-
-   useEffect(() => {
-      setOpen(false);
+      console.log(compareBookings);
    }, []);
 
    const toggleOpen = (property) => {
@@ -171,8 +178,8 @@ const MyBookings = () => {
                               <h1 className="text-xl  font-semibold">
                                  {formatDate(book.date)}
                               </h1>
-                              <p className="transition-all ">{book.day}</p>
-                              <div className="flex gap-2">
+                              <p className="font-semibold">{book.day}</p>
+                              <div className="mt-2 flex gap-2">
                                  <p className="text-green-color font-semibold">
                                     {formatTime(book.startTime)}
                                  </p>
