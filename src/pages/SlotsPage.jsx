@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import AppContext from "../contexts/Context";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
@@ -15,9 +15,6 @@ const SlotsPage = () => {
    const [isPopupOpen, setPopupOpen] = useState(false);
 
    const [timingsForDay, setTimingsForDay] = useState([]);
-   const [bookingTime, setBookingTime] = useState();
-   const [bookingDay, setBookingDay] = useState();
-   const [bookingDate, setBookingDate] = useState();
    const [bookedSlots, setBookedSlots] = useState({
       day: day || "",
       date: date || "",

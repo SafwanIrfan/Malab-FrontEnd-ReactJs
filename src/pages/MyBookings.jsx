@@ -1,14 +1,13 @@
-import { ChevronDownIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { format } from "date-fns";
 import { useContext, useEffect, useState } from "react";
-import { FaArrowDown } from "react-icons/fa6";
 import { useParams } from "react-router-dom";
 import AppContext from "../contexts/Context";
 
 const MyBookings = () => {
    const [bookings, setBookings] = useState([]);
-   const [compareBookings, setCompareBookings] = useState([]);
+   const [rawBookings, setRawBookings] = useState([]);
+   // const [sortedBookings, setSortedBookings] = useState([]);
    const { formatTime } = useContext(AppContext);
    // const [incoming, setIncoming] = useState([]);
    // const [ongoing, setOngoing] = useState([]);
@@ -23,27 +22,28 @@ const MyBookings = () => {
 
    useEffect(() => {
       const processedBookings = bookings.map((booking) => {
-         const startTime = booking.startTime;
-         const endTime = booking.endTime;
-
          let startDate = new Date(booking.date);
          let endDate = new Date(booking.date);
 
-         // ONLY adjust endDate if it crosses midnight
-         if (endTime > startTime) {
+         // If start time is before 12pm, push start date +1 day
+         if (booking.startTime < "12:00:00") {
+            startDate.setDate(startDate.getDate() + 1);
+         }
+
+         // If end time is less than start time → crosses midnight → push end date +1
+         if (booking.endTime < booking.startTime) {
             endDate.setDate(endDate.getDate() + 1);
          }
 
-         const startDateStr = startDate.toISOString().split("T")[0];
-         const endDateStr = endDate.toISOString().split("T")[0];
-
-         const start = new Date(`${startDateStr}T${startTime}`);
-         const end = new Date(`${endDateStr}T${endTime}`);
+         const start = new Date(
+            `${startDate.toISOString().split("T")[0]}T${booking.startTime}`
+         );
+         const end = new Date(
+            `${endDate.toISOString().split("T")[0]}T${booking.endTime}`
+         );
          const now = new Date();
 
          let status;
-
-         console.log(now);
 
          if (now < start) {
             status = "incoming";
@@ -58,8 +58,66 @@ const MyBookings = () => {
             status,
          };
       });
-      setCompareBookings(processedBookings);
+      setRawBookings(processedBookings);
    }, [bookings]);
+
+   // function sortBookings(bookings) {
+   //    return bookings.slice().sort((a, b) => {
+   //       // Create start date objects for both bookings
+
+   //       let aDate = new Date(a.date);
+   //       let bDate = new Date(b.date);
+
+   //       // If startTime is before 12:00:00, push date +1 (based on your rule)
+   //       if (a.startTime < "12:00:00") {
+   //          aDate.setDate(aDate.getDate() + 1);
+   //       }
+   //       if (b.startTime < "12:00:00") {
+   //          bDate.setDate(bDate.getDate() + 1);
+   //       }
+
+   //       // Combine date + time into a Date object
+   //       const aDateTime = new Date(
+   //          `${aDate.toISOString().split("T")[0]}T${a.startTime}`
+   //       );
+   //       const bDateTime = new Date(
+   //          `${bDate.toISOString().split("T")[0]}T${b.startTime}`
+   //       );
+
+   //       console.log(aDateTime - bDateTime);
+   //       return aDateTime - bDateTime;
+   //    });
+   // }
+
+   const getAdjustedTimestamp = (dateStr, timeStr) => {
+      const date = new Date(dateStr);
+
+      // If time is before noon (12:00:00), push to next day
+      if (timeStr < "12:00:00") {
+         date.setDate(date.getDate() + 1);
+      }
+
+      // Combine date + time and get timestamp
+      return new Date(
+         `${date.toISOString().split("T")[0]}T${timeStr}`
+      ).getTime();
+   };
+
+   const sortedBookings = rawBookings
+      .map((booking) => ({
+         ...booking,
+         timestamp: getAdjustedTimestamp(booking.date, booking.startTime),
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+   // If result < 0 → a comes before b
+   // If result > 0 → a comes after b
+
+   console.log(sortedBookings);
+
+   // useEffect(() => {
+   //    const sorted = sortBookings(rawBookings);
+   //    setSortedBookings(sorted);
+   // }, [rawBookings]);
 
    // const startSeconds = new Date(bookings[0].startTime).getTime()
    // console.log("START : ", startSeconds)
@@ -84,7 +142,6 @@ const MyBookings = () => {
          }
       };
       fetchSlotsByUsersId();
-      console.log(compareBookings);
    }, []);
 
    const toggleOpen = (property) => {
@@ -171,7 +228,7 @@ const MyBookings = () => {
          <section>
             {open.incomingBookings && (
                <div className="flex-col transition-all px-8 py-8">
-                  {compareBookings.map((book) => (
+                  {sortedBookings.map((book) => (
                      <div className="mt-2" key={book.id}>
                         {book.status === "incoming" && (
                            <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
@@ -196,7 +253,7 @@ const MyBookings = () => {
 
             {open.ongoingBookings && (
                <div className="flex-col transition-all px-8 py-8">
-                  {compareBookings.map((book) => (
+                  {sortedBookings.map((book) => (
                      <div className="mt-2" key={book.id}>
                         {book.status === "ongoing" && (
                            <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
@@ -221,7 +278,7 @@ const MyBookings = () => {
 
             {open.previousBookings && (
                <div className="flex-col transition-all px-8 py-8">
-                  {compareBookings.map((book) => (
+                  {sortedBookings.map((book) => (
                      <div className="mt-2" key={book.id}>
                         {book.status === "previous" && (
                            <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
