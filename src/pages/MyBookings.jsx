@@ -9,9 +9,6 @@ const MyBookings = () => {
    const [rawBookings, setRawBookings] = useState([]);
    // const [sortedBookings, setSortedBookings] = useState([]);
    const { formatTime } = useContext(AppContext);
-   // const [incoming, setIncoming] = useState([]);
-   // const [ongoing, setOngoing] = useState([]);
-   // const [previous, setPrevious] = useState([]);
    const { usersId } = useParams();
 
    const [open, setOpen] = useState({
@@ -61,34 +58,6 @@ const MyBookings = () => {
       setRawBookings(processedBookings);
    }, [bookings]);
 
-   // function sortBookings(bookings) {
-   //    return bookings.slice().sort((a, b) => {
-   //       // Create start date objects for both bookings
-
-   //       let aDate = new Date(a.date);
-   //       let bDate = new Date(b.date);
-
-   //       // If startTime is before 12:00:00, push date +1 (based on your rule)
-   //       if (a.startTime < "12:00:00") {
-   //          aDate.setDate(aDate.getDate() + 1);
-   //       }
-   //       if (b.startTime < "12:00:00") {
-   //          bDate.setDate(bDate.getDate() + 1);
-   //       }
-
-   //       // Combine date + time into a Date object
-   //       const aDateTime = new Date(
-   //          `${aDate.toISOString().split("T")[0]}T${a.startTime}`
-   //       );
-   //       const bDateTime = new Date(
-   //          `${bDate.toISOString().split("T")[0]}T${b.startTime}`
-   //       );
-
-   //       console.log(aDateTime - bDateTime);
-   //       return aDateTime - bDateTime;
-   //    });
-   // }
-
    const getAdjustedTimestamp = (dateStr, timeStr) => {
       const date = new Date(dateStr);
 
@@ -113,14 +82,6 @@ const MyBookings = () => {
    // If result > 0 → a comes after b
 
    console.log(sortedBookings);
-
-   // useEffect(() => {
-   //    const sorted = sortBookings(rawBookings);
-   //    setSortedBookings(sorted);
-   // }, [rawBookings]);
-
-   // const startSeconds = new Date(bookings[0].startTime).getTime()
-   // console.log("START : ", startSeconds)
 
    const jwtToken = localStorage.getItem("token");
 

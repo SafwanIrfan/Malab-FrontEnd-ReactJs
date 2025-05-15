@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { format, parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const AddCourtPage = () => {
    const navigate = useNavigate();
-
    const jwtToken = localStorage.getItem("token");
 
+   const [error, setError] = useState({
+      courtName: false,
+      pricePerHour: false,
+   });
    const [court, setCourt] = useState({
       name: "",
       description: "",
@@ -77,68 +81,91 @@ const AddCourtPage = () => {
       "11:30 PM",
    ];
 
+   const fileInputRef = useRef();
+
    useEffect(() => {
       console.log(selectedImages);
    }, [selectedImages]);
 
-   const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setCourt((prevCourt) => ({
-         ...prevCourt,
-         [name]: value,
+   const handleErrors = (field, result) => {
+      setError((prev) => ({
+         ...prev,
+         [field]: result,
       }));
    };
 
+   const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      handleErrors(name, false);
+      const change = setCourt((prevCourt) => ({
+         ...prevCourt,
+         [name]: value,
+      }));
+      name === "pricePerHour" && value >= 0 ? change : handleErrors(name, true);
+
+      console.log(error.pricePerHour);
+      console.log(error.courtName);
+   };
+
+   const formatTimings = (arrayOfTimings) => {
+      arrayOfTimings.map((timing) => {
+         const parseStartTime = parse(
+            timing.startingTime,
+            "h:mm a",
+            new Date()
+         );
+         timing.startingTime = format(parseStartTime, "HH:mm:ss");
+         const parseEndTime = parse(timing.endingTime, "h:mm a", new Date());
+         timing.endingTime = format(parseEndTime, "HH:mm:ss");
+      });
+   };
+
    const handleTimingsChange = (index, field, value) => {
-      const parseTime = parse(value, "h:mm a", new Date());
-      const formattedTime = format(parseTime, "HH:mm:ss ");
       setTimings((prevTimings) => {
          const updatedTimings = [...prevTimings];
          updatedTimings[index] = {
             ...updatedTimings[index],
-            [field]: formattedTime,
+            [field]: value,
          };
          return updatedTimings;
       });
-      console.log(formattedTime);
+      console.log(value);
+   };
+
+   const handleCopyTiming = (targetDay, sourceDay) => {
+      const source = timings.find((t) => t.day === sourceDay);
+      if (!source) return;
+      console.log(source.startingTime);
+      setTimings((prev) =>
+         prev.map((t) =>
+            t.day === targetDay
+               ? {
+                    ...t,
+                    startingTime: source.startingTime,
+                    endingTime: source.endingTime,
+                 }
+               : t
+         )
+      );
    };
 
    const handleImageChange = (e) => {
       const files = Array.from(e.target.files);
       setSelectedImages((prev) => [...prev, ...files]);
+
+      // Clear file input to allow re-selecting the same file
+      e.target.value = "";
    };
+
+   useEffect(() => {
+      console.log(selectedImages);
+   }, [selectedImages]);
 
    const handleRemoveImage = (indexToRemove) => {
       setSelectedImages((prev) =>
          prev.filter((_, index) => index !== indexToRemove)
       );
    };
-
-   // for (const file of files) {
-   //    const formData = new FormData();
-   //    formData.append("file", file);
-   //    formData.append("upload_preset", "play_with_ease"); // 👈 Must match exactly
-   //    formData.append("cloud_name", "dz95leiax"); // if using direct Cloudinary endpoint
-   //    try {
-   //       const response = await fetch(
-   //          "https://api.cloudinary.com/v1_1/dz95leiax/image/upload",
-   //          {
-   //             method: "POST",
-   //             body: formData,
-   //          }
-   //       );
-
-   //       const data = await response.json();
-
-   //       if (data.secure_url) {
-   //          setSelectedImages((prev) => [...prev, data.secure_url]);
-   //       } else {
-   //          console.error("No secure_url returned:", data);
-   //       }
-   //    } catch (error) {
-   //       console.error("Upload failed:", error);
-   //    }
-   // }
 
    const submitHandler = async (e) => {
       e.preventDefault();
@@ -153,7 +180,13 @@ const AddCourtPage = () => {
             }
          }
          court.pricePerHour = Number(court.pricePerHour);
-         console.log("Court", court);
+
+         if (error.courtName || error.pricePerHour) {
+            toast.error("Failed to add court. Check your inputs!");
+            setLoading(false);
+            return;
+         }
+
          // 1️⃣ Save Court (without images)
          const courtResponse = await axios.post(
             "http://localhost:8080/court/add",
@@ -189,6 +222,7 @@ const AddCourtPage = () => {
          }
          console.log("Timings : ", timings);
 
+         formatTimings(timings);
          await axios.post(
             `http://localhost:8080/court/${courtId}/add_timings`,
             timings,
@@ -288,6 +322,9 @@ const AddCourtPage = () => {
                      placeholder="Enter court price/hour"
                      required
                   />
+                  {error.pricePerHour && (
+                     <p className="text-red-500">Price cannot be negative</p>
+                  )}
                </div>
 
                <div>
@@ -323,6 +360,7 @@ const AddCourtPage = () => {
                      multiple
                      className=""
                      accept="image/*"
+                     ref={fileInputRef}
                   />
 
                   {selectedImages.length == 0 ? (
@@ -369,9 +407,29 @@ const AddCourtPage = () => {
                         }
                         key={index}
                      >
-                        <h3 className="text-black font-semibold text-xl">
-                           {timing.day}
-                        </h3>
+                        <div className="">
+                           <h1 className="text-black font-semibold text-xl h-4">
+                              {timing.day}
+                           </h1>
+                           Same as
+                           <select
+                              defaultValue={timing.day}
+                              onChange={(e) =>
+                                 handleCopyTiming(timing.day, e.target.value)
+                              }
+                              className="bg-transparent hover:underline cursor-pointer focus:outline-none mt-2 rounded py-1"
+                           >
+                              <option disabled>Select day</option>
+                              {timings.map((days, index) => (
+                                 <option
+                                    disabled={timing.day === days.day}
+                                    key={index}
+                                 >
+                                    {days.day}
+                                 </option>
+                              ))}
+                           </select>
+                        </div>
 
                         <div className=" flex p-2">
                            <label
@@ -382,6 +440,7 @@ const AddCourtPage = () => {
                            </label>
                            <select
                               defaultValue=""
+                              value={timing.startingTime}
                               name="startingTime"
                               id={`startingTime-${index}`}
                               onChange={(e) =>
@@ -406,21 +465,6 @@ const AddCourtPage = () => {
                                  </option>
                               ))}
                            </select>
-                           {/* <input
-                              type="time"
-                              id={`startingTime-${index}`}
-                              value={timing.startingTime}
-                              onChange={(e) =>
-                                 handleTimingsChange(
-                                    index,
-                                    "startingTime",
-                                    e.target.value
-                                 )
-                              }
-                              className=" p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
-                              placeholder="Enter starting time :"
-                              required
-                           /> */}
                         </div>
                         <div className="flex p-2">
                            <label
@@ -431,6 +475,7 @@ const AddCourtPage = () => {
                            </label>
                            <select
                               defaultValue=""
+                              value={timing.endingTime}
                               name="endingTime"
                               id={`endingTime-${index}`}
                               onChange={(e) =>
@@ -467,7 +512,6 @@ const AddCourtPage = () => {
             <button
                type="submit"
                className="w-full text-xl font-bold mt-6 bg-green-color text-white p-4 rounded-md hover:bg-sgreen-color hover:text-black transition-all"
-               disabled={loading}
             >
                {loading ? "Submitting..." : "ADD COURT"}
             </button>

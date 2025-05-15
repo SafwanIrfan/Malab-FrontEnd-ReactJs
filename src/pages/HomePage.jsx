@@ -1,17 +1,12 @@
 import { React, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
-import { FaHeart, FaSearch, FaSpinner } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaHeart } from "react-icons/fa";
 import AppContext from "../contexts/Context";
 
 const HomePage = () => {
-   const {
-      favourite,
-      setFavourite,
-      handleSearching,
-      input,
-      searchCourtsResults,
-   } = useContext(AppContext);
+   const { favourite, setFavourite, searchCourtsResults } =
+      useContext(AppContext);
    const [courts, setCourts] = useState([]);
 
    const user = JSON.parse(localStorage.getItem("user"));
@@ -45,58 +40,12 @@ const HomePage = () => {
       };
       fetchCourts();
    }, []);
-   // useEffect(() => {
-   //    const fetchImagesByCourt = async () => {
-   //       try {
-   //          const response = await axios.get(
-   //             `http://localhost:8080/court/${id}/images`,
-   //             {}
-   //          );
-   //          setImages(response.data); // Directly use the fetched images
-   //          console.log(response.data);
-   //       } catch (error) {
-   //          console.log("Error fetching Images:", error);
-   //       }
-   //    };
-   //    fetchImagesByCourt();
-   // }, []);
-
-   // if (courts.length == 0) {
-   //    return (
-   //       <div className="bg-black h-screen flex justify-center items-center ">
-   //          <h2 className="text-white font-bold text-6xl">
-   //             <FaSpinner className={"animate-spin"} />
-   //          </h2>
-   //       </div>
-   //    );
-   // }
-
-   // const handleSearching = async (value) => {
-   //    setInput(value);
-   //    if (value.length >= 1) {
-   //       try {
-   //          const response = await axios.get(
-   //             `http://localhost:8080/courts/search?keyword=${value}`
-   //          );
-   //          setSearchCourtsResults(response.data);
-   //          console.log(response.data);
-
-   //          setNoResults(response.data?.length === 0);
-   //          console.log(response.data);
-   //       } catch (error) {
-   //          console.error("Error searching:", error);
-   //       }
-   //    } else {
-   //       setSearchCourtsResults([]);
-   //       setNoResults(false);
-   //    }
-   // };
 
    const items = searchCourtsResults.length > 0 ? searchCourtsResults : courts;
 
    return (
       <>
-         {courts.length > 0 && (
+         {courts.length >= 0 && (
             <div className="p-10  text-black">
                <h1 className="text-center text-2xl text-green-500 font-black mb-6">
                   {user && `Welcome back ${user}!`}

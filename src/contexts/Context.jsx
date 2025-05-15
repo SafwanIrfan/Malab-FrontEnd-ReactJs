@@ -76,9 +76,9 @@ export const AppProvider = ({ children }) => {
       const today = new Date();
       let finalToday;
 
-      if (dayClosingTime <= nowTime) {
-         finalToday = today.getDate() - 1;
-      }
+      // if (dayClosingTime <= nowTime) {
+      //    finalToday = today.getDate() - 1;
+      // }
 
       for (let i = 0; i < 7; i++) {
          const nextDate = new Date();
