@@ -1,12 +1,37 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { jwtDecode } from "jwt-decode";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
+   const [currentUser, setCurrentUser] = useState(null);
    const jwtToken = localStorage.getItem("token");
+
+   // const userId = decoded.userId || decoded.id;
+
+   useEffect(() => {
+      const fetchUser = async () => {
+         try {
+            const response = await axios.get(
+               `http://localhost:8080/auth/user/${username}`,
+               {
+                  headers: {
+                     Authorization: `Bearer ${jwtToken}`,
+                  },
+               }
+            );
+            console.log(response.data);
+            setCurrentUser(response.data);
+         } catch (error) {
+            console.log("Error Fetching User : ", error);
+            <Navigate to="/auth/login" />;
+         }
+      };
+      fetchUser();
+   }, []);
 
    // 🔹 Login function
    const register = async (credentials) => {
@@ -50,8 +75,10 @@ export const AuthProvider = ({ children }) => {
       }
    };
 
+   const username = JSON.parse(localStorage.getItem("user"));
+
    return (
-      <AuthContext.Provider value={{ register, login, jwtToken }}>
+      <AuthContext.Provider value={{ register, login, jwtToken, currentUser }}>
          {children}
       </AuthContext.Provider>
    );

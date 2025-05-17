@@ -11,8 +11,8 @@ import appLogo from "../assets/applogo.svg";
 const Navbar = () => {
    const { handleSearching, input, setSearchFocused, noResults } =
       useContext(AppContext);
+   const { currentUser } = useAuth();
    const [showNavbarBuger, setShowNavbarBurger] = useState(false);
-   const [currentUser, setCurrentUser] = useState("");
 
    const jwtToken = localStorage.getItem("token");
    const username = JSON.parse(localStorage.getItem("user"));
@@ -38,27 +38,7 @@ const Navbar = () => {
       console.log(jwtToken);
    }, []);
 
-   useEffect(() => {
-      const fetchUser = async () => {
-         try {
-            const response = await axios.get(
-               `http://localhost:8080/auth/user/${username}`,
-               {
-                  headers: {
-                     Authorization: `Bearer ${jwtToken}`,
-                  },
-               }
-            );
-            console.log(response.data);
-            setCurrentUser(response.data);
-         } catch (error) {
-            console.log("Error Fetching User : ", error);
-         }
-      };
-      fetchUser();
-   }, []);
-
-   const usersId = currentUser.id;
+   const usersId = currentUser?.id;
 
    return (
       <section className="border-b-2 border-sgreen-color shadow-xl">

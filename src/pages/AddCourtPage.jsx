@@ -81,8 +81,6 @@ const AddCourtPage = () => {
       "11:30 PM",
    ];
 
-   const fileInputRef = useRef();
-
    useEffect(() => {
       console.log(selectedImages);
    }, [selectedImages]);
@@ -360,7 +358,6 @@ const AddCourtPage = () => {
                      multiple
                      className=""
                      accept="image/*"
-                     ref={fileInputRef}
                   />
 
                   {selectedImages.length == 0 ? (

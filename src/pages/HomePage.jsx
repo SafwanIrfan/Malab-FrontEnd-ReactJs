@@ -1,16 +1,25 @@
 import { React, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import AppContext from "../contexts/Context";
+import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
 
 const HomePage = () => {
+   const navigate = useNavigate();
    const { favourite, setFavourite, searchCourtsResults } =
       useContext(AppContext);
+   const [refresh, setRefresh] = useState(false);
+   const { currentUser } = useAuth();
    const [courts, setCourts] = useState([]);
 
    const user = JSON.parse(localStorage.getItem("user"));
+
    const jwtToken = localStorage.getItem("token");
+
+   const decoded = jwtToken && jwtDecode(jwtToken);
 
    if (jwtToken) {
       navigator.geolocation.getCurrentPosition(
@@ -26,22 +35,68 @@ const HomePage = () => {
       );
    }
 
+   const handleAddFav = async (court) => {
+      if (!user) {
+         navigate("/auth/login");
+      }
+      try {
+         await axios.post(
+            `http://localhost:8080/court/${court.id}/user/${decoded.usersId}/fav`,
+            {},
+            {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            }
+         );
+         toast.success("FAV DONE!");
+         setRefresh(true);
+      } catch (error) {
+         console.log("Error adding fav : ", error);
+      }
+   };
+
+   // useEffect(() => {
+   //    try {
+   //       const addFav = async () => {
+   //          await axios.post(
+   //             `http://localhost:8080/court/${courtId}/fav`,
+   //             favoriteData,
+   //             {
+   //                headers: {
+   //                   "Content-Type": "application/json",
+   //                   Authorization: `Bearer ${jwtToken}`,
+   //                },
+   //             }
+   //          );
+   //       };
+   //       addFav();
+   //    } catch (error) {
+   //       console.log("Error adding fav : ", error);
+   //    }
+   // }, []);
+
+   const fetchCourts = async () => {
+      try {
+         const response = await axios.get("http://localhost:8080/courts", {});
+         setCourts(response.data); // Directly use the fetched courts
+      } catch (error) {
+         console.log("Error fetching courts:", error);
+      }
+   };
+
    useEffect(() => {
-      const fetchCourts = async () => {
-         try {
-            const response = await axios.get(
-               "http://localhost:8080/courts",
-               {}
-            );
-            setCourts(response.data); // Directly use the fetched courts
-         } catch (error) {
-            console.log("Error fetching courts:", error);
-         }
-      };
       fetchCourts();
+      console.log(courts);
    }, []);
 
+   useEffect(() => {
+      fetchCourts();
+      setRefresh(false);
+   }, [refresh]);
+
    const items = searchCourtsResults.length > 0 ? searchCourtsResults : courts;
+   console.log(items);
 
    return (
       <>
@@ -63,7 +118,7 @@ const HomePage = () => {
                   {items.map((court) => (
                      <Link
                         key={court.id}
-                        className=" text-black rounded-lg h-min border border-gray-500 hover:shadow-green-color hover:shadow-2xl cursor-pointer transition-all"
+                        className=" text-black rounded-lg  border border-gray-500 hover:shadow-green-color hover:shadow-2xl cursor-pointer transition-all"
                         to={`/court/${court.id}`}
                      >
                         <div className="bg-green-color p-2 rounded-t">
@@ -76,7 +131,7 @@ const HomePage = () => {
                               <img
                                  src={court.imageUrls[0].url}
                                  alt="Court Image"
-                                 className="w-full h-52  "
+                                 className="w-full h-52 object-cover  "
                               />
                            ) : (
                               <div className="w-full h-52 rounded-b-lg font-thin flex justify-center items-center">
@@ -90,23 +145,25 @@ const HomePage = () => {
                               <p className=" font-bold text-lg">
                                  {court.pricePerHour}/hour
                               </p>
-                              <button
-                                 onClick={() =>
-                                    setFavourite((prevState) => !prevState)
-                                 }
-                                 className={
-                                    favourite
-                                       ? "text-red-600 transition-all"
-                                       : ""
-                                 }
-                              >
-                                 <FaHeart
-                                    style={{
-                                       width: "1.3rem",
-                                       height: "1.3rem",
+                              <div>
+                                 <button
+                                    onClick={(e) => {
+                                       e.preventDefault(); // For not navigating
+                                       handleAddFav(court);
+                                       setFavourite((prevState) => !prevState);
                                     }}
-                                 />
-                              </button>
+                                    className={
+                                       court.courtsFavorites.length > 0
+                                          ? court.courtsFavorites?.id
+                                               ?.usersId === decoded?.id
+                                             ? "text-red-600 transition-all  "
+                                             : " transition-all"
+                                          : ""
+                                    }
+                                 >
+                                    <FaHeart className="text-xl hover:scale-110 duration-200 ease-in-out transition-all" />
+                                 </button>
+                              </div>
                            </div>
                            <p className="mb-1">{court.description}</p>
                            <p className="text-gray-600 ">{court.location}</p>
