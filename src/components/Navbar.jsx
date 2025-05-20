@@ -4,14 +4,11 @@ import NavbarBuger from "../smallcomponents/NavbarBuger";
 import { useContext, useEffect, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { FaSearch } from "react-icons/fa";
 import AppContext from "../contexts/Context";
 import appLogo from "../assets/applogo.svg";
 import SearchBar from "./SearchBar";
 const Navbar = () => {
-   const { handleSearching, input, setSearchFocused, noResults } =
-      useContext(AppContext);
+   const { noResults } = useContext(AppContext);
    const { currentUser } = useAuth();
    const [showNavbarBuger, setShowNavbarBurger] = useState(false);
 
