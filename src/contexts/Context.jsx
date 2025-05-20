@@ -2,6 +2,7 @@
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const AppContext = createContext({
    data: [],
@@ -18,6 +19,12 @@ export const AppProvider = ({ children }) => {
    const [searchCourtsResults, setSearchCourtsResults] = useState([]);
    const [input, setInput] = useState("");
 
+   const user = JSON.parse(localStorage.getItem("user"));
+
+   const jwtToken = localStorage.getItem("token");
+
+   const decoded = jwtToken && jwtDecode(jwtToken);
+
    const refreshData = async () => {
       try {
          const response = await axios.get("/courts");
@@ -26,15 +33,16 @@ export const AppProvider = ({ children }) => {
          setIsError(error);
       }
    };
+
+   const fetchCourts = async () => {
+      try {
+         const response = await axios.get("http://localhost:8080/courts");
+         setCourts(response.data); // Directly use the fetched courts
+      } catch (error) {
+         console.log("Error fetching courts:", error);
+      }
+   };
    useEffect(() => {
-      const fetchCourts = async () => {
-         try {
-            const response = await axios.get("http://localhost:8080/courts");
-            setCourts(response.data); // Directly use the fetched courts
-         } catch (error) {
-            console.log("Error fetching courts:", error);
-         }
-      };
       fetchCourts();
    }, []);
 
@@ -116,6 +124,10 @@ export const AppProvider = ({ children }) => {
             input,
             setSearchFocused,
             formatTime,
+            user,
+            jwtToken,
+            decoded,
+            fetchCourts,
          }}
       >
          {children}

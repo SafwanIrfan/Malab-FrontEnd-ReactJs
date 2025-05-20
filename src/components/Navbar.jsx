@@ -8,6 +8,7 @@ import axios from "axios";
 import { FaSearch } from "react-icons/fa";
 import AppContext from "../contexts/Context";
 import appLogo from "../assets/applogo.svg";
+import SearchBar from "./SearchBar";
 const Navbar = () => {
    const { handleSearching, input, setSearchFocused, noResults } =
       useContext(AppContext);
@@ -42,27 +43,16 @@ const Navbar = () => {
 
    return (
       <section className="border-b-2 border-sgreen-color shadow-xl">
-         <div className=" px-8 py-4 font-mono flex  justify-between rounded-b-lg ">
-            <div className="flex items-center text-center ">
+         <div className=" px-8 py-4 font-mono flex  sm:justify-between rounded-b-lg ">
+            <div className="flex items-center text-center w-20 ">
                <NavLink to="/" className="">
-                  <img className=" w-20" src={appLogo} />
+                  <img className=" w-16 md:w-20 mr-4" src={appLogo} />
                </NavLink>
             </div>
             {isHomePage && (
                <div>
-                  <div className="flex flex-cols bg-gray-200  w-max p-3 mt-2 px-8 rounded-full">
-                     <input
-                        className="text-black focus:outline-none  bg-inherit w-96"
-                        type="search"
-                        placeholder="Search by name,description or location"
-                        value={input}
-                        onChange={(e) => {
-                           handleSearching(e.target.value);
-                        }}
-                        onFocus={() => setSearchFocused(true)} // Set searchFocused to true when search bar is focused
-                        onBlur={() => setSearchFocused(false)} // Set searchFocused to false when search bar loses focus
-                     />
-                     <FaSearch className="text-xl text-black rotate-90 ml-4 mt-1" />
+                  <div className="hidden sm:block">
+                     <SearchBar />
                   </div>
                   <div className="fixed mx-6">
                      <p
@@ -79,10 +69,10 @@ const Navbar = () => {
             )}
 
             {/* <div className="flex items-center gap-6 "> */}
-            <div className="absolute  top-2 right-4   p-4 z-50 sm:flex sm:items-center sm:gap-6 sm:z-0 sm:p-0 sm:static">
-               <div className=" hidden sm:block">
+            <div className="absolute  top-2 right-4   p-4  sm:flex sm:items-center sm:gap-2 md:gap-4 sm:z-0 sm:p-0 sm:static">
+               <div className="text-balance hidden sm:block">
                   <NavLink
-                     className=" p-2  hover:text-green-color transition-all"
+                     className=" p-2 text-sm md:text-base hover:text-green-color transition-all"
                      to={`/user/${usersId}/slots`}
                   >
                      My Bookings
@@ -92,7 +82,7 @@ const Navbar = () => {
                <div className=" hidden sm:block">
                   <button
                      onClick={jwtToken ? handleLogout : handleLogin}
-                     className="bg-green-color hover:bg-sgreen-color hover:text-black text-white py-2 px-4 w-auto rounded transition-all"
+                     className="bg-green-color hover:bg-sgreen-color hover:text-black text-white p-2 text-sm md:text-base  md:py-2 md:px-4  w-auto rounded transition-all"
                   >
                      {jwtToken ? "Logout" : "Login"}
                   </button>

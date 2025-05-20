@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 const NavbarBuger = () => {
    return (
-      <div className="text-center bg-gray-200 text-black font-mono w-auto h-auto p-4 rounded">
+      <div className="text-center bg-gray-200 text-black font-mono h-auto p-4 rounded">
          <div className="text-center mb-4 ">
             <label>Location</label>
             <select

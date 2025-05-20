@@ -6,20 +6,14 @@ import AppContext from "../contexts/Context";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
+import SearchBar from "../components/SearchBar";
 
 const HomePage = () => {
    const navigate = useNavigate();
-   const { favourite, setFavourite, searchCourtsResults } =
+   const { searchCourtsResults, user, jwtToken, decoded } =
       useContext(AppContext);
    const [refresh, setRefresh] = useState(false);
-   const { currentUser } = useAuth();
    const [courts, setCourts] = useState([]);
-
-   const user = JSON.parse(localStorage.getItem("user"));
-
-   const jwtToken = localStorage.getItem("token");
-
-   const decoded = jwtToken && jwtDecode(jwtToken);
 
    if (jwtToken) {
       navigator.geolocation.getCurrentPosition(
@@ -35,13 +29,13 @@ const HomePage = () => {
       );
    }
 
-   const handleAddFav = async (court) => {
+   const handleAddFav = async (id) => {
       if (!user) {
          navigate("/auth/login");
       }
       try {
          await axios.post(
-            `http://localhost:8080/court/${court.id}/user/${decoded.usersId}/fav`,
+            `http://localhost:8080/court/${id}/user/${decoded.usersId}/fav`,
             {},
             {
                headers: {
@@ -55,26 +49,6 @@ const HomePage = () => {
          console.log("Error adding fav : ", error);
       }
    };
-
-   // useEffect(() => {
-   //    try {
-   //       const addFav = async () => {
-   //          await axios.post(
-   //             `http://localhost:8080/court/${courtId}/fav`,
-   //             favoriteData,
-   //             {
-   //                headers: {
-   //                   "Content-Type": "application/json",
-   //                   Authorization: `Bearer ${jwtToken}`,
-   //                },
-   //             }
-   //          );
-   //       };
-   //       addFav();
-   //    } catch (error) {
-   //       console.log("Error adding fav : ", error);
-   //    }
-   // }, []);
 
    const fetchCourts = async () => {
       try {
@@ -102,6 +76,9 @@ const HomePage = () => {
       <>
          {courts.length >= 0 && (
             <div className="p-10  text-black">
+               <div className="sm:hidden flex justify-center mb-2">
+                  <SearchBar />
+               </div>
                <h1 className="text-center text-2xl text-green-500 font-black mb-6">
                   {user && `Welcome back ${user}!`}
                </h1>
@@ -140,6 +117,7 @@ const HomePage = () => {
                            )}
                            <div className=""></div>
                         </div>
+
                         <div className="px-4 pb-4">
                            <div className="flex justify-between my-2">
                               <p className=" font-bold text-lg">
@@ -149,8 +127,7 @@ const HomePage = () => {
                                  <button
                                     onClick={(e) => {
                                        e.preventDefault(); // For not navigating
-                                       handleAddFav(court);
-                                       setFavourite((prevState) => !prevState);
+                                       handleAddFav(court.id);
                                     }}
                                     className={
                                        court.courtsFavorites.length > 0

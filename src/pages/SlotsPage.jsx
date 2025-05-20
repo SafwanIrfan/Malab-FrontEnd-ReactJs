@@ -26,6 +26,7 @@ const SlotsPage = () => {
       bookedDate: "",
    });
 
+   const { jwtToken } = useContext(AppContext);
    const [booked, setBooked] = useState(false);
    const [allSlots, setAllSlots] = useState([]);
    const [bookedSlotStartTime, setBookedSlotStartTime] = useState([]);
@@ -83,8 +84,6 @@ const SlotsPage = () => {
       "11:00 PM",
       "11:30 PM",
    ];
-
-   const jwtToken = localStorage.getItem("token");
 
    const court = courts.find((court) => court.id == id);
 

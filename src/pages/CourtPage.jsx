@@ -18,32 +18,34 @@ const CourtPage = () => {
    const { id } = useParams();
    const [court, setCourt] = useState(null);
    const [imageIndex, setImageIndex] = useState(0);
-   const { favourite, setFavourite, getOneWeek } = useContext(AppContext);
+   const { getOneWeek, user, jwtToken, decoded, fetchCourts } =
+      useContext(AppContext);
+   const [refresh, setRefresh] = useState(false);
 
    const navigate = useNavigate();
    const oneWeek = getOneWeek(court);
 
-   const jwtToken = localStorage.getItem("token");
-
+   const fetchCourt = async () => {
+      try {
+         const response = await axios.get(`http://localhost:8080/court/${id}`, {
+            headers: { Authorization: `Bearer ${jwtToken}` },
+         });
+         const courtData = response.data;
+         console.log(courtData);
+         setCourt(courtData);
+      } catch (error) {
+         console.log("Fetching error : ", error);
+      }
+   };
    useEffect(() => {
-      const fetchCourt = async () => {
-         try {
-            const response = await axios.get(
-               `http://localhost:8080/court/${id}`,
-               {
-                  headers: { Authorization: `Bearer ${jwtToken}` },
-               }
-            );
-            const courtData = response.data;
-            console.log(courtData);
-            setCourt(courtData);
-         } catch (error) {
-            console.log("Fetching error : ", error);
-         }
-      };
       fetchCourt();
       console.log(court);
    }, [id]);
+
+   useEffect(() => {
+      fetchCourt();
+      setRefresh(false);
+   }, [refresh]);
 
    const handleDelete = async () => {
       if (window.confirm("Are you sure you want to delete this court?")) {
@@ -59,6 +61,27 @@ const CourtPage = () => {
             console.log("Error deleting court : ", error);
             toast.error(`There was a problem occur in deleting ${court.name}`);
          }
+      }
+   };
+
+   const handleAddFav = async (id) => {
+      if (!user) {
+         navigate("/auth/login");
+      }
+      try {
+         await axios.post(
+            `http://localhost:8080/court/${id}/user/${decoded.usersId}/fav`,
+            {},
+            {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            }
+         );
+         toast.success("FAV DONE!");
+         setRefresh(true);
+      } catch (error) {
+         console.log("Error adding fav : ", error);
       }
    };
 
@@ -146,8 +169,14 @@ const CourtPage = () => {
                </p>
 
                <button
-                  onClick={() => setFavourite((prevState) => !prevState)}
-                  className={favourite ? "text-red-600  transition-all " : ""}
+                  onClick={() => handleAddFav(court.id)}
+                  className={
+                     court.courtsFavorites.length > 0
+                        ? court.courtsFavorites?.id?.usersId === decoded?.id
+                           ? "text-red-600 transition-all"
+                           : " transition-all"
+                        : ""
+                  }
                >
                   <FaHeart style={{ width: "1.6rem", height: "1.6rem" }} />
                </button>
