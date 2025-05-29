@@ -9,18 +9,17 @@ import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import { AppProvider } from "./contexts/Context";
 import CourtPage from "./pages/CourtPage";
-import CourtsPage from "./pages/CourtsPage";
 import AddCourtPage from "./pages/AddCourtPage";
 import { ToastContainer } from "react-toastify";
 import SlotsPage from "./pages/SlotsPage";
-import { useAuth } from "./contexts/AuthContext";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import EditCourtPage from "./pages/EditCourtPage";
 import Layout from "./layout/Layout";
 import { jwtDecode } from "jwt-decode";
-import { useEffect } from "react";
 import MyBookings from "./pages/MyBookings";
+import Loading from "./smallcomponents/Loading";
+import FavPage from "./pages/FavPage";
 
 const PrivateRoute = ({ children }) => {
    // useEffect(()=>{
@@ -77,17 +76,11 @@ function App() {
                <Routes>
                   <Route path="/auth/register" element={<RegisterPage />} />
                   <Route path="/auth/login" element={<LoginPage />} />
+                  <Route path="/loading" element={<Loading />}></Route>
 
                   <Route element={<Layout />}>
                      <Route path="/" element={<HomePage />} />
-                     <Route
-                        path="/courts"
-                        element={
-                           <PrivateRoute>
-                              <CourtsPage />
-                           </PrivateRoute>
-                        }
-                     />
+
                      <Route
                         path="/court/:id"
                         element={
@@ -125,6 +118,15 @@ function App() {
                         element={
                            <PrivateRoute>
                               <MyBookings />
+                           </PrivateRoute>
+                        }
+                     />
+
+                     <Route
+                        path="/user/:usersId/fav"
+                        element={
+                           <PrivateRoute>
+                              <FavPage />
                            </PrivateRoute>
                         }
                      />

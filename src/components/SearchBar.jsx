@@ -17,7 +17,7 @@ const SearchBar = () => {
             onFocus={() => setSearchFocused(true)} // Set searchFocused to true when search bar is focused
             onBlur={() => setSearchFocused(false)} // Set searchFocused to false when search bar loses focus
          />
-         <FaSearch className="  text-black rotate-90 ml-2 mt-1" />
+         <FaSearch className="text-black rotate-90 ml-2 mt-1" />
       </div>
    );
 };

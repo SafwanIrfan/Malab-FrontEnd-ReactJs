@@ -7,6 +7,7 @@ import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import { format, parse } from "date-fns";
 import BookingPopup from "../smallcomponents/BookingPopup";
+import Button from "../smallcomponents/Button";
 
 const SlotsPage = () => {
    const { day, id, date } = useParams();
@@ -404,12 +405,7 @@ const SlotsPage = () => {
                      hours. Additionally, already booked slots cannot be chosen.
                   </p>
                   <div className="flex justify-center mt-6 ">
-                     <button
-                        className="p-4 text-white bg-green-color hover:bg-sgreen-color w-40 h-14 hover:text-black font-semibold rounded transition-all"
-                        onClick={handleBookSlot}
-                     >
-                        Book Slot
-                     </button>
+                     <Button title="Book Slot" action={handleBookSlot} />
                   </div>
                   <BookingPopup
                      isOpen={isPopupOpen}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
+import Button from "./Button";
 
 Modal.setAppElement("#root"); // Ensure accessibility
 
@@ -91,12 +92,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                >
                   Cancel
                </button>
-               <button
-                  type="submit"
-                  className="bg-green-color text-white hover:bg-sgreen-color font-semibold hover:text-black px-4 py-2 rounded transition-all"
-               >
-                  Confirm Booking
-               </button>
+               <Button title="Confirm Booking" />
             </div>
          </form>
       </Modal>

@@ -201,6 +201,7 @@ const MyBookings = () => {
                                  <p className="text-green-color font-semibold">
                                     {formatTime(book.startTime)}
                                  </p>
+                                 <span className="font-semibold">TO</span>
                                  <p className="text-red-500 font-semibold">
                                     {formatTime(book.endTime)}
                                  </p>
@@ -250,7 +251,7 @@ const MyBookings = () => {
                               <div className="flex gap-2">
                                  <p className="text-green-color font-semibold">
                                     {formatTime(book.startTime)}
-                                 </p>
+                                 </p>{" "}
                                  <p className="text-red-500 font-semibold">
                                     {formatTime(book.endTime)}
                                  </p>

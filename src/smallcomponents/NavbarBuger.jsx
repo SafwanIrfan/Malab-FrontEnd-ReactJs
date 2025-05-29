@@ -1,33 +1,64 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "react-toastify";
+import { jwtDecode } from "jwt-decode";
 
-const NavbarBuger = () => {
+const NavbarBuger = (setShowNavbarBurger) => {
+   const jwtToken = localStorage.getItem("token");
+
+   const decoded = jwtToken && jwtDecode(jwtToken);
+
+   const usersId = decoded.usersId;
+   const navigate = useNavigate();
+
+   const handleLogout = async () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      toast.success("Successfully Logged Out!");
+      navigate("/auth/login");
+   };
+
+   const handleLogin = () => {
+      navigate("/auth/login");
+   };
+
    return (
-      <div className="text-center bg-gray-200 text-black font-mono h-auto p-4 rounded">
-         <div className="text-center mb-4 ">
-            <label>Location</label>
-            <select
-               defaultValue="Choose region"
-               name="pakistan"
-               id="pakistan"
-               className="block ml-2 border-2 p-2 w-auto text-gray-800 transition-all"
-            >
-               <option value="Karachi">Karachi</option>
-            </select>
-         </div>
-         <div className="mb-2">
-            <NavLink className=" hover:text-green-600 text-base">
-               Courts
-            </NavLink>
-         </div>
-         <div className="">
+      <div className="text-center flex flex-col bg-gray-200 text-black font-mono h-auto p-4 rounded gap-2">
+         <div className="text-balance">
             <NavLink
-               className=" p-2 text-gray-800 hover:text-green-600 transition-all"
-               to="/identification"
+               className={
+                  location.pathname == `/user/${usersId}/slots`
+                     ? "p-2 text-sm md:text-base hover:text-green-color transition-all border-b-2 border-b-green-color"
+                     : "p-2 text-sm md:text-base hover:text-green-color transition-all"
+               }
+               to={`/user/${usersId}/slots`}
+               onClick={() => setShowNavbarBurger(false)}
             >
-               <button className="bg-green-600 hover:bg-green-700 text-white py-1 px-2 w-auto rounded transition-all">
-                  Login
-               </button>
+               Bookings
             </NavLink>
+         </div>
+         <div className="text-balance">
+            <NavLink
+               className={
+                  location.pathname == `/user/${usersId}/fav`
+                     ? "p-2 text-sm md:text-base hover:text-green-color transition-all border-b-2 border-b-green-color"
+                     : "p-2 text-sm md:text-base hover:text-green-color transition-all"
+               }
+               to={`/user/${usersId}/fav`}
+            >
+               Favorites
+            </NavLink>
+         </div>
+         <div>
+            <button
+               onClick={
+                  (() => setShowNavbarBurger(false),
+                  jwtToken ? handleLogout : handleLogin)
+               }
+               className="bg-green-color hover:bg-sgreen-color hover:text-black text-white mt-2 p-2 text-sm md:text-base  md:py-2 md:px-4  w-auto rounded transition-all"
+            >
+               {jwtToken ? "Logout" : "Login"}
+            </button>
          </div>
       </div>
    );

@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const AppContext = createContext({
@@ -9,7 +8,6 @@ const AppContext = createContext({
 });
 
 export const AppProvider = ({ children }) => {
-   const [data, setData] = useState([]);
    const [isError, setIsError] = useState("");
    const [favourite, setFavourite] = useState(false);
    const [slots, setSlots] = useState([]);
@@ -27,8 +25,7 @@ export const AppProvider = ({ children }) => {
 
    const refreshData = async () => {
       try {
-         const response = await axios.get("/courts");
-         setData(response.data);
+         fetchCourts();
       } catch (error) {
          setIsError(error);
       }
@@ -79,7 +76,7 @@ export const AppProvider = ({ children }) => {
       });
    };
 
-   const getOneWeek = (dayClosingTime) => {
+   const getOneWeek = () => {
       const dates = [];
       const today = new Date();
       let finalToday;
@@ -108,7 +105,6 @@ export const AppProvider = ({ children }) => {
    return (
       <AppContext.Provider
          value={{
-            data,
             isError,
             refreshData,
             favourite,

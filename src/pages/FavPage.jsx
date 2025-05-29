@@ -1,0 +1,112 @@
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import CourtCard from "../components/CourtCard";
+import Button from "../smallcomponents/Button";
+
+const FavPage = () => {
+   // const [userFav, setUserFav] = useState([]);
+
+   const { usersId } = useParams();
+
+   const navigate = useNavigate();
+
+   const jwtToken = localStorage.getItem("token");
+
+   // useEffect(() => {
+   //    const fetchFav = async () => {
+   //       const response = await axios.get(
+   //          `http://localhost:8080/user/${usersId}/fav`,
+   //          {
+   //             headers: {
+   //                Authorization: `Bearer ${jwtToken}`,
+   //             },
+   //          }
+   //       );
+   //       console.log(response.data);
+   //       setUserFav(response.data);
+   //    };
+   //    fetchFav();
+   // }, []);
+
+   // console.log(userFav.length);
+
+   const fetchUserFav = async () => {
+      await axios
+         .get(`http://localhost:8080/user/${usersId}/fav`, {
+            headers: {
+               Authorization: `Bearer ${jwtToken}`,
+            },
+         })
+         .then((res) => res.data);
+   };
+
+   const fetchUserFavCourts = async () => {
+      const courtIds = userFav?.map((fav) => fav.id?.courtId);
+      const courtResponses = await Promise.all(
+         courtIds.map((id) =>
+            axios.get(`http://localhost:8080/court/${id}`, {
+               headers: { Authorization: `Bearer ${jwtToken}` },
+            })
+         )
+      );
+      return courtResponses.map((res) => res.data);
+   };
+
+   const {
+      data: userFav,
+      isLoading,
+      error,
+   } = useQuery({
+      queryKey: ["userFav", usersId],
+      queryFn: () =>
+         axios
+            .get(`http://localhost:8080/user/${usersId}/fav`, {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            })
+            .then((res) => res.data),
+      enabled: !!usersId, // makes sure query runs only when usersId is available
+   });
+   console.log(userFav);
+
+   const { data: userCourtsFav } = useQuery({
+      queryKey: ["userCourtsFav", userFav?.map((fav) => fav.id)],
+      refetchInterval: 200,
+      queryFn: fetchUserFavCourts,
+      enabled: !!userFav && userFav.length > 0,
+   });
+
+   if (isLoading) navigate("/loading");
+   if (error) console.log("Error : ", error);
+
+   if (userFav?.length == 0) {
+      return (
+         <div className="px-8 flex flex-col gap-4 justify-center items-center min-h-screen">
+            <h1 className="text-green-color text-3xl text-center text-balance">
+               You have not any favorite courts
+            </h1>
+
+            <Button title="See Courts" action={() => navigate("/")} />
+         </div>
+      );
+   }
+
+   console.log(userCourtsFav);
+
+   return (
+      <section className="p-10">
+         <h2 className="text-center text-3xl font-black">
+            Your Choice Matters...
+         </h2>
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  my-5 ">
+            {userCourtsFav?.map((court) => (
+               <CourtCard key={court.id} {...court} />
+            ))}
+         </div>
+      </section>
+   );
+};
+
+export default FavPage;

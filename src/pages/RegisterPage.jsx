@@ -17,6 +17,9 @@ const RegisterPage = () => {
       password: "",
       username: "",
    });
+   const [confirmPassword, setConfirmPassword] = useState("");
+   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+   const [isError, setIsError] = useState(false);
 
    useEffect(() => {
       if (googleLogin) {
@@ -42,6 +45,7 @@ const RegisterPage = () => {
    //             headers: {
    //                "Content-Type": "application/json",
    //             },
+
    //          }
    //       );
    //       console.log(response.data);
@@ -56,14 +60,18 @@ const RegisterPage = () => {
 
    const handleSubmit = async (e) => {
       e.preventDefault();
-      setLoading(true);
-      const success = await register(credentials);
-      if (success) {
-         setLoading(false);
-         navigate("/auth/login"); // Redirect after register
+      if (credentials.password === confirmPassword) {
+         setLoading(true);
+         const success = await register(credentials);
+         if (success) {
+            setLoading(false);
+            navigate("/auth/login"); // Redirect after register
+         } else {
+            setSameUsername(true);
+            setLoading(false);
+         }
       } else {
-         setSameUsername(true);
-         setLoading(false);
+         setIsError(true);
       }
    };
 
@@ -104,7 +112,7 @@ const RegisterPage = () => {
                      <label className="block mb-2 text-xl text-green-color">
                         Password
                      </label>
-                     <div className="flex relative">
+                     <div>
                         <input
                            className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
                            type={showPassword ? "text" : "password"}
@@ -123,6 +131,39 @@ const RegisterPage = () => {
                               <FaEye className="absolute right-4 top-3 " />
                            )}
                         </button>
+                     </div>
+                  </div>
+
+                  <div className="mt-4">
+                     <label className="block mb-2 text-xl text-green-color">
+                        Confirm your Password
+                     </label>
+                     <div>
+                        <input
+                           className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
+                           type={showConfirmPassword ? "text" : "password"}
+                           name="password"
+                           placeholder="Password"
+                           value={confirmPassword}
+                           onChange={(e) => setConfirmPassword(e.target.value)}
+                           onFocus={() => setIsError(false)}
+                           required
+                        />
+                        <button
+                           type="button"
+                           onClick={() =>
+                              setShowConfirmPassword((prev) => !prev)
+                           }
+                        >
+                           {showConfirmPassword ? (
+                              <FaEyeSlash className="absolute right-4 top-3 " />
+                           ) : (
+                              <FaEye className="absolute right-4 top-3 " />
+                           )}
+                        </button>
+                        {isError && (
+                           <p className="text-red-500">Password is not same!</p>
+                        )}
                      </div>
                   </div>
 

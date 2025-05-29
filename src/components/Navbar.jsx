@@ -7,14 +7,13 @@ import { toast } from "react-toastify";
 import AppContext from "../contexts/Context";
 import appLogo from "../assets/applogo.svg";
 import SearchBar from "./SearchBar";
+import { jwtDecode } from "jwt-decode";
 const Navbar = () => {
    const { noResults } = useContext(AppContext);
-   const { currentUser } = useAuth();
    const [showNavbarBuger, setShowNavbarBurger] = useState(false);
 
    const jwtToken = localStorage.getItem("token");
-   const username = JSON.parse(localStorage.getItem("user"));
-   console.log(username);
+   const decoded = jwtToken && jwtDecode(jwtToken);
 
    const navigate = useNavigate();
 
@@ -36,7 +35,7 @@ const Navbar = () => {
       console.log(jwtToken);
    }, []);
 
-   const usersId = currentUser?.id;
+   const usersId = decoded?.usersId;
 
    return (
       <section className="border-b-2 border-sgreen-color shadow-xl">
@@ -66,13 +65,30 @@ const Navbar = () => {
             )}
 
             {/* <div className="flex items-center gap-6 "> */}
-            <div className="absolute  top-2 right-4   p-4  sm:flex sm:items-center sm:gap-2 md:gap-4 sm:z-0 sm:p-0 sm:static">
+            <div className="absolute z-10 top-2 right-4   p-4  sm:flex sm:items-center sm:gap-2 md:gap-4 sm:z-0 sm:p-0 sm:static">
                <div className="text-balance hidden sm:block">
                   <NavLink
-                     className=" p-2 text-sm md:text-base hover:text-green-color transition-all"
+                     className={
+                        location.pathname == `/user/${usersId}/slots`
+                           ? "p-2 text-sm md:text-base hover:text-green-color transition-all border-b-2 border-b-green-color"
+                           : "p-2 text-sm md:text-base hover:text-green-color transition-all"
+                     }
                      to={`/user/${usersId}/slots`}
                   >
-                     My Bookings
+                     Bookings
+                  </NavLink>
+               </div>
+
+               <div className="text-balance hidden sm:block">
+                  <NavLink
+                     className={
+                        location.pathname == `/user/${usersId}/fav`
+                           ? "p-2 text-sm md:text-base hover:text-green-color transition-all border-b-2 border-b-green-color"
+                           : "p-2 text-sm md:text-base hover:text-green-color transition-all"
+                     }
+                     to={`/user/${usersId}/fav`}
+                  >
+                     Favorites
                   </NavLink>
                </div>
 
@@ -106,7 +122,11 @@ const Navbar = () => {
                         }
                      />
                   </button>
-                  <div>{showNavbarBuger && <NavbarBuger />}</div>
+                  <div>
+                     {showNavbarBuger && (
+                        <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
+                     )}
+                  </div>
                </div>
             </div>
          </div>
