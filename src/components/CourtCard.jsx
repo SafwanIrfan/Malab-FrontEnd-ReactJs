@@ -78,12 +78,12 @@ const CourtCard = (court) => {
                      className={
                         court.courtsFavorites.length > 0 && user
                            ? court.courtsFavorites?.id?.usersId === decoded?.id
-                              ? "text-red-600 transition-all"
+                              ? "text-red-600 transition-all scale-110"
                               : " transition-all"
                            : ""
                      }
                   >
-                     <FaHeart className="text-xl hover:scale-110  ease-in-out transition-all" />
+                     <FaHeart className="text-xl ease-in-out transition-all" />
                   </button>
                </div>
             </div>
