@@ -39,14 +39,39 @@ const Navbar = () => {
 
    return (
       <section className="border-b-2 border-sgreen-color shadow-xl">
-         <div className=" px-8 py-4 font-mono flex  sm:justify-between rounded-b-lg ">
-            <div className="flex items-center text-center w-20 ">
+         <div className="relative px-8 py-4 font-mono flex justify-between rounded-b-lg ">
+            <div className="flex items-center text-center ">
                <NavLink to="/" className="">
-                  <img className=" w-16 md:w-20 mr-4" src={appLogo} />
+                  <img className=" w-20 md:w-28 mr-4" src={appLogo} />
                </NavLink>
             </div>
+            <div className="sm:hidden text-lg text-right">
+               <button
+                  className=""
+                  onClick={() => setShowNavbarBurger((prevState) => !prevState)}
+               >
+                  <FaBars
+                     style={
+                        showNavbarBuger
+                           ? {
+                                transform: "rotate(90deg)",
+                                transition: "0.3s",
+                             }
+                           : {
+                                transform: "rotate(0deg)",
+                                transition: "0.3s",
+                             }
+                     }
+                  />
+               </button>
+               <div className="absolute right-6 z-10">
+                  {showNavbarBuger && (
+                     <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
+                  )}
+               </div>
+            </div>
             {isHomePage && (
-               <div>
+               <div className="hidden sm:block">
                   <div className="hidden sm:block">
                      <SearchBar />
                   </div>
@@ -65,7 +90,7 @@ const Navbar = () => {
             )}
 
             {/* <div className="flex items-center gap-6 "> */}
-            <div className="absolute z-10 top-2 right-4   p-4  sm:flex sm:items-center sm:gap-2 md:gap-4 sm:z-0 sm:p-0 sm:static">
+            <div className="absolute z-10 top-2 right-4 p-4 hidden sm:flex sm:items-center sm:gap-2 md:gap-4 sm:z-0 sm:p-0 sm:static">
                <div className="text-balance hidden sm:block">
                   <NavLink
                      className={
@@ -101,9 +126,9 @@ const Navbar = () => {
                   </button>
                </div>
 
-               <div className="block sm:hidden text-lg text-right">
+               {/* <div className="sm:hidden text-lg text-right">
                   <button
-                     className="pt-2"
+                     className=""
                      onClick={() =>
                         setShowNavbarBurger((prevState) => !prevState)
                      }
@@ -127,7 +152,7 @@ const Navbar = () => {
                         <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
                      )}
                   </div>
-               </div>
+               </div> */}
             </div>
          </div>
       </section>

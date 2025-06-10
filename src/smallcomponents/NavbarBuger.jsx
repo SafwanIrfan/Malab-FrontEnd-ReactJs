@@ -8,7 +8,7 @@ const NavbarBuger = (setShowNavbarBurger) => {
 
    const decoded = jwtToken && jwtDecode(jwtToken);
 
-   const usersId = decoded.usersId;
+   const usersId = decoded?.usersId;
    const navigate = useNavigate();
 
    const handleLogout = async () => {
@@ -23,7 +23,7 @@ const NavbarBuger = (setShowNavbarBurger) => {
    };
 
    return (
-      <div className="text-center flex flex-col bg-gray-200 text-black font-mono h-auto p-4 rounded gap-2">
+      <div className=" text-center flex flex-col bg-gray-200 text-black font-mono h-auto p-4 rounded gap-2">
          <div className="text-balance">
             <NavLink
                className={

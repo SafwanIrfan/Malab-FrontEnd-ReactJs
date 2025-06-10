@@ -86,7 +86,7 @@ const RegisterPage = () => {
    return (
       <div className="bg-white-color min-h-screen">
          <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className=" text-black mx-10 p-6 rounded-lg bg-white-color shadow-md transition-all">
+            <div className=" text-black mx-10 p-6 rounded-lg bg-white-color shadow-md transition-all order-2 md:order-1">
                <h2 className="text-3xl font-bold text-green-color mb-1">
                   Create an account
                </h2>
@@ -104,7 +104,7 @@ const RegisterPage = () => {
                            <PersonIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="pl-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type="text"
                            name="username"
                            placeholder="Enter your name"
@@ -129,7 +129,7 @@ const RegisterPage = () => {
                            <LockClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="pl-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type={showPassword ? "text" : "password"}
                            name="password"
                            placeholder="Enter your password"
@@ -158,7 +158,7 @@ const RegisterPage = () => {
                            <LockClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="pl-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type={showConfirmPassword ? "text" : "password"}
                            name="password"
                            placeholder="Confirm your password"
@@ -220,28 +220,31 @@ const RegisterPage = () => {
                   </button>
                </form>
 
-               <div className="text-center my-4">
+               {/* <div className="text-center my-4">
                   <button
                      className="bg-green-color hover:bg-sgreen-color text-white-color text-center p-4 rounded font-semibold"
                      onClick={handleGoogleLogin}
                   >
                      Sign in with Google
                   </button>
-               </div>
+               </div> */}
 
-               <Link className="flex justify-center text-green-color" to="/">
-                  <img className="w-20" src={appLogo} />
+               <Link
+                  className="flex mt-2 sm:hidden justify-center text-green-color"
+                  to="/"
+               >
+                  <img className="w-32" src={appLogo} />
                </Link>
             </div>
-            <div className="text-balance flex flex-col gap-4 py-10 items-center">
+            <div className="hidden text-balance sm:flex order-1 md:order-2 flex-col gap-6 py-10 px-4 items-center">
                <img
                   src={appLogo}
-                  className="h-32 w-32 rounded-full bg-white/90 p-2"
+                  className="w-40 h-40 lg:h-60 lg:w-60 rounded-full bg-white shadow-2xl p-2"
                />
                <p className="text-3xl font-semi-bold text-green-color text-center">
                   Find the court and book it just by one click!
                </p>
-               <div className="flex gap-2">
+               <div className="flex gap-2 text-balance text-center">
                   <p className="bg-green-color px-4 py-1 rounded-full text-white">
                      100+ Courts
                   </p>

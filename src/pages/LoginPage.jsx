@@ -6,6 +6,7 @@ import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import appLogo from "../assets/applogo.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
+import { LockClosedIcon, PersonIcon } from "@radix-ui/react-icons";
 
 const LoginPage = () => {
    const { login } = useAuth();
@@ -65,38 +66,49 @@ const LoginPage = () => {
    }, [googleLogin]);
 
    return (
-      <div className="bg-white-color min-h-screen">
-         <div className="flex justify-center items-center my-10">
-            <div className="text-black w-96 p-6 rounded-lg bg-white shadow-2xl transition-all">
-               <h2 className="text-3xl font-black mb-4 text-center text-green-color">
+      <div className="bg-white-color ">
+         <div className="flex justify-center items-center my-10 px-8">
+            <div className=" text-black w-96 p-6 rounded-lg bg-white shadow-2xl transition-all">
+               <h2 className="text-3xl font-black mb-4  text-green-color">
                   Login
                </h2>
+               <p className="mb-4 text-gray-400 font-semibold ">
+                  Just few steps ahead to start your journey!
+               </p>
 
                <form className="" onSubmit={handleSubmit}>
                   <div>
                      <label className="block mb-2 text-xl text-green-color">
                         Username
                      </label>
-                     <input
-                        className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
-                        type="text"
-                        name="username"
-                        placeholder="Username"
-                        onChange={handleChange}
-                        required
-                     />
+                     <div className="relative">
+                        <p className="absolute left-3 top-3">
+                           <PersonIcon className="w-5 h-5" />
+                        </p>
+                        <input
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           type="text"
+                           name="username"
+                           placeholder="Enter your name"
+                           onChange={handleChange}
+                           required
+                        />
+                     </div>
                   </div>
 
                   <div className="mt-4">
                      <label className="block mb-2 text-xl text-green-color">
                         Password
                      </label>
-                     <div className="flex relative">
+                     <div className="relative">
+                        <p className="absolute left-3 top-3">
+                           <LockClosedIcon className="w-5 h-5" />
+                        </p>
                         <input
-                           className="focus:outline-none bg-gray-300 focus:bg-gray-100 p-2 rounded w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type={showPassword ? "text" : "password"}
                            name="password"
-                           placeholder="Password"
+                           placeholder="Enter your password"
                            onChange={handleChange}
                            required
                         />
@@ -133,17 +145,20 @@ const LoginPage = () => {
                   </p>
                </form>
 
-               <div className="text-center my-4">
+               {/* <div className="text-center my-4">
                   <button
                      className="bg-green-color hover:bg-sgreen-color text-white-color text-center p-4 rounded font-semibold  transition-all"
                      onClick={handleGoogleLogin}
                   >
                      Sign in with Google
                   </button>
-               </div>
+               </div> */}
 
-               <Link className="flex justify-center text-green-color" to="/">
-                  <img className="w-20" src={appLogo} />
+               <Link
+                  className="flex mt-2 justify-center text-green-color"
+                  to="/"
+               >
+                  <img className="w-32 sm:w-max" src={appLogo} />
                </Link>
             </div>
          </div>
