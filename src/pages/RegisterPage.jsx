@@ -5,7 +5,15 @@ import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import appLogo from "../assets/applogo.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { LockClosedIcon, MobileIcon, PersonIcon } from "@radix-ui/react-icons";
+import {
+   ArrowRightIcon,
+   CheckCircledIcon,
+   EnvelopeClosedIcon,
+   EnvelopeOpenIcon,
+   LockClosedIcon,
+   MobileIcon,
+   PersonIcon,
+} from "@radix-ui/react-icons";
 
 const RegisterPage = () => {
    const { register } = useAuth();
@@ -14,20 +22,23 @@ const RegisterPage = () => {
    const [sameUsername, setSameUsername] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
    const navigate = useNavigate();
-   const [credentials, setCredentials] = useState({
+   const [userData, setUserData] = useState({
       password: "",
       username: "",
+      phoneNo: null,
+      email: "",
+      isVerified: false,
    });
    const [confirmPassword, setConfirmPassword] = useState("");
    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
    const [isError, setIsError] = useState(false);
-   const [phoneNo, setPhoneNo] = useState();
+   const [emailSend, setEmailSend] = useState(false);
 
    useEffect(() => {
       if (googleLogin) {
          try {
             axios.get("http://localhost:8080/auth/callback", {
-               withCredentials: true,
+               withuserData: true,
             });
             setGoogleLogin(false);
          } catch (error) {
@@ -36,6 +47,8 @@ const RegisterPage = () => {
          }
       }
    }, [googleLogin]);
+
+   const notVerifiedUser = localStorage.getItem("notVerifiedUser");
 
    // const handleUsernameChange = async (username) => {
    //    try {
@@ -57,17 +70,20 @@ const RegisterPage = () => {
    // };
 
    const handleChange = (e) => {
-      setCredentials({ ...credentials, [e.target.name]: e.target.value });
+      setUserData({ ...userData, [e.target.name]: e.target.value });
    };
 
    const handleSubmit = async (e) => {
       e.preventDefault();
-      if (credentials.password === confirmPassword) {
+      if (userData.password === confirmPassword) {
          setLoading(true);
-         const success = await register(credentials);
+         const success = await register(userData);
          if (success) {
             setLoading(false);
-            navigate("/auth/login"); // Redirect after register
+            setEmailSend(true);
+            localStorage.setItem("notVerifiedUser", userData.username);
+            let verifySec = document.getElementById("verify");
+            verifySec && verifySec.scrollIntoView({ behavior: "smooth" });
          } else {
             setSameUsername(true);
             setLoading(false);
@@ -188,7 +204,7 @@ const RegisterPage = () => {
                   <div>
                      <div className="mt-4">
                         <label className="block mb-2 text-xl text-green-color">
-                           Enter Phone No
+                           Enter Phone Number
                         </label>
                      </div>
                      <div className="relative">
@@ -196,12 +212,31 @@ const RegisterPage = () => {
                            <MobileIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="pl-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type="number"
-                           name="phone"
+                           name="phoneNo"
                            placeholder="+92"
-                           value={phoneNo}
-                           onChange={(e) => setPhoneNo(e.target.value)}
+                           onChange={handleChange}
+                           required
+                        />
+                     </div>
+                  </div>
+                  <div>
+                     <div className="mt-4">
+                        <label className="block mb-2 text-xl text-green-color">
+                           Enter email
+                        </label>
+                     </div>
+                     <div className="relative">
+                        <p className="absolute left-3 top-3">
+                           <EnvelopeClosedIcon className="w-5 h-5" />
+                        </p>
+                        <input
+                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           type="email"
+                           name="email"
+                           placeholder="abcd123@gmail.com"
+                           onChange={handleChange}
                            required
                         />
                      </div>
@@ -218,6 +253,30 @@ const RegisterPage = () => {
                         "Register"
                      )}
                   </button>
+                  <div className="flex justify-end mt-2 gap-2 items-center">
+                     <p className="font-serif">Have an account?</p>
+                     <button
+                        onClick={() => navigate("/auth/login")}
+                        className="group flex bg-white font-semibold items-center gap-2 py-1 px-6 border-[1.5px] border-black rounded"
+                     >
+                        Log In
+                        <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 duration-200 transition-all" />
+                     </button>
+                  </div>
+                  {notVerifiedUser && (
+                     <section
+                        id="verify"
+                        className="mt-6 flex flex-col items-center"
+                     >
+                        <CheckCircledIcon className="w-24 h-24 text-blue-500 " />
+                        <h2 className="text-2xl text-balance font-semibold">
+                           We have sent you a link on your mail.
+                        </h2>
+                        <p className="mt-1">
+                           Please open it to create your account.
+                        </p>
+                     </section>
+                  )}
                </form>
 
                {/* <div className="text-center my-4">

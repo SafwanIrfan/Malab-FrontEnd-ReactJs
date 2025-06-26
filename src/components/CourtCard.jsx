@@ -43,7 +43,7 @@ const CourtCard = (court) => {
    return (
       <Link
          key={court.id}
-         className=" text-black rounded-lg border-gray-500 hover:shadow-green-color hover:shadow-2xl cursor-pointer transition-all"
+         className=" text-black rounded-lg shadow-2xl border-gray-500 hover:shadow-green-color cursor-pointer transition-all"
          to={`/court/${court.id}`}
       >
          <div className="bg-green-color p-2 rounded-t">

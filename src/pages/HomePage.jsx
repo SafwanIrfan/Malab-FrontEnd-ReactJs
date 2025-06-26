@@ -77,13 +77,15 @@ const HomePage = () => {
    return (
       <>
          {courts?.length >= 0 && (
-            <div className="p-10  text-black">
+            <div className="p-10 text-black">
                <div className="sm:hidden flex justify-center mb-2">
                   <SearchBar />
                </div>
-               <h1 className="text-center text-2xl text-green-500 font-black mb-6">
-                  {user && `Welcome back ${user}!`}
-               </h1>
+               <div className="w-[400px] border-[1px] border-black overflow-hidden">
+                  <h1 className="text-center text-2xl py-2 px-10 text-green-500 animate-marquee font-black ">
+                     {user && `Welcome back ${user}!`}
+                  </h1>
+               </div>
 
                <div className="flex justify-between mt-10">
                   <h1 className="text-2xl font-black mb-6">Available Courts</h1>

@@ -105,7 +105,7 @@ const CourtPage = () => {
                      <img
                         src={court.imageUrls[imageIndex].url}
                         alt="Court Image"
-                        className="bg-black/10 h-60 w-[693px] md:h-80 rounded object-contain "
+                        className="h-60 w-[693px] md:h-80 rounded object-contain "
                      />
                      <button
                         className={

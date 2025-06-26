@@ -66,7 +66,6 @@ export const AuthProvider = ({ children }) => {
 
          localStorage.setItem("token", jwtToken);
          localStorage.setItem("user", JSON.stringify(credentials.username));
-         toast.success("Successfully Logged In!");
          return true;
       } catch (error) {
          console.error("Login failed:", error);

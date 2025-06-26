@@ -11,6 +11,7 @@ import { LockClosedIcon, PersonIcon } from "@radix-ui/react-icons";
 const LoginPage = () => {
    const { login } = useAuth();
 
+   const [userDetails, setUserDetails] = useState();
    const [loading, setLoading] = useState(false);
    const [googleLogin, setGoogleLogin] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
@@ -32,14 +33,32 @@ const LoginPage = () => {
       setCredentials({ ...credentials, [e.target.name]: e.target.value });
    };
 
+   const fetchUser = async (username) => {
+      const userResponse = await axios.get(
+         `http://localhost:8080/auth/user/${username}`
+      );
+      console.log(userResponse);
+      console.log(userResponse.data);
+      return userResponse.data;
+   };
+
    const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
       const success = await login(credentials);
-      if (success) {
+      const userData = await fetchUser(credentials.username);
+      const isUserValid = userData?.isVerified;
+      if (success && isUserValid) {
+         // if user exist and is valid
          navigate("/"); // Redirect after login
+         toast.success("Successfully Logged In!");
+         setLoading(false);
+      } else if (success && !isUserValid) {
+         // if user exist but is not valid
+         toast.error("Please validate your account first!");
          setLoading(false);
       } else {
+         // if user not exist
          setLoading(false);
          toast.error("Invalid username or password");
       }

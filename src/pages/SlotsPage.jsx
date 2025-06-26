@@ -399,8 +399,8 @@ const SlotsPage = () => {
                         </select>
                      </div>
                   </div>
-                  <p className="mt-2  ">
-                     <span className=" font-bold">Note : </span> You can select
+                  <p className="mt-2">
+                     <span className="font-bold">Note : </span> You can select
                      timings only within the court&apos;s opening and closing
                      hours. Additionally, already booked slots cannot be chosen.
                   </p>
