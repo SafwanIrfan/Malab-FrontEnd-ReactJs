@@ -11,42 +11,30 @@ export const AuthProvider = ({ children }) => {
 
    // const userId = decoded.userId || decoded.id;
 
+   const fetchUser = async () => {
+      try {
+         const response = await axios.get(
+            `http://localhost:8080/auth/user/${username}`,
+            {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            }
+         );
+         console.log(response.data);
+         setCurrentUser(response.data);
+      } catch (error) {
+         console.log("Error Fetching User : ", error);
+         <Navigate to="/auth/login" />;
+      }
+   };
+
    useEffect(() => {
-      const fetchUser = async () => {
-         try {
-            const response = await axios.get(
-               `http://localhost:8080/auth/user/${username}`,
-               {
-                  headers: {
-                     Authorization: `Bearer ${jwtToken}`,
-                  },
-               }
-            );
-            console.log(response.data);
-            setCurrentUser(response.data);
-         } catch (error) {
-            console.log("Error Fetching User : ", error);
-            <Navigate to="/auth/login" />;
-         }
-      };
-      fetchUser();
+      jwtToken && fetchUser();
    }, []);
 
    // 🔹 Login function
-   const register = async (credentials) => {
-      try {
-         await axios.post("http://localhost:8080/auth/register", credentials, {
-            withCredentials: true,
-            headers: {
-               "Content-Type": "application/json", // ✅ Send JSON
-            },
-         });
-         toast.success("Successfully Registered!");
-         return true;
-      } catch (error) {
-         return false;
-      }
-   };
+
    const login = async (credentials) => {
       console.log(credentials);
       try {
@@ -61,11 +49,6 @@ export const AuthProvider = ({ children }) => {
             }
          );
          console.log("Login Response:", response); // Debugging
-
-         const jwtToken = response.data;
-
-         localStorage.setItem("token", jwtToken);
-         localStorage.setItem("user", JSON.stringify(credentials.username));
          return true;
       } catch (error) {
          console.error("Login failed:", error);
@@ -76,7 +59,7 @@ export const AuthProvider = ({ children }) => {
    const username = JSON.parse(localStorage.getItem("user"));
 
    return (
-      <AuthContext.Provider value={{ register, login, jwtToken, currentUser }}>
+      <AuthContext.Provider value={{ login, jwtToken, currentUser }}>
          {children}
       </AuthContext.Provider>
    );

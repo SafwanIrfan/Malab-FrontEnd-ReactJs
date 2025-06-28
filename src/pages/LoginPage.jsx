@@ -34,33 +34,51 @@ const LoginPage = () => {
    };
 
    const fetchUser = async (username) => {
-      const userResponse = await axios.get(
-         `http://localhost:8080/auth/user/${username}`
-      );
-      console.log(userResponse);
-      console.log(userResponse.data);
-      return userResponse.data;
+      try {
+         const userResponse = await axios.get(
+            `http://localhost:8080/auth/user/${username}`
+         );
+         console.log(userResponse);
+         console.log(userResponse.data);
+         return userResponse.data;
+      } catch (error) {
+         return error;
+      }
    };
 
    const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
-      const success = await login(credentials);
-      const userData = await fetchUser(credentials.username);
-      const isUserValid = userData?.isVerified;
-      if (success && isUserValid) {
-         // if user exist and is valid
-         navigate("/"); // Redirect after login
-         toast.success("Successfully Logged In!");
-         setLoading(false);
-      } else if (success && !isUserValid) {
-         // if user exist but is not valid
-         toast.error("Please validate your account first!");
-         setLoading(false);
-      } else {
-         // if user not exist
-         setLoading(false);
+      try {
+         const response = await axios.post(
+            "http://localhost:8080/auth/login",
+            credentials,
+            {
+               withCredentials: true,
+               headers: {
+                  "Content-Type": "application/json",
+               },
+            }
+         );
+         const userData = await fetchUser(credentials.username);
+         const isUserValid = userData?.isVerified;
+         if (isUserValid) {
+            navigate("/"); // Redirect after login
+            toast.success("Successfully Logged In!");
+            setLoading(false);
+            const jwtToken = response.data;
+            localStorage.setItem("token", jwtToken);
+            localStorage.setItem("user", JSON.stringify(credentials.username));
+         } else {
+            // user is not valid
+            toast.error("Please validate your account first!");
+            setLoading(false);
+         }
+      } catch (error) {
+         // user has no account
          toast.error("Invalid username or password");
+         setLoading(false);
+         console.log(error);
       }
    };
 

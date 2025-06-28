@@ -11,7 +11,7 @@ import Loading from "../smallcomponents/Loading";
 import Button from "../smallcomponents/Button";
 
 const HomePage = () => {
-   const { searchCourtsResults, user, jwtToken } = useContext(AppContext);
+   const { searchCourtsResults, user } = useContext(AppContext);
 
    const navigate = useNavigate();
 
@@ -81,12 +81,13 @@ const HomePage = () => {
                <div className="sm:hidden flex justify-center mb-2">
                   <SearchBar />
                </div>
-               <div className="w-[400px] border-[1px] border-black overflow-hidden">
-                  <h1 className="text-center text-2xl py-2 px-10 text-green-500 animate-marquee font-black ">
-                     {user && `Welcome back ${user}!`}
-                  </h1>
-               </div>
-
+               {user && (
+                  <div className="w-[400px] border-[1px] border-black overflow-hidden mx-auto rounded-full hover:bg-black/10 bg-white transition-all shadow-lg">
+                     <h1 className="text-center text-2xl py-2 px-10 text-sgreen-color animate-marquee font-black ">
+                        {`Welcome back ${user}!`}
+                     </h1>
+                  </div>
+               )}
                <div className="flex justify-between mt-10">
                   <h1 className="text-2xl font-black mb-6">Available Courts</h1>
                   <Button

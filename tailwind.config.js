@@ -10,7 +10,7 @@ export default {
             },
          },
          animation: {
-            marquee: "marquee 5s linear infinite",
+            marquee: "marquee 10s linear infinite",
          },
          colors: {
             "green-color": "#006A67",

@@ -14,12 +14,11 @@ import {
    MobileIcon,
    PersonIcon,
 } from "@radix-ui/react-icons";
+import { toast } from "react-toastify";
 
 const RegisterPage = () => {
-   const { register } = useAuth();
    const [googleLogin, setGoogleLogin] = useState(false);
    const [loading, setLoading] = useState(false);
-   const [sameUsername, setSameUsername] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
    const navigate = useNavigate();
    const [userData, setUserData] = useState({
@@ -32,6 +31,7 @@ const RegisterPage = () => {
    const [confirmPassword, setConfirmPassword] = useState("");
    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
    const [isError, setIsError] = useState(false);
+   const [errorMessage, setErrorMessage] = useState("");
    const [emailSend, setEmailSend] = useState(false);
 
    useEffect(() => {
@@ -47,8 +47,6 @@ const RegisterPage = () => {
          }
       }
    }, [googleLogin]);
-
-   const notVerifiedUser = localStorage.getItem("notVerifiedUser");
 
    // const handleUsernameChange = async (username) => {
    //    try {
@@ -74,22 +72,35 @@ const RegisterPage = () => {
    };
 
    const handleSubmit = async (e) => {
+      setIsError(false);
+      setErrorMessage("");
       e.preventDefault();
+      setLoading(true);
       if (userData.password === confirmPassword) {
-         setLoading(true);
-         const success = await register(userData);
-         if (success) {
+         try {
+            await axios.post("http://localhost:8080/auth/register", userData, {
+               withCredentials: true,
+               headers: {
+                  "Content-Type": "application/json", // ✅ Send JSON
+               },
+            });
             setLoading(false);
             setEmailSend(true);
-            localStorage.setItem("notVerifiedUser", userData.username);
             let verifySec = document.getElementById("verify");
             verifySec && verifySec.scrollIntoView({ behavior: "smooth" });
-         } else {
-            setSameUsername(true);
+         } catch (error) {
             setLoading(false);
+            if (error.response.status === 409) {
+               setIsError(true);
+               setErrorMessage(error.response.data);
+            } else {
+               console.log(error);
+            }
          }
       } else {
          setIsError(true);
+         setLoading(false);
+         setErrorMessage("Password is not same");
       }
    };
 
@@ -125,13 +136,11 @@ const RegisterPage = () => {
                            name="username"
                            placeholder="Enter your name"
                            onChange={handleChange}
-                           onFocus={() => setSameUsername(false)}
+                           onFocus={() => setIsError(false)}
                            required
                         />
-                        {sameUsername && (
-                           <p className="text-red-600">
-                              Username already exist!
-                           </p>
+                        {isError && errorMessage.includes("Username") && (
+                           <p className="text-red-600">{errorMessage}</p>
                         )}
                      </div>
                   </div>
@@ -195,8 +204,8 @@ const RegisterPage = () => {
                               <FaEye className="absolute right-4 top-3 " />
                            )}
                         </button>
-                        {isError && (
-                           <p className="text-red-500">Password is not same!</p>
+                        {isError && errorMessage.includes("Password") && (
+                           <p className="text-red-500">{errorMessage}</p>
                         )}
                      </div>
                   </div>
@@ -213,13 +222,25 @@ const RegisterPage = () => {
                         </p>
                         <input
                            className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
-                           type="number"
+                           type="text"
                            name="phoneNo"
-                           placeholder="+92"
+                           maxLength="13"
+                           placeholder="Enter phone number"
+                           inputMode="numeric"
                            onChange={handleChange}
+                           onInput={(e) => {
+                              e.target.value = e.target.value.replace(
+                                 /[^0-9+]/g,
+                                 ""
+                              );
+                           }}
+                           onFocus={() => setIsError(false)}
                            required
                         />
                      </div>
+                     {isError && errorMessage.includes("Phone") && (
+                        <p className="text-red-500">{errorMessage}</p>
+                     )}
                   </div>
                   <div>
                      <div className="mt-4">
@@ -238,8 +259,12 @@ const RegisterPage = () => {
                            placeholder="abcd123@gmail.com"
                            onChange={handleChange}
                            required
+                           onFocus={() => setIsError(false)}
                         />
                      </div>
+                     {isError && errorMessage.includes("Email") && (
+                        <p className="text-red-500">{errorMessage}</p>
+                     )}
                   </div>
 
                   <button
@@ -263,7 +288,7 @@ const RegisterPage = () => {
                         <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 duration-200 transition-all" />
                      </button>
                   </div>
-                  {notVerifiedUser && (
+                  {emailSend && (
                      <section
                         id="verify"
                         className="mt-6 flex flex-col items-center"
