@@ -1,25 +1,27 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import {
    FaArrowLeft,
    FaArrowRight,
    FaEdit,
    FaHeart,
-   FaSpinner,
    FaTrash,
 } from "react-icons/fa";
-import { FaLocationPin } from "react-icons/fa6";
 import AppContext from "../contexts/Context";
 import { toast } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Loading from "../smallcomponents/Loading";
+import { CopyCheck, CopyCheckIcon, CopyIcon, MapPin } from "lucide-react";
+import Button from "../smallcomponents/Button";
 
 const CourtPage = () => {
    const { id } = useParams();
    const [imageIndex, setImageIndex] = useState(0);
    const { getOneWeek, user, jwtToken, decoded } = useContext(AppContext);
-   const [refresh, setRefresh] = useState(false);
+
+   const [copyState, setCopyState] = useState("Idle");
 
    const navigate = useNavigate();
    const oneWeek = getOneWeek();
@@ -46,6 +48,23 @@ const CourtPage = () => {
       addFavMutation.mutate(id);
    };
 
+   const handleDelete = async () => {
+      if (window.confirm("Are you sure you want to delete this court?")) {
+         try {
+            await axios.delete(`http://localhost:8080/court/${id}/delete`, {
+               headers: {
+                  Authorization: `Bearer ${jwtToken}`,
+               },
+            });
+            navigate("/");
+            toast.success(`${court.name} successfully deleted.`);
+         } catch (error) {
+            console.log("Error deleting court : ", error);
+            toast.error(`There was a problem occur in deleting ${court.name}`);
+         }
+      }
+   };
+
    const {
       data: court,
       isLoading,
@@ -63,25 +82,30 @@ const CourtPage = () => {
       enabled: !!id, // makes sure query runs only when id is available
    });
 
-   if (isLoading) navigate("/loading");
-   if (error) return <div className="text">Error loading court</div>;
-
-   const handleDelete = async () => {
-      if (window.confirm("Are you sure you want to delete this court?")) {
-         try {
-            await axios.delete(`http://localhost:8080/court/${id}/delete`, {
-               headers: {
-                  Authorization: `Bearer ${jwtToken}`,
-               },
-            });
-            navigate("/");
-            toast.success(`${court.name} successfully deleted.`);
-         } catch (error) {
-            console.log("Error deleting court : ", error);
-            toast.error(`There was a problem occur in deleting ${court.name}`);
-         }
+   const copyUrl = async () => {
+      try {
+         navigator.clipboard.writeText(window.location.href);
+         setCopyState("Copied");
+         setTimeout(() => setCopyState("Idle"), 2000);
+      } catch (error) {
+         setCopyState("Error");
+         setTimeout(() => setCopyState("Idle"), 2000);
+         console.log("Error in copying link : ", error);
       }
    };
+
+   if (isLoading) return <Loading />;
+   // if (error)
+   //    return (
+   //       <div className="p-4 mt-20 flex justify-center items-center">
+   //          <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
+   //             <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
+   //             <p className="mb-4 text-xl">
+   //                Your session is expired. Please login
+   //             </p>
+   //          </div>
+   //       </div>
+   //    );
 
    return (
       <>
@@ -132,7 +156,7 @@ const CourtPage = () => {
                   <div className="w-full">
                      <button
                         onClick={() => navigate(`/court/${id}/edit`)}
-                        className="text-xl text-white-color bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-4"
+                        className="text-xl text-white-color bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-4 transition-all"
                      >
                         <FaEdit />
                      </button>
@@ -145,7 +169,7 @@ const CourtPage = () => {
                   <div className="w-full text-right">
                      <button
                         onClick={handleDelete}
-                        className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-4 text-black"
+                        className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-4 text-black transition-all"
                      >
                         <FaTrash />
                      </button>
@@ -157,27 +181,34 @@ const CourtPage = () => {
                         Rs {court.pricePerHour}
                         <span className="font-normal">/hour</span>
                      </p>
-
-                     <button
-                        onClick={() => handleAddFav(court.id)}
-                        className={
-                           court.courtsFavorites.length > 0
-                              ? court.courtsFavorites?.id?.usersId ===
-                                decoded?.id
-                                 ? "text-red-600 transition-all"
-                                 : " transition-all"
-                              : ""
-                        }
-                     >
-                        <FaHeart className="text-3xl hover:scale-110 duration-200 ease-in-out transition-all" />
-                     </button>
+                     <div className="flex gap-6 items-start ">
+                        <button
+                           onClick={() => handleAddFav(court.id)}
+                           className={
+                              court.courtsFavorites.length > 0
+                                 ? court.courtsFavorites?.id?.usersId ===
+                                   decoded?.id
+                                    ? "text-red-600 transition-all"
+                                    : " transition-all"
+                                 : ""
+                           }
+                        >
+                           <FaHeart className="text-3xl hover:scale-110 duration-200 ease-in-out transition-all" />
+                        </button>
+                        <button onClick={copyUrl}>
+                           {copyState === "Idle" ? (
+                              <CopyIcon className="size-8 hover:scale-110 duration-200 ease-in-out transition-all" />
+                           ) : (
+                              <CopyCheckIcon className="size-8 transition-all scale-110 ease-in-out" />
+                           )}
+                        </button>
+                     </div>
                   </div>
                   <div className="flex gap-2">
-                     <FaLocationPin className="text-red-600 mt-1 h-5 w-5" />
+                     <MapPin className="text-red-600  mt-1 h-5 w-5" />
 
                      <p className="text-gray-700 text-xl">{court.location}</p>
                   </div>
-                  <div></div>
                </section>
                <section>
                   <h3 className="text-3xl font-bold my-6">View Slots</h3>

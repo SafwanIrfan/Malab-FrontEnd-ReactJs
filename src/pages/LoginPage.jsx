@@ -5,13 +5,15 @@ import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import appLogo from "../assets/applogo.svg";
+import dummyicon from "../assets/dummyicon.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
-import { LockClosedIcon, PersonIcon } from "@radix-ui/react-icons";
+import {
+   ArrowRightIcon,
+   LockClosedIcon,
+   PersonIcon,
+} from "@radix-ui/react-icons";
 
 const LoginPage = () => {
-   const { login } = useAuth();
-
-   const [userDetails, setUserDetails] = useState();
    const [loading, setLoading] = useState(false);
    const [googleLogin, setGoogleLogin] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
@@ -103,11 +105,14 @@ const LoginPage = () => {
    }, [googleLogin]);
 
    return (
-      <div className="bg-white-color ">
-         <div className="flex justify-center items-center my-10 px-8">
-            <div className=" text-black w-96 p-6 rounded-lg bg-white shadow-2xl transition-all">
-               <h2 className="text-3xl font-black mb-4  text-green-color">
-                  Login
+      <div>
+         <Link className="flex py-4 px-8 justify-start text-green-color" to="/">
+            <img className="w-16 h-16 sm:w-max" src={dummyicon} />
+         </Link>
+         <div className="flex justify-center items-center my-10 px-8 ">
+            <div className=" text-black  p-6 rounded-lg bg-white shadow-2xl transition-all">
+               <h2 className="text-2xl font-black mb-1  text-green-color">
+                  LOGIN
                </h2>
                <p className="mb-4 text-gray-400 font-semibold ">
                   Just few steps ahead to start your journey!
@@ -115,18 +120,16 @@ const LoginPage = () => {
 
                <form className="" onSubmit={handleSubmit}>
                   <div>
-                     <label className="block mb-2 text-xl text-green-color">
-                        Username
-                     </label>
                      <div className="relative">
                         <p className="absolute left-3 top-3">
                            <PersonIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type="text"
                            name="username"
-                           placeholder="Enter your name"
+                           autoComplete="off"
+                           placeholder="Username or Email Address"
                            onChange={handleChange}
                            required
                         />
@@ -134,18 +137,15 @@ const LoginPage = () => {
                   </div>
 
                   <div className="mt-4">
-                     <label className="block mb-2 text-xl text-green-color">
-                        Password
-                     </label>
                      <div className="relative">
                         <p className="absolute left-3 top-3">
                            <LockClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className="px-10 outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
                            type={showPassword ? "text" : "password"}
                            name="password"
-                           placeholder="Enter your password"
+                           placeholder="Password"
                            onChange={handleChange}
                            required
                         />
@@ -159,12 +159,25 @@ const LoginPage = () => {
                               <FaEye className="absolute right-4 top-3 " />
                            )}
                         </button>
+                        <div className="mt-2 flex justify-between">
+                           <div className="flex gap-2">
+                              <input
+                                 className="mt-[4px] w-4 h-4 accent-blue-500 border border-blue-500 rounded hover:border-blue-700"
+                                 type="checkbox"
+                                 name="KeepMeSignedIn"
+                              />
+                              <label>Keep me signed in</label>
+                           </div>
+                           <Link className="text-red-500 hover:text-red-700 text-md transition-all">
+                              Forgot password?
+                           </Link>
+                        </div>
                      </div>
                   </div>
 
                   <button
                      type="submit"
-                     className="text-center w-full px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-4 cursor-pointer rounded transition-all"
+                     className="text-center w-full px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-6 cursor-pointer rounded transition-all"
                      onClick={() => handleSubmit}
                   >
                      {loading ? (
@@ -174,12 +187,16 @@ const LoginPage = () => {
                      )}
                   </button>
 
-                  <p className="text-center mt-2">
-                     Not have an account?{" "}
-                     <span className="text-sgreen-color hover:text-green-color font-semibold">
-                        <Link to="/auth/register">Register</Link>
-                     </span>
-                  </p>
+                  <div className="flex gap-2 mt-4 items-center justify-between">
+                     <p className="font-serif">Not have an account? </p>
+                     <button
+                        onClick={() => navigate("/auth/register")}
+                        className="group flex bg-white font-semibold items-center gap-2 py-1 px-6 border-[1.5px] border-black rounded"
+                     >
+                        Register Now
+                        <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 duration-200 transition-all" />
+                     </button>
+                  </div>
                </form>
 
                {/* <div className="text-center my-4">
@@ -190,13 +207,6 @@ const LoginPage = () => {
                      Sign in with Google
                   </button>
                </div> */}
-
-               <Link
-                  className="flex mt-2 justify-center text-green-color"
-                  to="/"
-               >
-                  <img className="w-32 sm:w-max" src={appLogo} />
-               </Link>
             </div>
          </div>
       </div>

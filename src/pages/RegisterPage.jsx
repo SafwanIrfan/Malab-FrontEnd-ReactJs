@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import appLogo from "../assets/applogo.svg";
+import dummyicon from "../assets/dummyicon.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import {
    ArrowRightIcon,
@@ -67,6 +67,13 @@ const RegisterPage = () => {
    //    }
    // };
 
+   useEffect(() => {
+      if (emailSend) {
+         const verifySec = document.getElementById("verify");
+         verifySec?.scrollIntoView({ behavior: "smooth" });
+      }
+   }, [emailSend]);
+
    const handleChange = (e) => {
       setUserData({ ...userData, [e.target.name]: e.target.value });
    };
@@ -86,8 +93,6 @@ const RegisterPage = () => {
             });
             setLoading(false);
             setEmailSend(true);
-            let verifySec = document.getElementById("verify");
-            verifySec && verifySec.scrollIntoView({ behavior: "smooth" });
          } catch (error) {
             setLoading(false);
             if (error.response.status === 409) {
@@ -110,31 +115,33 @@ const RegisterPage = () => {
       setGoogleLogin(true);
    };
 
+   const inputClassName =
+      "px-10 outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full";
+
    return (
       <div className="bg-white-color min-h-screen">
          <div className="grid grid-cols-1 md:grid-cols-2">
             <div className=" text-black mx-10 p-6 rounded-lg bg-white-color shadow-md transition-all order-2 md:order-1">
-               <h2 className="text-3xl font-bold text-green-color mb-1">
-                  Create an account
+               <h2 className="text-2xl font-bold text-green-color mb-1">
+                  CREATE ACCOUNT
                </h2>
-               <p className="mb-4 text-gray-400 font-semibold ">
-                  Join us and play with ease!
-               </p>
+               <p className="mb-4 text-gray-400 font-semibold ">tagline</p>
 
                <form className="" onSubmit={handleSubmit}>
                   <div>
                      <label className="block mb-2 text-xl text-green-color">
-                        Full Name
+                        Username
                      </label>
                      <div className="relative">
                         <p className="absolute left-3 top-3">
                            <PersonIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className={inputClassName}
                            type="text"
+                           autoComplete="off"
                            name="username"
-                           placeholder="Enter your name"
+                           placeholder="Username"
                            onChange={handleChange}
                            onFocus={() => setIsError(false)}
                            required
@@ -154,10 +161,11 @@ const RegisterPage = () => {
                            <LockClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className={inputClassName}
                            type={showPassword ? "text" : "password"}
                            name="password"
-                           placeholder="Enter your password"
+                           onPaste={(e) => e.preventDefault()} // disable pasting
+                           placeholder="Password"
                            onChange={handleChange}
                            required
                         />
@@ -183,10 +191,11 @@ const RegisterPage = () => {
                            <LockClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className={inputClassName}
                            type={showConfirmPassword ? "text" : "password"}
                            name="password"
                            placeholder="Confirm your password"
+                           onPaste={(e) => e.preventDefault()}
                            value={confirmPassword}
                            onChange={(e) => setConfirmPassword(e.target.value)}
                            onFocus={() => setIsError(false)}
@@ -213,7 +222,7 @@ const RegisterPage = () => {
                   <div>
                      <div className="mt-4">
                         <label className="block mb-2 text-xl text-green-color">
-                           Enter Phone Number
+                           Phone Number
                         </label>
                      </div>
                      <div className="relative">
@@ -221,11 +230,12 @@ const RegisterPage = () => {
                            <MobileIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className={inputClassName}
                            type="text"
                            name="phoneNo"
+                           autoComplete="off"
                            maxLength="13"
-                           placeholder="Enter phone number"
+                           placeholder="Phone Number"
                            inputMode="numeric"
                            onChange={handleChange}
                            onInput={(e) => {
@@ -245,7 +255,7 @@ const RegisterPage = () => {
                   <div>
                      <div className="mt-4">
                         <label className="block mb-2 text-xl text-green-color">
-                           Enter email
+                           Email
                         </label>
                      </div>
                      <div className="relative">
@@ -253,10 +263,11 @@ const RegisterPage = () => {
                            <EnvelopeClosedIcon className="w-5 h-5" />
                         </p>
                         <input
-                           className="px-10 outline-none border-2 border-sgreen-color/40 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full"
+                           className={inputClassName}
                            type="email"
                            name="email"
-                           placeholder="abcd123@gmail.com"
+                           autoComplete="off"
+                           placeholder="Enter your email"
                            onChange={handleChange}
                            required
                            onFocus={() => setIsError(false)}
@@ -288,20 +299,24 @@ const RegisterPage = () => {
                         <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 duration-200 transition-all" />
                      </button>
                   </div>
-                  {emailSend && (
-                     <section
-                        id="verify"
-                        className="mt-6 flex flex-col items-center"
-                     >
-                        <CheckCircledIcon className="w-24 h-24 text-blue-500 " />
-                        <h2 className="text-2xl text-balance font-semibold">
-                           We have sent you a link on your mail.
-                        </h2>
-                        <p className="mt-1">
-                           Please open it to create your account.
-                        </p>
-                     </section>
-                  )}
+
+                  <section
+                     id="verify"
+                     className={`mt-6 ${
+                        emailSend ? "flex" : "hidden"
+                     } flex-col items-center`}
+                  >
+                     <CheckCircledIcon className="w-24 h-24 text-blue-500 " />
+                     <h2 className="text-2xl text-balance font-semibold">
+                        We have sent you a link on your mail.
+                     </h2>
+                     <p className="mt-1">
+                        Please open it to create your account.{" "}
+                        <span className="text-red-500">
+                           It will expire after 1 hour
+                        </span>
+                     </p>
+                  </section>
                </form>
 
                {/* <div className="text-center my-4">
@@ -322,21 +337,21 @@ const RegisterPage = () => {
             </div>
             <div className="hidden text-balance sm:flex order-1 md:order-2 flex-col gap-6 py-10 px-4 items-center">
                <img
-                  src={appLogo}
-                  className="w-40 h-40 lg:h-60 lg:w-60 rounded-full bg-white shadow-2xl p-2"
+                  src={dummyicon}
+                  className="w-40 h-40 lg:h-50 lg:w-50 rounded-full  p-2"
                />
                <p className="text-3xl font-semi-bold text-green-color text-center">
-                  Find the court and book it just by one click!
+                  Tagline
                </p>
                <div className="flex gap-2 text-balance text-center">
                   <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     100+ Courts
+                     Why choose us
                   </p>
                   <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     Secure Transactions
+                     Why choose us
                   </p>
                   <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     5000+ Users
+                     Why choose us
                   </p>
                </div>
             </div>

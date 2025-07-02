@@ -6,8 +6,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
 import AppContext from "../contexts/Context";
 import appLogo from "../assets/applogo.svg";
+import dummyicon from "../assets/dummyicon.svg";
 import SearchBar from "./SearchBar";
 import { jwtDecode } from "jwt-decode";
+import { AvatarIcon } from "@radix-ui/react-icons";
+
 const Navbar = () => {
    const { noResults } = useContext(AppContext);
    const [showNavbarBuger, setShowNavbarBurger] = useState(false);
@@ -19,6 +22,8 @@ const Navbar = () => {
 
    const location = useLocation();
    const isHomePage = location.pathname === "/";
+
+   const userImage = null;
 
    const handleLogout = async () => {
       localStorage.removeItem("token");
@@ -42,10 +47,10 @@ const Navbar = () => {
          <div className="relative px-8 py-4 font-mono flex justify-between rounded-b-lg ">
             <div className="flex items-center text-center ">
                <NavLink to="/" className="">
-                  <img className=" w-20 md:w-28 mr-4" src={appLogo} />
+                  <img className=" w-28 md:w-28 mr-4" src={appLogo} />
                </NavLink>
             </div>
-            <div className="sm:hidden text-lg text-right">
+            <div className="sm:hidden text-lg flex items-center  ">
                <button
                   className=""
                   onClick={() => setShowNavbarBurger((prevState) => !prevState)}
@@ -64,6 +69,7 @@ const Navbar = () => {
                      }
                   />
                </button>
+
                <div className="absolute right-6 z-10">
                   {showNavbarBuger && (
                      <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
@@ -125,34 +131,15 @@ const Navbar = () => {
                      {jwtToken ? "Logout" : "Login"}
                   </button>
                </div>
-
-               {/* <div className="sm:hidden text-lg text-right">
-                  <button
-                     className=""
-                     onClick={() =>
-                        setShowNavbarBurger((prevState) => !prevState)
-                     }
-                  >
-                     <FaBars
-                        style={
-                           showNavbarBuger
-                              ? {
-                                   transform: "rotate(90deg)",
-                                   transition: "0.3s",
-                                }
-                              : {
-                                   transform: "rotate(0deg)",
-                                   transition: "0.3s",
-                                }
-                        }
-                     />
-                  </button>
-                  <div>
-                     {showNavbarBuger && (
-                        <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
-                     )}
-                  </div>
-               </div> */}
+               <button>
+                  {userImage ? (
+                     <div className="w-10 h-10 rounded-full p-4 border-2 border-black ">
+                        {userImage}
+                     </div>
+                  ) : (
+                     <AvatarIcon className="w-10 h-10" />
+                  )}
+               </button>
             </div>
          </div>
       </section>

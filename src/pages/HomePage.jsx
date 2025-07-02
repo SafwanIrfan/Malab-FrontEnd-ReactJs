@@ -84,7 +84,7 @@ const HomePage = () => {
                {user && (
                   <div className="w-[400px] border-[1px] border-black overflow-hidden mx-auto rounded-full hover:bg-black/10 bg-white transition-all shadow-lg">
                      <h1 className="text-center text-2xl py-2 px-10 text-sgreen-color animate-marquee font-black ">
-                        {`Welcome back ${user}!`}
+                        {`Welcome ${user}!`}
                      </h1>
                   </div>
                )}

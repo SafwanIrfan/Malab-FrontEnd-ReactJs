@@ -68,7 +68,7 @@ const CourtCard = (court) => {
 
          <div className="px-4 pb-4">
             <div className="flex justify-between my-2">
-               <p className=" font-bold text-lg">{court.pricePerHour}/hour</p>
+               <p className="font-bold text-lg">{court.pricePerHour}/hour</p>
                <div>
                   <button
                      onClick={(e) => {
