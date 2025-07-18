@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 import { format, parse } from "date-fns";
 import BookingPopup from "../smallcomponents/BookingPopup";
 import Button from "../smallcomponents/Button";
+import { getToken } from "../utils/authToken";
 
 const SlotsPage = () => {
    const { day, id, date } = useParams();
@@ -25,9 +26,9 @@ const SlotsPage = () => {
       bookedTime: "",
       bookedDay: "",
       bookedDate: "",
+      courtName: "",
    });
 
-   const { jwtToken } = useContext(AppContext);
    const [booked, setBooked] = useState(false);
    const [allSlots, setAllSlots] = useState([]);
    const [bookedSlotStartTime, setBookedSlotStartTime] = useState([]);
@@ -86,6 +87,8 @@ const SlotsPage = () => {
       "11:30 PM",
    ];
 
+   const token = getToken();
+
    const court = courts.find((court) => court.id == id);
 
    const formatStartTime = formatTime(timingsForDay.startingTime);
@@ -115,7 +118,7 @@ const SlotsPage = () => {
                `http://localhost:8080/court/${id}/timings/${day}`,
                {
                   withCredentials: true,
-                  headers: { Authorization: `Bearer ${jwtToken}` },
+                  headers: { Authorization: `Bearer ${token}` },
                }
             );
             setTimingsForDay(response.data);
@@ -132,7 +135,7 @@ const SlotsPage = () => {
             `http://localhost:8080/court/${id}/${day}/booked_slots`,
             {
                withCredentials: true,
-               headers: { Authorization: `Bearer ${jwtToken}` },
+               headers: { Authorization: `Bearer ${token}` },
             }
          );
          setAllSlots(response.data);
@@ -197,7 +200,7 @@ const SlotsPage = () => {
                bookedSlots,
                {
                   headers: {
-                     Authorization: `Bearer ${jwtToken}`,
+                     Authorization: `Bearer ${token}`,
                      "Content-Type": "application/json",
                   },
                }
@@ -283,12 +286,15 @@ const SlotsPage = () => {
          (court.pricePerHour * (endingIndex - startingIndex)) / 2;
       console.log(finalPrice);
       setPriceCalc(finalPrice);
-
       setPopupOpen(true);
    };
 
    const handleTransaction = () => {
       setBooked(true);
+      setBookedSlots((prev) => ({
+         ...prev,
+         courtName: court.name,
+      }));
       const today = DateTime.now();
       const currentTime = today.toFormat("HH:mm:ss");
       const currentDay = today.toFormat("EEEE");
@@ -303,7 +309,7 @@ const SlotsPage = () => {
 
    return (
       <div className="text-black px-8 py-10 ">
-         <div className="border-b-2  border-green-color flex justify-center font-black  p-4">
+         <div className="flex justify-center font-black  p-4">
             <h3 className="text-4xl">{day.toUpperCase()}</h3>
          </div>
          {formatStartTime != isNaN && formatEndTime != isNaN ? (
@@ -335,7 +341,7 @@ const SlotsPage = () => {
                </p> */}
                </div>
 
-               <div className=" border-2 border-green-color p-6 mx-8 mb-10 rounded ">
+               <div className=" border-[2px] bg-white/70 border-blackberry-color p-6 mx-8 mb-10 rounded ">
                   <h2 className="text-3xl font-bold mb-4 text-center">
                      Choose your slot
                   </h2>
@@ -353,7 +359,7 @@ const SlotsPage = () => {
                            id="startTime"
                            onChange={handleSlotChange}
                            onFocus=""
-                           className="bg-black text-white p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                           className="bg-black text-white p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded"
                         >
                            <option value="" disabled hidden>
                               00:00
@@ -379,7 +385,7 @@ const SlotsPage = () => {
                            name="endTime"
                            id="endTime"
                            onChange={handleSlotChange}
-                           className="bg-black text-white p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded "
+                           className="bg-black text-white p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded "
                         >
                            <option value="" disabled hidden>
                               00:00

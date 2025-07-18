@@ -1,19 +1,20 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
 import { toast } from "react-toastify";
-import { jwtDecode } from "jwt-decode";
+import { getDecodedToken, getToken } from "../utils/authToken";
 
 const NavbarBuger = (setShowNavbarBurger) => {
-   const jwtToken = localStorage.getItem("token");
-
-   const decoded = jwtToken && jwtDecode(jwtToken);
+   const token = getToken();
+   const decoded = getDecodedToken();
 
    const usersId = decoded?.usersId;
    const navigate = useNavigate();
 
    const handleLogout = async () => {
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.removeItem("username");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("username");
+
       toast.success("Successfully Logged Out!");
       navigate("/auth/login");
    };
@@ -53,11 +54,11 @@ const NavbarBuger = (setShowNavbarBurger) => {
             <button
                onClick={
                   (() => setShowNavbarBurger(false),
-                  jwtToken ? handleLogout : handleLogin)
+                  token !== null ? handleLogout : handleLogin)
                }
                className="bg-green-color hover:bg-sgreen-color hover:text-black text-white mt-2 p-2 text-sm md:text-base  md:py-2 md:px-4  w-auto rounded transition-all"
             >
-               {jwtToken ? "Logout" : "Login"}
+               {token !== null ? "Logout" : "Login"}
             </button>
          </div>
       </div>

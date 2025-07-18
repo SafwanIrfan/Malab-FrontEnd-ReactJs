@@ -4,6 +4,7 @@ import {
    Route,
    Navigate,
    useLocation,
+   useNavigate,
 } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
@@ -16,56 +17,42 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import EditCourtPage from "./pages/EditCourtPage";
 import Layout from "./layout/Layout";
-import { jwtDecode } from "jwt-decode";
 import MyBookings from "./pages/MyBookings";
 import Loading from "./smallcomponents/Loading";
 import FavPage from "./pages/FavPage";
+import SearchPage from "./pages/SearchPage";
+import { getDecodedToken, getToken } from "./utils/authToken";
+import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+
+const currentTime = Date.now() / 1000;
+
+const decodedToken = getDecodedToken();
 
 const PrivateRoute = ({ children }) => {
-   // useEffect(()=>{
-   //    const decodedToken = jwtDecode(jwtToken);
-   //    const currentTime = Date.now() / 1000;
-   //    if (decodedToken.exp < currentTime) {
-   //       localStorage.removeItem("token"); // Remove expired token
-   //       localStorage.removeItem("user");
-   //    }
-   // },[])
+   const token = getToken();
 
-   const jwtToken = localStorage.getItem("token");
-
-   if (!jwtToken) {
-      return <Navigate to="/auth/login" />;
+   if (token === null) {
+      return <Navigate to="/auth/login" replace />;
    }
 
    try {
-      console.log(jwtToken);
-      const decodedToken = jwtDecode(jwtToken);
-      const currentTime = Date.now() / 1000; // Convert to seconds
-
       // Check if the token is expired
-      if (decodedToken.exp < currentTime) {
+      if (decodedToken?.exp < currentTime) {
          localStorage.removeItem("token"); // Remove expired token
          localStorage.removeItem("user"); // Remove expired token
+         sessionStorage.removeItem("token");
+         sessionStorage.removeItem("user");
          return <Navigate to="/auth/login" />;
-      }
-      return children; // Render protected component
+      } else {
+         return children;
+      } // Render protected component
    } catch (error) {
       localStorage.removeItem("token"); // Remove invalid token
+      sessionStorage.removeItem("token"); //
       console.log(error);
       return <Navigate to="/auth/login" />;
    }
 };
-
-const jwtToken = localStorage.getItem("token");
-
-const decodedToken = jwtToken ? jwtDecode(jwtToken) : "";
-const currentTime = Date.now() / 1000; // Convert to seconds
-
-// Check if the token is expired
-if (decodedToken.exp < currentTime) {
-   localStorage.removeItem("token"); // Remove expired token
-   localStorage.removeItem("user"); // Remove expired token
-}
 
 function App() {
    return (
@@ -76,10 +63,15 @@ function App() {
                <Routes>
                   <Route path="/auth/register" element={<RegisterPage />} />
                   <Route path="/auth/login" element={<LoginPage />} />
-                  <Route path="/loading" element={<Loading />}></Route>
+                  <Route path="/loading" element={<Loading />} />
+                  <Route
+                     path="/auth/forgotpassword"
+                     element={<ForgetPasswordPage />}
+                  />
 
                   <Route element={<Layout />}>
                      <Route path="/" element={<HomePage />} />
+                     <Route path="/search/court" element={<SearchPage />} />
 
                      <Route
                         path="/court/:id"

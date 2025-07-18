@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 
 const AppContext = createContext({
    data: [],
@@ -16,12 +15,6 @@ export const AppProvider = ({ children }) => {
    const [searchFocused, setSearchFocused] = useState(false);
    const [searchCourtsResults, setSearchCourtsResults] = useState([]);
    const [input, setInput] = useState("");
-
-   const user = JSON.parse(localStorage.getItem("user"));
-
-   const jwtToken = localStorage.getItem("token");
-
-   const decoded = jwtToken && jwtDecode(jwtToken);
 
    const refreshData = async () => {
       try {
@@ -43,27 +36,6 @@ export const AppProvider = ({ children }) => {
       fetchCourts();
    }, []);
 
-   const handleSearching = async (value) => {
-      setInput(value);
-      if (value.length >= 1) {
-         try {
-            const response = await axios.get(
-               `http://localhost:8080/courts/search?keyword=${value}`
-            );
-            setSearchCourtsResults(response.data);
-            console.log(response.data);
-
-            setNoResults(response.data?.length === 0);
-            console.log(response.data);
-         } catch (error) {
-            console.error("Error searching:", error);
-         }
-      } else {
-         setSearchCourtsResults([]);
-         setNoResults(false);
-      }
-   };
-
    const formatTime = (time) => {
       if (!time) return "";
       const [hours, minutes] = time.split(":");
@@ -79,7 +51,7 @@ export const AppProvider = ({ children }) => {
    const getOneWeek = () => {
       const dates = [];
       const today = new Date();
-      let finalToday;
+      // let finalToday;
 
       // if (dayClosingTime <= nowTime) {
       //    finalToday = today.getDate() - 1;
@@ -90,7 +62,7 @@ export const AppProvider = ({ children }) => {
          nextDate.setDate(today.getDate() + i);
 
          dates.push({
-            date: nextDate.toISOString().split("T")[0],
+            date: nextDate.toLocaleDateString("sv-SE"),
 
             day: nextDate.toLocaleDateString("en-US", { weekday: "long" }),
          });
@@ -113,16 +85,12 @@ export const AppProvider = ({ children }) => {
             setSlots,
             slots,
             getOneWeek,
-            handleSearching,
             noResults,
             searchFocused,
             searchCourtsResults,
             input,
             setSearchFocused,
             formatTime,
-            user,
-            jwtToken,
-            decoded,
             fetchCourts,
          }}
       >

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
 import Button from "./Button";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 Modal.setAppElement("#root"); // Ensure accessibility
 
@@ -30,10 +31,13 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
       <Modal
          isOpen={isOpen}
          onRequestClose={onClose}
-         className="bg-white-color border-2 border-green-color text-black p-6 rounded-lg shadow-lg w-full mx-10 transition-all"
+         className="bg-white-color border-[2px] border-blackberry-color text-black p-6 rounded-lg shadow-lg w-full mx-10 transition-all"
          overlayClassName="fixed inset-0 bg-black bg-white/10 backdrop-blur-sm flex items-center "
       >
-         <div className="text-center text-2xl font-semibold border-b-2 border-green-color p-4 my-4">
+         <button className="absolute right-16" onClick={onClose}>
+            <Cross2Icon className="size-8 hover:text-red-500 transition-all" />
+         </button>
+         <div className="text-center text-2xl font-semibold border-b-2 border-blackberry-color p-4 my-4">
             <div>
                {start} <span className="text-3xl font-black">-</span> {end}
             </div>
@@ -45,11 +49,11 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                   <input
                      type="text"
                      name="name"
-                     placeholder="Enter your name"
+                     placeholder="Enter your full name"
                      value={formData.name}
                      onChange={handleChange}
                      required
-                     className="bg-white text-black w-full p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                     className="bg-white text-black w-full p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded"
                   />
                </div>
 
@@ -58,11 +62,11 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                   <input
                      type="text"
                      name="contact"
-                     placeholder="+92"
+                     placeholder="03XXXXXXXXX"
                      value={formData.contact}
                      onChange={handleChange}
                      required
-                     className="bg-white text-black w-full p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color  rounded"
+                     className="bg-white text-black w-full p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl  rounded"
                   />
                </div>
             </div>
@@ -74,7 +78,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                name="paymentMethod"
                value={formData.paymentMethod}
                onChange={handleChange}
-               className="bg-white text-black w-auto p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+               className="bg-white text-black w-auto p-2 border-2 border-blackberry-color focus:outline-none  rounded"
             >
                <option value="card">Credit/Debit Card</option>
                <option value="cash">Cash</option>
@@ -87,7 +91,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
             <div className="flex justify-between mt-4">
                <button
                   type="button"
-                  className="bg-red-500 hover:bg-red-600 font-semibold text-black px-4 py-2 rounded transition-all"
+                  className="bg-red-500 hover:bg-red-600 font-semibold text-white px-4 py-2 rounded transition-all"
                   onClick={onClose}
                >
                   Cancel

@@ -3,12 +3,50 @@ import { format } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import AppContext from "../contexts/Context";
+import { getToken } from "../utils/authToken";
+
+const formatDate = (date) => {
+   const formattedDate = new Date(date); // 2025-05-10 -> 10th May 2025
+   const formatted = format(formattedDate, "do MMMM yyyy");
+   return formatted;
+};
+
+const BookingCard = (props) => {
+   const { bookingStatus, ...book } = props;
+
+   console.log(book);
+   console.log(bookingStatus);
+   const { formatTime } = useContext(AppContext);
+
+   if (!book) return null;
+   return (
+      <div className="mt-2">
+         {book.status === bookingStatus && (
+            <div className="bg-gray-400/30 p-4 flex-col border-[2px] border-blackberry-color rounded shadow-lg ">
+               <h1 className="text-2xl text-black font-semibold">
+                  {book.courtName}
+               </h1>
+               <h1 className="text-xl  font-semibold">
+                  {formatDate(book.date)}
+               </h1>
+               <p className="transition-all ">{book.day}</p>
+               <div className="flex gap-2">
+                  <p className="text-green-color font-semibold">
+                     {formatTime(book.startTime)}
+                  </p>{" "}
+                  <p className="text-red-500 font-semibold">
+                     {formatTime(book.endTime)}
+                  </p>
+               </div>
+            </div>
+         )}
+      </div>
+   );
+};
 
 const MyBookings = () => {
    const [bookings, setBookings] = useState([]);
    const [rawBookings, setRawBookings] = useState([]);
-   // const [sortedBookings, setSortedBookings] = useState([]);
-   const { formatTime } = useContext(AppContext);
    const { usersId } = useParams();
 
    const [open, setOpen] = useState({
@@ -81,9 +119,7 @@ const MyBookings = () => {
    // If result < 0 → a comes before b
    // If result > 0 → a comes after b
 
-   console.log(sortedBookings);
-
-   const jwtToken = localStorage.getItem("token");
+   const token = getToken();
 
    useEffect(() => {
       const fetchSlotsByUsersId = async () => {
@@ -92,7 +128,7 @@ const MyBookings = () => {
                `http://localhost:8080/user/${usersId}/slots`,
                {
                   headers: {
-                     Authorization: `Bearer ${jwtToken}`,
+                     Authorization: `Bearer ${token}`,
                   },
                }
             );
@@ -129,12 +165,6 @@ const MyBookings = () => {
             ongoingBookings: false,
          }));
       }
-   };
-
-   const formatDate = (date) => {
-      const formattedDate = new Date(date); // 2025-05-10 -> 10th May 2025
-      const formatted = format(formattedDate, "do MMMM yyyy");
-      return formatted;
    };
 
    return (
@@ -190,25 +220,11 @@ const MyBookings = () => {
             {open.incomingBookings && (
                <div className="flex-col transition-all px-8 py-8">
                   {sortedBookings.map((book) => (
-                     <div className="mt-2" key={book.id}>
-                        {book.status === "incoming" && (
-                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
-                              <h1 className="text-xl  font-semibold">
-                                 {formatDate(book.date)}
-                              </h1>
-                              <p className="font-semibold">{book.day}</p>
-                              <div className="mt-2 flex gap-2">
-                                 <p className="text-green-color font-semibold">
-                                    {formatTime(book.startTime)}
-                                 </p>
-                                 <span className="font-semibold">TO</span>
-                                 <p className="text-red-500 font-semibold">
-                                    {formatTime(book.endTime)}
-                                 </p>
-                              </div>
-                           </div>
-                        )}
-                     </div>
+                     <BookingCard
+                        key={book.id}
+                        bookingStatus="incoming"
+                        {...book}
+                     />
                   ))}
                </div>
             )}
@@ -216,24 +232,11 @@ const MyBookings = () => {
             {open.ongoingBookings && (
                <div className="flex-col transition-all px-8 py-8">
                   {sortedBookings.map((book) => (
-                     <div className="mt-2" key={book.id}>
-                        {book.status === "ongoing" && (
-                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
-                              <h1 className="text-xl  font-semibold">
-                                 {formatDate(book.date)}
-                              </h1>
-                              <p className="transition-all ">{book.day}</p>
-                              <div className="flex gap-2">
-                                 <p className="text-green-color font-semibold">
-                                    {formatTime(book.startTime)}
-                                 </p>
-                                 <p className="text-red-500 font-semibold">
-                                    {formatTime(book.endTime)}
-                                 </p>
-                              </div>
-                           </div>
-                        )}
-                     </div>
+                     <BookingCard
+                        key={book.id}
+                        bookingStatus="ongoing"
+                        {...book}
+                     />
                   ))}
                </div>
             )}
@@ -241,24 +244,11 @@ const MyBookings = () => {
             {open.previousBookings && (
                <div className="flex-col transition-all px-8 py-8">
                   {sortedBookings.map((book) => (
-                     <div className="mt-2" key={book.id}>
-                        {book.status === "previous" && (
-                           <div className="bg-gray-400/30 p-4 flex-col rounded shadow-lg ">
-                              <h1 className="text-xl  font-semibold">
-                                 {formatDate(book.date)}
-                              </h1>
-                              <p className="transition-all ">{book.day}</p>
-                              <div className="flex gap-2">
-                                 <p className="text-green-color font-semibold">
-                                    {formatTime(book.startTime)}
-                                 </p>{" "}
-                                 <p className="text-red-500 font-semibold">
-                                    {formatTime(book.endTime)}
-                                 </p>
-                              </div>
-                           </div>
-                        )}
-                     </div>
+                     <BookingCard
+                        key={book.id}
+                        bookingStatus="previous"
+                        {...book}
+                     />
                   ))}
                </div>
             )}

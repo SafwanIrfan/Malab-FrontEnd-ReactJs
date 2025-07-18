@@ -16,6 +16,9 @@ import {
 } from "@radix-ui/react-icons";
 import { toast } from "react-toastify";
 
+export const inputClassName =
+   "px-10 outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full";
+
 const RegisterPage = () => {
    const [googleLogin, setGoogleLogin] = useState(false);
    const [loading, setLoading] = useState(false);
@@ -115,19 +118,18 @@ const RegisterPage = () => {
       setGoogleLogin(true);
    };
 
-   const inputClassName =
-      "px-10 outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 p-2 rounded-full transition-all w-full";
-
    return (
-      <div className="bg-white-color min-h-screen">
-         <div className="grid grid-cols-1 md:grid-cols-2">
-            <div className=" text-black mx-10 p-6 rounded-lg bg-white-color shadow-md transition-all order-2 md:order-1">
+      <div className=" min-h-screen">
+         <div className="grid grid-cols-1 md:grid-cols-2 ">
+            <div className=" text-black border-[2px] border-blackberry-color p-6 shadow-md transition-all order-2 md:order-1">
                <h2 className="text-2xl font-bold text-green-color mb-1">
                   CREATE ACCOUNT
                </h2>
-               <p className="mb-4 text-gray-400 font-semibold ">tagline</p>
+               <p className="mb-4 text-gray-400 font-serif ">
+                  Join us and Play with Ease
+               </p>
 
-               <form className="" onSubmit={handleSubmit}>
+               <form onSubmit={handleSubmit}>
                   <div>
                      <label className="block mb-2 text-xl text-green-color">
                         Username
@@ -163,6 +165,8 @@ const RegisterPage = () => {
                         <input
                            className={inputClassName}
                            type={showPassword ? "text" : "password"}
+                           minLength={6}
+                           maxLength={12}
                            name="password"
                            onPaste={(e) => e.preventDefault()} // disable pasting
                            placeholder="Password"
@@ -193,6 +197,8 @@ const RegisterPage = () => {
                         <input
                            className={inputClassName}
                            type={showConfirmPassword ? "text" : "password"}
+                           minLength={6}
+                           maxLength={12}
                            name="password"
                            placeholder="Confirm your password"
                            onPaste={(e) => e.preventDefault()}
@@ -234,8 +240,9 @@ const RegisterPage = () => {
                            type="text"
                            name="phoneNo"
                            autoComplete="off"
-                           maxLength="13"
-                           placeholder="Phone Number"
+                           minLength="11"
+                           maxLength="11"
+                           placeholder="03XXXXXXXXX"
                            inputMode="numeric"
                            onChange={handleChange}
                            onInput={(e) => {
@@ -267,7 +274,7 @@ const RegisterPage = () => {
                            type="email"
                            name="email"
                            autoComplete="off"
-                           placeholder="Enter your email"
+                           placeholder="abcd@gmail.com"
                            onChange={handleChange}
                            required
                            onFocus={() => setIsError(false)}
@@ -329,29 +336,29 @@ const RegisterPage = () => {
                </div> */}
 
                <Link
-                  className="flex mt-2 sm:hidden justify-center text-green-color"
+                  className="flex bg-white p-4 rounded-full w-40 h-40 mt-4 mx-auto border-[2px] border-blackberry-color sm:hidden justify-center text-green-color"
                   to="/"
                >
                   <img className="w-32" src={appLogo} />
                </Link>
             </div>
-            <div className="hidden text-balance sm:flex order-1 md:order-2 flex-col gap-6 py-10 px-4 items-center">
+            <div className="hidden bg-green-color text-balance sm:flex order-1 md:order-2 flex-col gap-6 py-10 px-4 items-center">
                <img
-                  src={dummyicon}
-                  className="w-40 h-40 lg:h-50 lg:w-50 rounded-full  p-2"
+                  src={appLogo}
+                  className="w-40 bg-white-color h-40 lg:h-56 lg:w-56 shadow-lg rounded-full  p-2"
                />
-               <p className="text-3xl font-semi-bold text-green-color text-center">
-                  Tagline
+               <p className="text-3xl font-semi-bold text-white-color text-center">
+                  Find a court and book it just by one click!
                </p>
                <div className="flex gap-2 text-balance text-center">
-                  <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     Why choose us
+                  <p className="bg-blackberry-color px-4 py-2 rounded-full text-white">
+                     100+ Courts
                   </p>
-                  <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     Why choose us
+                  <p className="bg-blackberry-color px-4 py-2 rounded-full text-white">
+                     Secure Transactions
                   </p>
-                  <p className="bg-green-color px-4 py-1 rounded-full text-white">
-                     Why choose us
+                  <p className="bg-blackberry-color px-4 py-2 rounded-full text-white">
+                     5000+ Users
                   </p>
                </div>
             </div>

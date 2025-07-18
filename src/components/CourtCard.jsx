@@ -4,10 +4,16 @@ import AppContext from "../contexts/Context";
 import axios from "axios";
 import { FaHeart } from "react-icons/fa";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { jwtDecode } from "jwt-decode";
+import { getDecodedToken, getToken, getUsername } from "../utils/authToken";
 
 const CourtCard = (court) => {
-   const { jwtToken, user, decoded, refreshData } = useContext(AppContext);
+   const { refreshData } = useContext(AppContext);
    const [refresh, setRefresh] = useState(false);
+
+   const token = getToken();
+
+   const decoded = getDecodedToken();
 
    const navigate = useNavigate();
 
@@ -21,19 +27,31 @@ const CourtCard = (court) => {
    const queryClient = useQueryClient();
 
    const addFavMutation = useMutation({
-      mutationFn: (courtId) =>
-         axios.post(
-            `http://localhost:8080/court/${courtId}/user/${decoded.usersId}/fav`,
+      mutationFn: (courtId) => {
+         console.log("Mutating with courtId:", courtId);
+         return axios.post(
+            `http://localhost:8080/court/${courtId}/user/${decoded?.usersId}/fav`,
             {},
-            { headers: { Authorization: `Bearer ${jwtToken}` } }
-         ),
+            {
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
+            }
+         );
+      },
       onSuccess: () => {
-         queryClient.invalidateQueries({ queryKey: ["courts"] }); // refresh court list with updated fav info
+         queryClient.invalidateQueries({ queryKey: ["courts"] });
+      },
+      onError: (error) => {
+         console.error(
+            "Mutation error:",
+            error.response || error.message || error
+         );
       },
    });
 
    const handleAddFav = (id) => {
-      if (!user) {
+      if (!token) {
          navigate("/auth/login");
          return;
       }
@@ -73,11 +91,12 @@ const CourtCard = (court) => {
                   <button
                      onClick={(e) => {
                         e.preventDefault(); // For not navigating
-                        handleAddFav(court.id);
+                        handleAddFav(court?.id);
                      }}
                      className={
-                        court.courtsFavorites.length > 0 && user
-                           ? court.courtsFavorites?.id?.usersId === decoded?.id
+                        court?.courtsFavorites?.length > 0 && token
+                           ? court.courtsFavorites?.id?.usersId ===
+                             decoded?.usersid
                               ? "text-red-600 transition-all scale-110"
                               : " transition-all"
                            : ""

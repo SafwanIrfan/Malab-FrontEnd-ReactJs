@@ -1,19 +1,16 @@
-import { React, useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
-import { FaHeart } from "react-icons/fa";
-import AppContext from "../contexts/Context";
-import { toast } from "react-toastify";
-import SearchBar from "../components/SearchBar";
+import { useNavigate } from "react-router-dom";
 import CourtCard from "../components/CourtCard";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../smallcomponents/Loading";
 import Button from "../smallcomponents/Button";
+import SearchBar from "../components/SearchBar";
+import { getDecodedToken } from "../utils/authToken";
 
 const HomePage = () => {
-   const { searchCourtsResults, user } = useContext(AppContext);
-
    const navigate = useNavigate();
+
+   const decodedToken = getDecodedToken();
 
    // if (jwtToken) {
    //    navigator.geolocation.getCurrentPosition(
@@ -29,37 +26,11 @@ const HomePage = () => {
    //    );
    // }
 
-   // const handleAddFav = async (id) => {
-   //    if (!user) {
-   //       navigate("/auth/login");
-   //    }
-   //    try {
-   //       await axios.post(
-   //          `http://localhost:8080/court/${id}/user/${decoded.usersId}/fav`,
-   //          {},
-   //          {
-   //             headers: {
-   //                Authorization: `Bearer ${jwtToken}`,
-   //             },
-   //          }
-   //       );
-   //       toast.success("FAV DONE!");
-   //       setRefresh(true);
-   //    } catch (error) {
-   //       console.log("Error adding fav : ", error);
-   //    }
-   // };
-
-   // const fetchCourts = async () => {
-   //    try {
-   //       const response = await axios.get("http://localhost:8080/courts", {});
-   //       setCourts(response.data); // Directly use the fetched courts
-   //    } catch (error) {
-   //       console.log("Error fetching courts:", error);
-   //    }
-   // };
-
-   const { data: courts, isLoading } = useQuery({
+   const {
+      data: courts,
+      isLoading,
+      error: courtsError,
+   } = useQuery({
       queryKey: ["courts"],
       queryFn: () =>
          axios.get("http://localhost:8080/courts", {}).then((res) => res.data),
@@ -72,22 +43,25 @@ const HomePage = () => {
    //    console.log(courts);
    // }, []);
 
-   const items = searchCourtsResults.length > 0 ? searchCourtsResults : courts;
+   if (courtsError)
+      return <p className="text-center mt-20">Error : {courtsError.message}</p>;
 
    return (
       <>
          {courts?.length >= 0 && (
             <div className="p-10 text-black">
-               <div className="sm:hidden flex justify-center mb-2">
-                  <SearchBar />
-               </div>
-               {user && (
-                  <div className="w-[400px] border-[1px] border-black overflow-hidden mx-auto rounded-full hover:bg-black/10 bg-white transition-all shadow-lg">
-                     <h1 className="text-center text-2xl py-2 px-10 text-sgreen-color animate-marquee font-black ">
-                        {`Welcome ${user}!`}
+               {decodedToken && (
+                  <div className="w-[400px] border-[1px] border-blackberry-color overflow-hidden mx-auto rounded-full  bg-green-color transition-all shadow-lg">
+                     <h1 className="text-center text-2xl py-2 px-10 text-white animate-marquee font-black ">
+                        {`Welcome ${decodedToken.sub}!`}
                      </h1>
                   </div>
                )}
+               <div className="flex justify-center my-2">
+                  <SearchBar
+                     onClickSearchBar={() => navigate("/search/court")}
+                  />
+               </div>
                <div className="flex justify-between mt-10">
                   <h1 className="text-2xl font-black mb-6">Available Courts</h1>
                   <Button
@@ -96,7 +70,7 @@ const HomePage = () => {
                   />
                </div>
                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  my-5 ">
-                  {items.map((court) => (
+                  {courts.map((court) => (
                      <CourtCard key={court.id} {...court} />
                   ))}
                </div>

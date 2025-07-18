@@ -16,6 +16,7 @@ export default {
             "green-color": "#006A67",
             "sgreen-color": "#03c988",
             "white-color": "#F5F7F8",
+            "blackberry-color": "#381d28",
          },
          container: {
             center: true,

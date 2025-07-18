@@ -1,28 +1,39 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import appLogo from "../assets/applogo.svg";
-import dummyicon from "../assets/dummyicon.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import {
    ArrowRightIcon,
    LockClosedIcon,
    PersonIcon,
 } from "@radix-ui/react-icons";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { fetchUserDetails } from "../services/api";
 
 const LoginPage = () => {
-   const [loading, setLoading] = useState(false);
    const [googleLogin, setGoogleLogin] = useState(false);
    const [showPassword, setShowPassword] = useState(false);
+   const [loading, setLoading] = useState(false);
    const [credentials, setCredentials] = useState({
       username: "",
       password: "",
    });
+   const [rememberMe, setRememberMe] = useState(false);
 
    const navigate = useNavigate();
+
+   const location = useLocation();
+
+   if (location.pathname != "/auth/forgotpassword") {
+      localStorage.setItem("resetPassword", false);
+      localStorage.setItem("emailSend", false);
+      localStorage.setItem("userData", null);
+   }
+
+   const url = import.meta.env.VITE_API_URL;
 
    // useEffect(() => {
    //    const jwtToken = localStorage.getItem("token");
@@ -35,52 +46,87 @@ const LoginPage = () => {
       setCredentials({ ...credentials, [e.target.name]: e.target.value });
    };
 
-   const fetchUser = async (username) => {
-      try {
-         const userResponse = await axios.get(
-            `http://localhost:8080/auth/user/${username}`
+   const { refetch: fetchUserData } = fetchUserDetails(credentials.username);
+
+   // const fetchUser = async (username) => {
+   //    try {
+   //       const userResponse = await axios.get(
+   //          `http://localhost:8080/auth/user/${username}`
+   //       );
+   //       console.log(userResponse);
+   //       console.log(userResponse.data);
+   //       return userResponse.data;
+   //    } catch (error) {
+   //       return error;
+   //    }
+   // };
+
+   const queryClient = useQueryClient();
+
+   const loginUserMutation = useMutation({
+      mutationFn: (userDetails) => axios.post(`${url}/auth/login`, userDetails),
+      onSuccess: () => {
+         queryClient.invalidateQueries("users");
+      },
+      onError: (error) => {
+         console.error(
+            "Mutation error:",
+            error.response || error.message || error
          );
-         console.log(userResponse);
-         console.log(userResponse.data);
-         return userResponse.data;
-      } catch (error) {
-         return error;
-      }
-   };
+      },
+   });
 
    const handleSubmit = async (e) => {
       e.preventDefault();
       setLoading(true);
+      // const response = await axios.post(
+      //    "http://localhost:8080/auth/login",
+      //    credentials,
+      //    {
+      //       withCredentials: true,
+      //       headers: {
+      //          "Content-Type": "application/json",
+      //       },
+      //    }
+      // );
       try {
-         const response = await axios.post(
-            "http://localhost:8080/auth/login",
-            credentials,
-            {
-               withCredentials: true,
-               headers: {
-                  "Content-Type": "application/json",
-               },
-            }
-         );
-         const userData = await fetchUser(credentials.username);
-         const isUserValid = userData?.isVerified;
-         if (isUserValid) {
-            navigate("/"); // Redirect after login
-            toast.success("Successfully Logged In!");
-            setLoading(false);
-            const jwtToken = response.data;
-            localStorage.setItem("token", jwtToken);
-            localStorage.setItem("user", JSON.stringify(credentials.username));
-         } else {
+         const res = await loginUserMutation.mutateAsync(credentials);
+         const loginData = res.data;
+         const { data: user } = await fetchUserData();
+         const userDetails = user?.data;
+         const isUserValid = userDetails?.isVerified;
+
+         if (!isUserValid) {
             // user is not valid
             toast.error("Please validate your account first!");
-            setLoading(false);
+         } else {
+            navigate("/"); // Redirect after login
+            console.log(loginData.data);
+            toast.success("Successfully Logged In!");
+
+            const token = !(loginData instanceof Error) && loginData;
+
+            console.log("YAAD HAI? ", rememberMe);
+
+            if (rememberMe) {
+               localStorage.setItem("token", token);
+               localStorage.setItem(
+                  "username",
+                  JSON.stringify(credentials.username)
+               );
+            } else {
+               sessionStorage.setItem("token", token);
+               sessionStorage.setItem(
+                  "username",
+                  JSON.stringify(credentials.username)
+               );
+            }
          }
       } catch (error) {
-         // user has no account
          toast.error("Invalid username or password");
-         setLoading(false);
          console.log(error);
+      } finally {
+         setLoading(false);
       }
    };
 
@@ -90,31 +136,31 @@ const LoginPage = () => {
       setGoogleLogin(true);
    };
 
-   useEffect(() => {
-      if (googleLogin) {
-         try {
-            axios.get("http://localhost:8080/auth/callback", {
-               withCredentials: true,
-            });
-            setGoogleLogin(false);
-         } catch (error) {
-            console.log("ERROR SCN : ", error);
-            setGoogleLogin(false);
-         }
-      }
-   }, [googleLogin]);
+   // useEffect(() => {
+   //    if (googleLogin) {
+   //       try {
+   //          axios.get("http://localhost:8080/auth/callback", {
+   //             withCredentials: true,
+   //          });
+   //          setGoogleLogin(false);
+   //       } catch (error) {
+   //          console.log("ERROR SCN : ", error);
+   //          setGoogleLogin(false);
+   //       }
+   //    }
+   // }, [googleLogin]);
 
    return (
       <div>
          <Link className="flex py-4 px-8 justify-start text-green-color" to="/">
-            <img className="w-16 h-16 sm:w-max" src={dummyicon} />
+            <img className="w-15 h-15 sm:w-max" src={appLogo} />
          </Link>
-         <div className="flex justify-center items-center my-10 px-8 ">
-            <div className=" text-black  p-6 rounded-lg bg-white shadow-2xl transition-all">
+         <div className="flex justify-center items-center  my-10 px-8 ">
+            <div className=" text-black border-[2px] border-blackberry-color  p-6 rounded-lg bg-white shadow-2xl transition-all">
                <h2 className="text-2xl font-black mb-1  text-green-color">
                   LOGIN
                </h2>
-               <p className="mb-4 text-gray-400 font-semibold ">
+               <p className="mb-4 text-gray-400 font-serif ">
                   Just few steps ahead to start your journey!
                </p>
 
@@ -129,7 +175,7 @@ const LoginPage = () => {
                            type="text"
                            name="username"
                            autoComplete="off"
-                           placeholder="Username or Email Address"
+                           placeholder="Username"
                            onChange={handleChange}
                            required
                         />
@@ -162,13 +208,18 @@ const LoginPage = () => {
                         <div className="mt-2 flex justify-between">
                            <div className="flex gap-2">
                               <input
-                                 className="mt-[4px] w-4 h-4 accent-blue-500 border border-blue-500 rounded hover:border-blue-700"
+                                 className="mt-[4px] w-4 h-4 cursor-pointer"
                                  type="checkbox"
                                  name="KeepMeSignedIn"
+                                 value={rememberMe}
+                                 onChange={() => setRememberMe(!rememberMe)}
                               />
                               <label>Keep me signed in</label>
                            </div>
-                           <Link className="text-red-500 hover:text-red-700 text-md transition-all">
+                           <Link
+                              to="/auth/forgotpassword"
+                              className="text-red-500 hover:text-red-700 text-md transition-all"
+                           >
                               Forgot password?
                            </Link>
                         </div>

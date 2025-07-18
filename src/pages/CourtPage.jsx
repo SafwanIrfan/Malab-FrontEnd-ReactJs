@@ -13,13 +13,17 @@ import { toast } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Loading from "../smallcomponents/Loading";
-import { CopyCheck, CopyCheckIcon, CopyIcon, MapPin } from "lucide-react";
-import Button from "../smallcomponents/Button";
+import { CopyCheckIcon, CopyIcon, MapPin } from "lucide-react";
+import { getDecodedToken, getToken } from "../utils/authToken";
 
 const CourtPage = () => {
    const { id } = useParams();
    const [imageIndex, setImageIndex] = useState(0);
-   const { getOneWeek, user, jwtToken, decoded } = useContext(AppContext);
+   const { getOneWeek } = useContext(AppContext);
+
+   const token = getToken();
+
+   const decoded = getDecodedToken();
 
    const [copyState, setCopyState] = useState("Idle");
 
@@ -33,7 +37,7 @@ const CourtPage = () => {
          axios.post(
             `http://localhost:8080/court/${courtId}/user/${decoded.usersId}/fav`,
             {},
-            { headers: { Authorization: `Bearer ${jwtToken}` } }
+            { headers: { Authorization: `Bearer ${token}` } }
          ),
       onSuccess: () => {
          queryClient.invalidateQueries({ queryKey: ["court"] }); // refresh court list with updated fav info
@@ -41,7 +45,7 @@ const CourtPage = () => {
    });
 
    const handleAddFav = (id) => {
-      if (!user) {
+      if (!token) {
          navigate("/auth/login");
          return;
       }
@@ -53,7 +57,7 @@ const CourtPage = () => {
          try {
             await axios.delete(`http://localhost:8080/court/${id}/delete`, {
                headers: {
-                  Authorization: `Bearer ${jwtToken}`,
+                  Authorization: `Bearer ${token}`,
                },
             });
             navigate("/");
@@ -75,7 +79,7 @@ const CourtPage = () => {
          axios
             .get(`http://localhost:8080/court/${id}`, {
                headers: {
-                  Authorization: `Bearer ${jwtToken}`,
+                  Authorization: `Bearer ${token}`,
                },
             })
             .then((res) => res.data),
@@ -162,7 +166,7 @@ const CourtPage = () => {
                      </button>
                   </div>
                   <div>
-                     <p className=" text-4xl font-sans font-black">
+                     <p className="text-blackberry-color text-4xl font-serif font-black">
                         {court.name.toUpperCase()}
                      </p>
                   </div>
@@ -175,7 +179,7 @@ const CourtPage = () => {
                      </button>
                   </div>
                </section>
-               <section className="p-6 border-2 border-sgreen-color rounded">
+               <section className="p-6 bg-white/70 border-[2px] border-blackberry-color rounded">
                   <div className="flex justify-between">
                      <p className="text-3xl font-bold mb-4">
                         Rs {court.pricePerHour}
@@ -204,20 +208,26 @@ const CourtPage = () => {
                         </button>
                      </div>
                   </div>
-                  <div className="flex gap-2">
-                     <MapPin className="text-red-600  mt-1 h-5 w-5" />
-
-                     <p className="text-gray-700 text-xl">{court.location}</p>
+                  <div>
+                     <div className="text-xl font-semibold">
+                        Total Bookings : {court?.totalBookings ?? 0}
+                     </div>
+                     <div className="flex gap-2 mt-2">
+                        <MapPin className="text-red-600  mt-1 h-5 w-5" />
+                        <p className="text-gray-700 text-xl">
+                           {court?.location}
+                        </p>
+                     </div>
                   </div>
                </section>
-               <section>
-                  <h3 className="text-3xl font-bold my-6">View Slots</h3>
+               <section className="bg-white/70 border-[2px] border-blackberry-color rounded-2 p-6 mt-6">
+                  <h3 className="text-3xl font-bold mb-4">View Slots</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7   gap-4 text-center">
                      {oneWeek.map((week, index) => (
                         <Link
                            to={`/timings/${court.id}/${week.day}/${week.date}`}
                            key={index}
-                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color hover:text-black  rounded shadow-xl transition-all"
+                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color border-2 border-blackberry-color hover:text-black  rounded shadow-xl transition-all"
                         >
                            <p>{week.day.toUpperCase()}</p>
                            <p>{week.date}</p>

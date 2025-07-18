@@ -3,39 +3,20 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import CourtCard from "../components/CourtCard";
 import Button from "../smallcomponents/Button";
+import { getToken } from "../utils/authToken";
 
 const FavPage = () => {
-   // const [userFav, setUserFav] = useState([]);
-
    const { usersId } = useParams();
 
    const navigate = useNavigate();
 
-   const jwtToken = localStorage.getItem("token");
-
-   // useEffect(() => {
-   //    const fetchFav = async () => {
-   //       const response = await axios.get(
-   //          `http://localhost:8080/user/${usersId}/fav`,
-   //          {
-   //             headers: {
-   //                Authorization: `Bearer ${jwtToken}`,
-   //             },
-   //          }
-   //       );
-   //       console.log(response.data);
-   //       setUserFav(response.data);
-   //    };
-   //    fetchFav();
-   // }, []);
-
-   // console.log(userFav.length);
+   const token = getToken();
 
    const fetchUserFav = async () => {
       await axios
          .get(`http://localhost:8080/user/${usersId}/fav`, {
             headers: {
-               Authorization: `Bearer ${jwtToken}`,
+               Authorization: `Bearer ${token}`,
             },
          })
          .then((res) => res.data);
@@ -46,7 +27,7 @@ const FavPage = () => {
       const courtResponses = await Promise.all(
          courtIds.map((id) =>
             axios.get(`http://localhost:8080/court/${id}`, {
-               headers: { Authorization: `Bearer ${jwtToken}` },
+               headers: { Authorization: `Bearer ${token}` },
             })
          )
       );
@@ -63,7 +44,7 @@ const FavPage = () => {
          axios
             .get(`http://localhost:8080/user/${usersId}/fav`, {
                headers: {
-                  Authorization: `Bearer ${jwtToken}`,
+                  Authorization: `Bearer ${token}`,
                },
             })
             .then((res) => res.data),
