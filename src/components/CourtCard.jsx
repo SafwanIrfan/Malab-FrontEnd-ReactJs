@@ -8,9 +8,6 @@ import { jwtDecode } from "jwt-decode";
 import { getDecodedToken, getToken, getUsername } from "../utils/authToken";
 
 const CourtCard = (court) => {
-   const { refreshData } = useContext(AppContext);
-   const [refresh, setRefresh] = useState(false);
-
    const token = getToken();
 
    const decoded = getDecodedToken();
@@ -18,11 +15,6 @@ const CourtCard = (court) => {
    const navigate = useNavigate();
 
    console.log(court);
-
-   useEffect(() => {
-      refreshData();
-      setRefresh(false);
-   }, [refresh]);
 
    const queryClient = useQueryClient();
 
@@ -66,13 +58,13 @@ const CourtCard = (court) => {
       >
          <div className="bg-green-color p-2 rounded-t">
             <h2 className="text-center text-xl font-sans font-black text-white">
-               {court.name.toUpperCase()}
+               {court.courtName.toUpperCase()}
             </h2>
          </div>
          <div>
-            {court.imageUrls.length > 0 ? (
+            {court?.courtImageUrls?.length > 0 ? (
                <img
-                  src={court.imageUrls[0].url}
+                  src={court?.courtImageUrls[0]?.url}
                   alt="Court Image"
                   className="w-full h-52 object-cover  "
                />
@@ -107,7 +99,9 @@ const CourtCard = (court) => {
                </div>
             </div>
             <p className="mb-1">{court.description}</p>
-            <p className="text-gray-600 ">{court.location}</p>
+            <p className="text-gray-600 ">
+               {court.area}, {court.city}
+            </p>
             {/* <Link
                                       className=" p-2 bg-green-color text-gray-200 hover:text-white hover:text- transition-all font-semibold rounded"
                                       to={`/court/${court.id}`}

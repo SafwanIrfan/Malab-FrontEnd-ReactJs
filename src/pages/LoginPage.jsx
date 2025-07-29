@@ -11,7 +11,7 @@ import {
    PersonIcon,
 } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchUserDetails } from "../services/api";
+import { fetchUserDetails, URL_CONFIG } from "../services/api";
 
 const LoginPage = () => {
    const [googleLogin, setGoogleLogin] = useState(false);
@@ -22,6 +22,7 @@ const LoginPage = () => {
       password: "",
    });
    const [rememberMe, setRememberMe] = useState(false);
+   const [createAccountBtn, setCreateAccountBtn] = useState(false);
 
    const navigate = useNavigate();
 
@@ -32,8 +33,6 @@ const LoginPage = () => {
       localStorage.setItem("emailSend", false);
       localStorage.setItem("userData", null);
    }
-
-   const url = import.meta.env.VITE_API_URL;
 
    // useEffect(() => {
    //    const jwtToken = localStorage.getItem("token");
@@ -63,6 +62,8 @@ const LoginPage = () => {
 
    const queryClient = useQueryClient();
 
+   const url = URL_CONFIG.BASE_URL;
+
    const loginUserMutation = useMutation({
       mutationFn: (userDetails) => axios.post(`${url}/auth/login`, userDetails),
       onSuccess: () => {
@@ -77,6 +78,7 @@ const LoginPage = () => {
    });
 
    const handleSubmit = async (e) => {
+      console.log("BRO");
       e.preventDefault();
       setLoading(true);
       // const response = await axios.post(
@@ -100,13 +102,17 @@ const LoginPage = () => {
             // user is not valid
             toast.error("Please validate your account first!");
          } else {
-            navigate("/"); // Redirect after login
-            console.log(loginData.data);
+            if (userDetails?.role === "ROLE_USER") {
+               navigate("/"); // Redirect after login
+            } else if (userDetails?.role === "ROLE_OWNER") {
+               navigate("/owner/dashboard");
+            } else {
+               navigate("/admin/dashboard");
+            }
+            console.log(loginData);
             toast.success("Successfully Logged In!");
 
-            const token = !(loginData instanceof Error) && loginData;
-
-            console.log("YAAD HAI? ", rememberMe);
+            const token = loginData?.split(".")?.length === 3 && loginData;
 
             if (rememberMe) {
                localStorage.setItem("token", token);
@@ -152,9 +158,9 @@ const LoginPage = () => {
 
    return (
       <div>
-         <Link className="flex py-4 px-8 justify-start text-green-color" to="/">
+         <div className="flex py-4 px-8 justify-start text-green-color">
             <img className="w-15 h-15 sm:w-max" src={appLogo} />
-         </Link>
+         </div>
          <div className="flex justify-center items-center  my-10 px-8 ">
             <div className=" text-black border-[2px] border-blackberry-color  p-6 rounded-lg bg-white shadow-2xl transition-all">
                <h2 className="text-2xl font-black mb-1  text-green-color">
@@ -205,20 +211,22 @@ const LoginPage = () => {
                               <FaEye className="absolute right-4 top-3 " />
                            )}
                         </button>
-                        <div className="mt-2 flex justify-between">
+                        <div className="mt-2 flex justify-between gap-4">
                            <div className="flex gap-2">
                               <input
-                                 className="mt-[4px] w-4 h-4 cursor-pointer"
+                                 className="mt-[4px] w-3 h-3  sm:w-4  sm:h-4 cursor-pointer"
                                  type="checkbox"
                                  name="KeepMeSignedIn"
                                  value={rememberMe}
                                  onChange={() => setRememberMe(!rememberMe)}
                               />
-                              <label>Keep me signed in</label>
+                              <label className="text-sm sm:text-base">
+                                 Keep me signed in
+                              </label>
                            </div>
                            <Link
                               to="/auth/forgotpassword"
-                              className="text-red-500 hover:text-red-700 text-md transition-all"
+                              className="text-red-500 hover:text-red-700 text-sm sm:text-base transition-all"
                            >
                               Forgot password?
                            </Link>
@@ -228,7 +236,7 @@ const LoginPage = () => {
 
                   <button
                      type="submit"
-                     className="text-center w-full px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-6 cursor-pointer rounded transition-all"
+                     className="text-center text-xl font-semibold w-full px-1 py-2 bg-green-color text-white-color hover:bg-sgreen-color mt-6 cursor-pointer rounded transition-all"
                      onClick={() => handleSubmit}
                   >
                      {loading ? (
@@ -238,15 +246,47 @@ const LoginPage = () => {
                      )}
                   </button>
 
-                  <div className="flex gap-2 mt-4 items-center justify-between">
-                     <p className="font-serif">Not have an account? </p>
-                     <button
-                        onClick={() => navigate("/auth/register")}
-                        className="group flex bg-white font-semibold items-center gap-2 py-1 px-6 border-[1.5px] border-black rounded"
-                     >
-                        Register Now
-                        <ArrowRightIcon className="w-5 h-5 group-hover:translate-x-1 duration-200 transition-all" />
-                     </button>
+                  <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center justify-between">
+                     <p className="text-balance  font-serif">
+                        {createAccountBtn
+                           ? "Create account"
+                           : "Not have an account?"}
+                     </p>
+                     {createAccountBtn ? (
+                        <div className="flex flex-col border-[1px] border-blackberry-color rounded ">
+                           <button
+                              onClick={() =>
+                                 navigate("/auth/register", {
+                                    state: {
+                                       role: "ROLE_USER",
+                                    },
+                                 })
+                              }
+                              className=" bg-white hover:bg-white-color transition-all font-semibold items-center py-2 px-6 rounded-t "
+                           >
+                              For booking slots
+                           </button>
+                           <button
+                              onClick={() =>
+                                 navigate("/auth/register", {
+                                    state: {
+                                       role: "ROLE_OWNER",
+                                    },
+                                 })
+                              }
+                              className="bg-white hover:bg-white-color transition-all font-semibold items-center  py-2 px-6 rounded-b "
+                           >
+                              For my court
+                           </button>
+                        </div>
+                     ) : (
+                        <button
+                           onClick={() => setCreateAccountBtn(true)}
+                           className="flex bg-white hover:bg-white-color transition-all font-semibold items-center gap-2 py-1 px-6 border-[1px] border-black rounded"
+                        >
+                           Create Account
+                        </button>
+                     )}
                   </div>
                </form>
 

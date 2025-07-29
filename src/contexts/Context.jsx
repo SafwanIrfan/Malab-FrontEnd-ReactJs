@@ -10,31 +10,8 @@ export const AppProvider = ({ children }) => {
    const [isError, setIsError] = useState("");
    const [favourite, setFavourite] = useState(false);
    const [slots, setSlots] = useState([]);
-   const [courts, setCourts] = useState([]);
-   const [noResults, setNoResults] = useState(false);
    const [searchFocused, setSearchFocused] = useState(false);
-   const [searchCourtsResults, setSearchCourtsResults] = useState([]);
-   const [input, setInput] = useState("");
-
-   const refreshData = async () => {
-      try {
-         fetchCourts();
-      } catch (error) {
-         setIsError(error);
-      }
-   };
-
-   const fetchCourts = async () => {
-      try {
-         const response = await axios.get("http://localhost:8080/courts");
-         setCourts(response.data); // Directly use the fetched courts
-      } catch (error) {
-         console.log("Error fetching courts:", error);
-      }
-   };
-   useEffect(() => {
-      fetchCourts();
-   }, []);
+   const [showNavbarBuger, setShowNavbarBurger] = useState(false);
 
    const formatTime = (time) => {
       if (!time) return "";
@@ -70,28 +47,20 @@ export const AppProvider = ({ children }) => {
       return dates;
    };
 
-   useEffect(() => {
-      refreshData();
-   }, []);
-
    return (
       <AppContext.Provider
          value={{
             isError,
-            refreshData,
             favourite,
             setFavourite,
-            courts,
             setSlots,
             slots,
             getOneWeek,
-            noResults,
             searchFocused,
-            searchCourtsResults,
-            input,
             setSearchFocused,
             formatTime,
-            fetchCourts,
+            showNavbarBuger,
+            setShowNavbarBurger,
          }}
       >
          {children}

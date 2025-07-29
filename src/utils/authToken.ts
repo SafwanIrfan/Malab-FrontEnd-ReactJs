@@ -4,6 +4,8 @@ interface JwtPayload {
    usersId: number;
    sub: string;
    isVerified: boolean;
+   userImageUrl: string;
+   role: string;
    exp: number;
    iat: number;
 }

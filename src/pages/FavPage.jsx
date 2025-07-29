@@ -4,23 +4,16 @@ import { useNavigate, useParams } from "react-router-dom";
 import CourtCard from "../components/CourtCard";
 import Button from "../smallcomponents/Button";
 import { getToken } from "../utils/authToken";
+import { useContext } from "react";
+import AppContext from "../contexts/Context";
 
 const FavPage = () => {
    const { usersId } = useParams();
+   const { setShowNavbarBurger } = useContext(AppContext);
 
    const navigate = useNavigate();
 
    const token = getToken();
-
-   const fetchUserFav = async () => {
-      await axios
-         .get(`http://localhost:8080/user/${usersId}/fav`, {
-            headers: {
-               Authorization: `Bearer ${token}`,
-            },
-         })
-         .then((res) => res.data);
-   };
 
    const fetchUserFavCourts = async () => {
       const courtIds = userFav?.map((fav) => fav.id?.courtId);
@@ -64,7 +57,10 @@ const FavPage = () => {
 
    if (userFav?.length == 0) {
       return (
-         <div className="px-8 flex flex-col gap-4 justify-center items-center min-h-screen">
+         <div
+            onClick={() => setShowNavbarBurger(false)}
+            className="px-8 flex flex-col gap-4 justify-center items-center min-h-screen"
+         >
             <h1 className="text-green-color text-3xl text-center text-balance">
                You have not any favorite courts
             </h1>

@@ -13,17 +13,18 @@ const formatDate = (date) => {
 
 const BookingCard = (props) => {
    const { bookingStatus, ...book } = props;
+   const { setShowNavbarBurger } = useContext(AppContext);
+
+   const { formatTime } = useContext(AppContext);
 
    console.log(book);
-   console.log(bookingStatus);
-   const { formatTime } = useContext(AppContext);
 
    if (!book) return null;
    return (
-      <div className="mt-2">
+      <div onClick={() => setShowNavbarBurger(false)} className="mt-2">
          {book.status === bookingStatus && (
-            <div className="bg-gray-400/30 p-4 flex-col border-[2px] border-blackberry-color rounded shadow-lg ">
-               <h1 className="text-2xl text-black font-semibold">
+            <div className="bg-white/70 p-4 flex-col border-[1px] border-blackberry-color rounded shadow-lg">
+               <h1 className="text-3xl text-black font-serif">
                   {book.courtName}
                </h1>
                <h1 className="text-xl  font-semibold">
@@ -48,6 +49,7 @@ const MyBookings = () => {
    const [bookings, setBookings] = useState([]);
    const [rawBookings, setRawBookings] = useState([]);
    const { usersId } = useParams();
+   const { setShowNavbarBurger } = useContext(AppContext);
 
    const [open, setOpen] = useState({
       incomingBookings: false,
@@ -168,7 +170,7 @@ const MyBookings = () => {
    };
 
    return (
-      <section>
+      <section onClick={() => setShowNavbarBurger(false)}>
          <nav className="px-8 pt-8 pb-6  shadow-lg flex gap-8">
             <section className="text-balance">
                <div>
@@ -177,7 +179,7 @@ const MyBookings = () => {
                      className={
                         open.incomingBookings
                            ? " border-b-2 pb-2 border-b-green-color  sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
                      }
                   >
                      Incoming bookings
@@ -192,7 +194,7 @@ const MyBookings = () => {
                      className={
                         open.ongoingBookings
                            ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
                      }
                   >
                      Ongoing bookings
@@ -207,7 +209,7 @@ const MyBookings = () => {
                      className={
                         open.previousBookings
                            ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-gray-300 sm:text-xl font-semibold transition-all"
+                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
                      }
                   >
                      Previous bookings

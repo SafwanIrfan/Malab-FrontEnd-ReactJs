@@ -5,22 +5,21 @@ import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AppContext from "../contexts/Context";
 import appLogo from "../assets/applogo.svg";
-// import SearchBar from "./SearchBar";
 import { AvatarIcon } from "@radix-ui/react-icons";
 import { clearAuth, getDecodedToken, getToken } from "../utils/authToken";
 
 const Navbar = () => {
-   const { noResults } = useContext(AppContext);
-   const [showNavbarBuger, setShowNavbarBurger] = useState(false);
+   const { noResults, showNavbarBuger, setShowNavbarBurger } =
+      useContext(AppContext);
 
    const token = getToken();
+
+   const decodedToken = getDecodedToken();
 
    const navigate = useNavigate();
 
    const location = useLocation();
    const isHomePage = location.pathname === "/";
-
-   const userImage = null;
 
    const handleLogout = async () => {
       clearAuth();
@@ -35,8 +34,6 @@ const Navbar = () => {
    useEffect(() => {
       console.log(token);
    }, []);
-
-   const decodedToken = getDecodedToken();
 
    const usersId = decodedToken?.usersId;
 
@@ -73,9 +70,7 @@ const Navbar = () => {
                      showNavbarBuger && "border-[2px] border-blackberry-color"
                   } rounded`}
                >
-                  {showNavbarBuger && (
-                     <NavbarBuger setShowNavbarBurger:setShowNavbarBurger />
-                  )}
+                  {showNavbarBuger && <NavbarBuger />}
                </div>
             </div>
             {isHomePage && (
@@ -132,9 +127,12 @@ const Navbar = () => {
                   </button>
                </div>
                <button>
-                  {userImage ? (
-                     <div className="w-10 h-10 rounded-full p-4 border-2 border-black ">
-                        {userImage}
+                  {decodedToken?.userImageUrl ? (
+                     <div className=" w-10 h-10 rounded-full p-4 border-2 border-black ">
+                        <img
+                           className="w-full object-cover"
+                           src={decodedToken.userImageUrl}
+                        />
                      </div>
                   ) : (
                      <AvatarIcon className="w-10 h-10" />

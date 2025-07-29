@@ -11,10 +11,11 @@ const AddCourtPage = () => {
    const { id } = useParams();
 
    const [court, setCourt] = useState({
-      name: "",
+      courtName: "",
       description: "",
       pricePerHour: "",
-      location: "",
+      area: "",
+      city: "",
    });
    const [oldImages, setOldImages] = useState([]);
    const [newImages, setNewImages] = useState([]);
@@ -96,10 +97,11 @@ const AddCourtPage = () => {
          const data = response.data;
          setCourt({
             id: data.id,
-            name: data.name,
+            courtName: data.courtName,
             description: data.description,
             pricePerHour: data.pricePerHour,
-            location: data.location,
+            city: data.city,
+            area: data.area,
             imageUrls: data.imageUrls,
          });
          setTimings(data.timings); // Assuming backend sends timings array
@@ -236,9 +238,10 @@ const AddCourtPage = () => {
          setLoading(false);
          alert("Court added successfully!");
          setCourt({
-            name: "",
+            courtName: "",
             description: "",
-            location: "",
+            city: "",
+            area: "",
             pricePerHour: "",
          });
          setTimings([

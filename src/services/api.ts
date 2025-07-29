@@ -49,7 +49,7 @@ export const loginUser = async (credentials: { credentials: {} }) => {
 
 export const fetchUserDetails = (username: string) => {
    return useQuery({
-      queryKey: ["user"],
+      queryKey: ["user", username],
       queryFn: () => axios.get(`${URL_CONFIG.BASE_URL}/auth/user/${username}`),
       enabled: false,
    });

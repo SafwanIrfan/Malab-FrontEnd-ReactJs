@@ -115,7 +115,7 @@ const CourtPage = () => {
       <>
          {court && (
             <div className="px-8 py-10 text-black transition-all">
-               {court.imageUrls.length > 0 ? (
+               {court?.courtImageUrls?.length > 0 && (
                   <section className=" items-center gap-2  flex justify-center">
                      <button
                         className={
@@ -131,13 +131,13 @@ const CourtPage = () => {
                         <FaArrowLeft className="mx-3" />
                      </button>
                      <img
-                        src={court.imageUrls[imageIndex].url}
+                        src={court.courtImageUrls[imageIndex].url}
                         alt="Court Image"
                         className="h-60 w-[693px] md:h-80 rounded object-contain "
                      />
                      <button
                         className={
-                           imageIndex < court.imageUrls.length - 1
+                           imageIndex < court.courtImageUrls.length - 1
                               ? "bg-gray-800 rounded-full w-10 h-10 hover:bg-black text-white-color transition-all "
                               : "invisible"
                         }
@@ -149,12 +149,6 @@ const CourtPage = () => {
                         <FaArrowRight className="mx-3" />
                      </button>
                   </section>
-               ) : (
-                  <img
-                     src={court.imageUrls[0]}
-                     alt="Court Image"
-                     className="w-full h-60 rounded "
-                  />
                )}
                <section className="grid grid-cols-3 place-items-center gap-4 w-full my-10">
                   <div className="w-full">
@@ -167,7 +161,7 @@ const CourtPage = () => {
                   </div>
                   <div>
                      <p className="text-blackberry-color text-4xl font-serif font-black">
-                        {court.name.toUpperCase()}
+                        {court.courtName.toUpperCase()}
                      </p>
                   </div>
                   <div className="w-full text-right">
@@ -179,7 +173,7 @@ const CourtPage = () => {
                      </button>
                   </div>
                </section>
-               <section className="p-6 bg-white/70 border-[2px] border-blackberry-color rounded">
+               <section className="p-6 bg-white/70 border-[1px] border-blackberry-color rounded">
                   <div className="flex justify-between">
                      <p className="text-3xl font-bold mb-4">
                         Rs {court.pricePerHour}
@@ -215,19 +209,19 @@ const CourtPage = () => {
                      <div className="flex gap-2 mt-2">
                         <MapPin className="text-red-600  mt-1 h-5 w-5" />
                         <p className="text-gray-700 text-xl">
-                           {court?.location}
+                           {court?.area}, {court?.city}
                         </p>
                      </div>
                   </div>
                </section>
-               <section className="bg-white/70 border-[2px] border-blackberry-color rounded-2 p-6 mt-6">
+               <section className="bg-white/70 border-[1px] border-blackberry-color rounded-2 p-6 mt-6">
                   <h3 className="text-3xl font-bold mb-4">View Slots</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7   gap-4 text-center">
                      {oneWeek.map((week, index) => (
                         <Link
                            to={`/timings/${court.id}/${week.day}/${week.date}`}
                            key={index}
-                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color border-2 border-blackberry-color hover:text-black  rounded shadow-xl transition-all"
+                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color border-[1px] border-blackberry-color hover:text-black  rounded shadow-xl transition-all"
                         >
                            <p>{week.day.toUpperCase()}</p>
                            <p>{week.date}</p>

@@ -1,25 +1,32 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { format, parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
-import { FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
+import locationData from "./../data.json";
+import { allTimeSlots } from "../constants";
+import { getDecodedToken, getToken } from "../utils/authToken";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 const AddCourtPage = () => {
    const navigate = useNavigate();
-   const jwtToken = localStorage.getItem("token");
+   const token = getToken();
+   const decodedToken = getDecodedToken();
 
-   const [error, setError] = useState({
-      courtName: false,
-      pricePerHour: false,
-   });
+   const [error, setError] = useState(false);
+   const [errorMessage, setErrorMessage] = useState(false);
+
    const [court, setCourt] = useState({
-      name: "",
+      courtName: "",
       description: "",
       pricePerHour: "",
-      location: "",
+      city: "",
+      area: "",
+      totalBookings: 0,
    });
-   const [selectedImages, setSelectedImages] = useState([]);
+   const [selectedCourtImages, setSelectedCourtImages] = useState([]);
+   const [cities, setCities] = useState([]);
+   const [areas, setAreas] = useState([]);
    const [loading, setLoading] = useState(false);
    const [timings, setTimings] = useState([
       { day: "Monday", startingTime: "", endingTime: "" },
@@ -30,79 +37,16 @@ const AddCourtPage = () => {
       { day: "Saturday", startingTime: "", endingTime: "" },
       { day: "Sunday", startingTime: "", endingTime: "" },
    ]);
-   const allTimeSlots = [
-      "12:00 AM",
-      "12:30 AM",
-      "1:00 AM",
-      "1:30 AM",
-      "2:00 AM",
-      "2:30 AM",
-      "3:00 AM",
-      "3:30 AM",
-      "4:00 AM",
-      "4:30 AM",
-      "5:00 AM",
-      "5:30 AM",
-      "6:00 AM",
-      "6:30 AM",
-      "7:00 AM",
-      "7:30 AM",
-      "8:00 AM",
-      "8:30 AM",
-      "9:00 AM",
-      "9:30 AM",
-      "10:00 AM",
-      "10:30 AM",
-      "11:00 AM",
-      "11:30 AM",
-      "12:00 PM",
-      "12:30 PM",
-      "1:00 PM",
-      "1:30 PM",
-      "2:00 PM",
-      "2:30 PM",
-      "3:00 PM",
-      "3:30 PM",
-      "4:00 PM",
-      "4:30 PM",
-      "5:00 PM",
-      "5:30 PM",
-      "6:00 PM",
-      "6:30 PM",
-      "7:00 PM",
-      "7:30 PM",
-      "8:00 PM",
-      "8:30 PM",
-      "9:00 PM",
-      "9:30 PM",
-      "10:00 PM",
-      "10:30 PM",
-      "11:00 PM",
-      "11:30 PM",
-   ];
 
-   useEffect(() => {
-      console.log(selectedImages);
-   }, [selectedImages]);
-
-   const handleErrors = (field, result) => {
-      setError((prev) => ({
-         ...prev,
-         [field]: result,
-      }));
-   };
+   const courtInputClassName =
+      "w-full px-4 py-2 rounded-md text-black focus:outline-none border-[1px] hover:border-blackberry-color focus:border-blackberry-color transition-all";
 
    const handleInputChange = (e) => {
       const { name, value } = e.target;
-      handleErrors(name, false);
-      const change = setCourt((prevCourt) => ({
+      setCourt((prevCourt) => ({
          ...prevCourt,
          [name]: value,
       }));
-      name === "pricePerHour" && value >= 0 ? change : handleErrors(name, true);
-
-      console.log(error.pricePerHour);
-      console.log(error.courtName);
    };
 
    const formatTimings = (arrayOfTimings) => {
@@ -147,20 +91,21 @@ const AddCourtPage = () => {
       );
    };
 
-   const handleImageChange = (e) => {
+   const handleCourtImageChange = (e) => {
+      console.log(Array.from(e.target.files));
       const files = Array.from(e.target.files);
-      setSelectedImages((prev) => [...prev, ...files]);
+      setSelectedCourtImages((prev) => [...prev, ...files]);
 
       // Clear file input to allow re-selecting the same file
       e.target.value = "";
    };
 
    useEffect(() => {
-      console.log(selectedImages);
-   }, [selectedImages]);
+      console.log(selectedCourtImages);
+   }, [selectedCourtImages]);
 
-   const handleRemoveImage = (indexToRemove) => {
-      setSelectedImages((prev) =>
+   const handleRemoveCourtImage = (indexToRemove) => {
+      setSelectedCourtImages((prev) =>
          prev.filter((_, index) => index !== indexToRemove)
       );
    };
@@ -185,49 +130,48 @@ const AddCourtPage = () => {
             return;
          }
 
-         // 1️⃣ Save Court (without images)
+         // Save Court (without images)
          const courtResponse = await axios.post(
-            "http://localhost:8080/court/add",
+            `http://localhost:8080/owner/${decodedToken.sub}/court/add`,
             court,
             {
                headers: {
-                  Authorization: `Bearer ${jwtToken}`,
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
                },
             }
          );
          const courtId = courtResponse.data.id;
 
-         console.log(selectedImages);
+         console.log(selectedCourtImages);
 
-         // 2️⃣ Upload Images (if selected)
-         if (selectedImages.length > 0) {
-            for (let image of selectedImages) {
-               const formData = new FormData();
-               formData.append("files", image);
+         const formData = new FormData();
 
-               await axios.post(
-                  `http://localhost:8080/court/${courtId}/addImage`,
-                  formData,
+         // Append multiple court images
+         selectedCourtImages.forEach((image) => {
+            formData.append("courtFiles", image); // append multiple files with the same key
+         });
 
-                  {
-                     headers: {
-                        "Content-Type": "multipart/form-data",
-                        Authorization: `Bearer ${jwtToken}`,
-                     },
-                  }
-               );
+         await axios.post(
+            `http://localhost:8080/owner/court/${courtId}/addImage`,
+            formData,
+            {
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
             }
-         }
+         );
+
          console.log("Timings : ", timings);
 
          formatTimings(timings);
          await axios.post(
-            `http://localhost:8080/court/${courtId}/add_timings`,
+            `http://localhost:8080/owner/court/${courtId}/add_timings`,
             timings,
             {
                headers: {
                   "Content-Type": "application/json",
-                  Authorization: `Bearer ${jwtToken}`,
+                  Authorization: `Bearer ${token}`,
                },
             }
          );
@@ -235,10 +179,12 @@ const AddCourtPage = () => {
          setLoading(false);
          alert("Court added successfully!");
          setCourt({
-            name: "",
+            courtName: "",
             description: "",
-            location: "",
             pricePerHour: "",
+            city: "",
+            area: "",
+            totalBookings: 0,
          });
          setTimings([
             { day: "Monday", startingTime: "", endingTime: "" },
@@ -250,46 +196,57 @@ const AddCourtPage = () => {
             { day: "Sunday", startingTime: "", endingTime: "" },
          ]);
 
-         setSelectedImages([]);
-         navigate("/");
+         setSelectedCourtImages([]);
+
+         navigate("/owner/dashboard");
       } catch (error) {
          setLoading(false);
          console.error("Error adding court:", error);
       }
    };
 
+   useEffect(() => {
+      const cityNames = Object.keys(locationData.Pakistan);
+      setCities(cityNames);
+   }, []);
+
+   const handleCityChange = (e) => {
+      const city = e.target.value;
+
+      setCourt((prevCourt) => ({
+         ...prevCourt,
+         city: city,
+         area: "",
+      }));
+      setAreas(locationData.Pakistan[city] || []);
+   };
+
    return (
       <div className="p-8 w-auto mx-auto text-black  shadow-md space-y-4">
-         <h2 className="text-4xl font-black border-b-2 border-green-color text-center p-4">
-            Add Court
+         <h2 className="text-4xl font-black font-serif border-b-2 border-blackberry-color text-center p-4">
+            Add My Court
          </h2>
          <form onSubmit={submitHandler}>
-            <div className="pt-4 grid grid-cols-2 gap-6">
+            <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
                {/* Court Name Input */}
                <div>
-                  <label
-                     htmlFor="name"
-                     className="mb-2 block text-xl font-medium"
-                  >
+                  <label className="mb-2 block text-xl font-serif">
                      <span className="text-red-500">*</span> Court Name
                   </label>
                   <input
+                     name="courtName"
                      type="text"
-                     name="name"
                      id="name"
-                     value={court.name}
+                     value={court.courtName}
                      onChange={handleInputChange}
-                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-color focus:border-sgreen-color"
+                     className={courtInputClassName}
                      placeholder="Enter court name"
                      required
                   />
                </div>
 
                <div>
-                  <label
-                     htmlFor="description"
-                     className="mb-2 text-xl block  font-medium"
-                  >
+                  <label className="mb-2 text-xl block font-serif">
                      <span className="text-red-500">*</span> Court Description
                   </label>
                   <input
@@ -297,28 +254,26 @@ const AddCourtPage = () => {
                      id="description"
                      value={court.description}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className={courtInputClassName}
                      placeholder="Enter court description"
                      required
                   />
                </div>
 
                <div>
-                  <label
-                     htmlFor="pricePerHour"
-                     className="text-xl block mb-2 font-medium"
-                  >
+                  <label className="text-xl block mb-2 font-serif">
                      <span className="text-red-500">*</span> Price per hour
                   </label>
                   <input
-                     type="number"
                      name="pricePerHour"
+                     type="number"
                      id="pricePerHour"
                      value={court.pricePerHour}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className={courtInputClassName}
                      placeholder="Enter court price/hour"
                      required
+                     onWheel={(e) => e.target.blur()} // for not +1 and -1 on scrolling on input field
                   />
                   {error.pricePerHour && (
                      <p className="text-red-500">Price cannot be negative</p>
@@ -326,47 +281,95 @@ const AddCourtPage = () => {
                </div>
 
                <div>
-                  <label
-                     htmlFor="location"
-                     className="text-xl block mb-2 font-medium"
+                  <label className="text-xl block mb-2 font-serif">
+                     <span className="text-red-500">* </span>City
+                  </label>{" "}
+                  <select
+                     name="city"
+                     value={court.city}
+                     onChange={handleCityChange}
+                     className={courtInputClassName}
+                     required
                   >
+                     <option value="">-- Select City --</option>
+                     {cities.map((city) => (
+                        <option key={city} value={city}>
+                           {city}
+                        </option>
+                     ))}
+                  </select>
+               </div>
+
+               <div>
+                  <label className="text-xl block mb-2 font-serif">
+                     <span className="text-red-500">* </span>Area
+                  </label>{" "}
+                  <select
+                     name="area"
+                     value={court.area}
+                     onChange={handleInputChange}
+                     className={courtInputClassName}
+                     required
+                  >
+                     {!court.city ? (
+                        <option value="">
+                           -- Please select a city first --
+                        </option>
+                     ) : (
+                        <>
+                           <option value="">-- Select Area --</option>
+                           {areas.map((area) => (
+                              <option key={area} value={area}>
+                                 {area}
+                              </option>
+                           ))}
+                        </>
+                     )}
+                  </select>
+               </div>
+
+               {/* <div>
+                  <label className="text-xl block mb-2 font-serif">
                      <span className="text-red-500">*</span> Court Location
                   </label>
                   <input
                      type="text"
-                     name="location"
                      id="location"
                      value={court.location}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     className={courtInputClassName}
                      placeholder="Enter court location"
                      required
                   />
-               </div>
+               </div> */}
 
-               <div>
-                  <label
-                     htmlFor="images"
-                     className="block text-xl mb-2 font-medium"
-                  >
+               <div className="flex flex-col gap-1">
+                  <label className="block text-xl mb-2 font-serif">
                      Upload Images
                   </label>
                   <input
                      type="file"
-                     id="images"
-                     onChange={(e) => handleImageChange(e)}
-                     multiple
-                     className=""
+                     id="courtImages"
+                     maxLength={5}
+                     minLength={1}
+                     onChange={(e) => handleCourtImageChange(e)}
                      accept="image/*"
+                     style={{ display: "none" }}
+                     multiple
                   />
+                  <label
+                     htmlFor="courtImages"
+                     className="bg-white  rounded-md  border-[1px] hover:border-blackberry-color cursor-pointer px-4 py-2  transition-all "
+                  >
+                     Upload Court Images
+                  </label>
+                  <p className=" font-semibold">
+                     You can add upto 5 images and size less than 240kb
+                  </p>
 
-                  {selectedImages.length == 0 ? (
-                     <p className="py-2 text-red-600">
-                        Note: Uploading no images result in bad impression
-                     </p>
-                  ) : (
+                  {selectedCourtImages?.length > 0 && (
                      <div>
-                        {selectedImages.map((file, index) => (
+                        {selectedCourtImages?.map((file, index) => (
                            <div
                               key={index}
                               className="relative inline-block m-2"
@@ -374,13 +377,14 @@ const AddCourtPage = () => {
                               <img
                                  src={URL.createObjectURL(file)}
                                  alt={`Selected ${index}`}
-                                 className="w-28 h-28 object-cover border-2 shadow-lg border-green-color"
+                                 className="w-20 h-20 object-cover border-[1px] shadow-lg border-blackberry-color"
                               />
                               <button
-                                 onClick={() => handleRemoveImage(index)}
-                                 className="absolute top-0 right-0 bg-black  text-red-600 rounded-full p-2 text-xs hover:text-sm transition-all"
+                                 type="button"
+                                 onClick={() => handleRemoveCourtImage(index)}
+                                 className="bg-white hover:bg-white-color absolute -top-1 -right-1  rounded-full p-1 transition-all"
                               >
-                                 <FaTrash />
+                                 <Cross2Icon className="text-red-600 font-bold size-4" />
                               </button>
                            </div>
                         ))}
@@ -390,53 +394,51 @@ const AddCourtPage = () => {
             </div>
 
             <div className="mt-6">
-               <h4 className="text-2xl font-normal mb-4">
+               <h4 className="text-2xl font-serif mb-4 ">
                   {" "}
                   <span className="text-red-500">*</span> Add Timings
                </h4>
-               <div className="border-2 border-green-color rounded">
+               <div className="border-[1px] border-blackberry-color rounded">
                   {timings.map((timing, index) => (
                      <div
                         className={
                            index < timings.length - 1
-                              ? "grid grid-cols-3 place-items-center p-4 border-b-2 border-sgreen-color"
-                              : "grid grid-cols-3 place-items-center p-4"
+                              ? "grid grid-cols-1 sm:grid-cols-3 sm:place-items-center p-4 border-b-[1px] border-blackberry-color"
+                              : "grid grid-cols-1 sm:grid-cols-3 sm:place-items-center p-4"
                         }
                         key={index}
                      >
-                        <div className="">
-                           <h1 className="text-black font-semibold text-xl h-4">
+                        <div className="font-serif  sm:block">
+                           <h1 className="mr-4 text-black font-serif text-xl h-4">
                               {timing.day}
                            </h1>
-                           Same as
-                           <select
-                              defaultValue={timing.day}
-                              onChange={(e) =>
-                                 handleCopyTiming(timing.day, e.target.value)
-                              }
-                              className="bg-transparent hover:underline cursor-pointer focus:outline-none mt-2 rounded py-1"
-                           >
-                              <option disabled>Select day</option>
-                              {timings.map((days, index) => (
-                                 <option
-                                    disabled={timing.day === days.day}
-                                    key={index}
-                                 >
-                                    {days.day}
-                                 </option>
-                              ))}
-                           </select>
+                           <div className="flex mt-2 ">
+                              <p>Same as</p>
+                              <select
+                                 defaultValue={timing.day}
+                                 onChange={(e) =>
+                                    handleCopyTiming(timing.day, e.target.value)
+                                 }
+                                 className="bg-transparent hover:underline cursor-pointer focus:outline-none  rounded "
+                              >
+                                 <option disabled>Select day</option>
+                                 {timings.map((days, index) => (
+                                    <option
+                                       disabled={timing.day === days.day}
+                                       key={index}
+                                    >
+                                       {days.day}
+                                    </option>
+                                 ))}
+                              </select>
+                           </div>
                         </div>
 
                         <div className=" flex p-2">
-                           <label
-                              className="mr-2 py-2"
-                              htmlFor={`startingTime-${index}`}
-                           >
+                           <label className="mr-2 py-2 font-serif">
                               Opening Time :{" "}
                            </label>
                            <select
-                              defaultValue=""
                               value={timing.startingTime}
                               name="startingTime"
                               id={`startingTime-${index}`}
@@ -447,7 +449,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="p-1 sm:p-2 border-[1px] focus:outline-none hover:border-blackberry-color focus:border-blackberry-color rounded transition-all"
                            >
                               <option value="" disabled hidden>
                                  00:00
@@ -464,14 +466,10 @@ const AddCourtPage = () => {
                            </select>
                         </div>
                         <div className="flex p-2">
-                           <label
-                              className="mr-2 py-2"
-                              htmlFor={`endingTime-${index}`}
-                           >
+                           <label className="mr-2 py-2 font-serif">
                               Closing Time :{" "}
                            </label>
                            <select
-                              defaultValue=""
                               value={timing.endingTime}
                               name="endingTime"
                               id={`endingTime-${index}`}
@@ -482,7 +480,7 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className="p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="p-1 sm:p-2 border-[1px] focus:outline-none hover:border-blackberry-color focus:border-blackberry-color rounded transition-all"
                            >
                               <option value="" disabled hidden>
                                  00:00

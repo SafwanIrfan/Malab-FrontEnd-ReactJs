@@ -6,7 +6,7 @@ import axios from "axios";
 import { ThumbsUpIcon } from "lucide-react";
 import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
 import { fetchUserDetails } from "../services/api";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const ForgetPasswordPage = () => {
    const [email, setEmail] = useState("");

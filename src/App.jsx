@@ -1,12 +1,4 @@
-import {
-   BrowserRouter,
-   Routes,
-   Route,
-   Navigate,
-   useLocation,
-   useNavigate,
-} from "react-router-dom";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import { AppProvider } from "./contexts/Context";
 import CourtPage from "./pages/CourtPage";
@@ -23,16 +15,18 @@ import FavPage from "./pages/FavPage";
 import SearchPage from "./pages/SearchPage";
 import { getDecodedToken, getToken } from "./utils/authToken";
 import ForgetPasswordPage from "./pages/ForgetPasswordPage";
+import OwnerDashboard from "./pages/OwnerDashboard";
 
 const currentTime = Date.now() / 1000;
-
-const decodedToken = getDecodedToken();
 
 const PrivateRoute = ({ children }) => {
    const token = getToken();
 
-   if (token === null) {
-      return <Navigate to="/auth/login" replace />;
+   const decodedToken = token && getDecodedToken();
+
+   if (!token) {
+      console.log("TOKEN is null : ", token);
+      return <Navigate to="/auth/login" />;
    }
 
    try {
@@ -42,6 +36,9 @@ const PrivateRoute = ({ children }) => {
          localStorage.removeItem("user"); // Remove expired token
          sessionStorage.removeItem("token");
          sessionStorage.removeItem("user");
+         console.log(decodedToken?.exp);
+         console.log(currentTime);
+         console.log("TOKEN EXPIRED?");
          return <Navigate to="/auth/login" />;
       } else {
          return children;
@@ -69,23 +66,47 @@ function App() {
                      element={<ForgetPasswordPage />}
                   />
 
+                  <Route
+                     path="owner/add_court"
+                     element={
+                        <PrivateRoute>
+                           <AddCourtPage />
+                        </PrivateRoute>
+                     }
+                  />
+
+                  <Route
+                     path="/owner/dashboard"
+                     element={
+                        <PrivateRoute>
+                           <OwnerDashboard />
+                        </PrivateRoute>
+                     }
+                  />
+
                   <Route element={<Layout />}>
-                     <Route path="/" element={<HomePage />} />
-                     <Route path="/search/court" element={<SearchPage />} />
+                     <Route
+                        path="/"
+                        element={
+                           <PrivateRoute>
+                              <HomePage />
+                           </PrivateRoute>
+                        }
+                     />
+                     <Route
+                        path="/search/court"
+                        element={
+                           <PrivateRoute>
+                              <SearchPage />
+                           </PrivateRoute>
+                        }
+                     />
 
                      <Route
                         path="/court/:id"
                         element={
                            <PrivateRoute>
                               <CourtPage />
-                           </PrivateRoute>
-                        }
-                     />
-                     <Route
-                        path="/add_court"
-                        element={
-                           <PrivateRoute>
-                              <AddCourtPage />
                            </PrivateRoute>
                         }
                      />

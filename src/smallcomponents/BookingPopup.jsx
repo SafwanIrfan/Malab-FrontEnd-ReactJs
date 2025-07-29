@@ -96,7 +96,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
                >
                   Cancel
                </button>
-               <Button title="Confirm Booking" />
+               <Button action={handleSubmit} title="Confirm Booking" />
             </div>
          </form>
       </Modal>
