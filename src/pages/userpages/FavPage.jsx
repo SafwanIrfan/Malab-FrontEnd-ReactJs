@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-import CourtCard from "../components/CourtCard";
-import Button from "../smallcomponents/Button";
-import { getToken } from "../utils/authToken";
+import CourtCard from "../../components/CourtCard";
+import Button from "../../smallcomponents/Button";
+import { getToken } from "../../utils/authToken";
 import { useContext } from "react";
-import AppContext from "../contexts/Context";
+import AppContext from "../../contexts/Context";
 
 const FavPage = () => {
    const { usersId } = useParams();

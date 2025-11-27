@@ -3,9 +3,9 @@ import axios from "axios";
 import { format, parse } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import locationData from "./../data.json";
-import { allTimeSlots } from "../constants";
-import { getDecodedToken, getToken } from "../utils/authToken";
+import locationData from "../../data.json";
+import { allTimeSlots } from "../../constants";
+import { getDecodedToken, getToken } from "../../utils/authToken";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
 const AddCourtPage = () => {

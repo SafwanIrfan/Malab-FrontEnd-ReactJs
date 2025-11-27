@@ -1,14 +1,16 @@
 import React, { useContext, useEffect, useState } from "react";
-import AppContext from "../contexts/Context";
+import AppContext from "../../contexts/Context";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
 import { DateTime } from "luxon";
 import { format, parse } from "date-fns";
-import BookingPopup from "../smallcomponents/BookingPopup";
-import Button from "../smallcomponents/Button";
-import { getToken } from "../utils/authToken";
+import BookingPopup from "../../smallcomponents/BookingPopup";
+import Button from "../../smallcomponents/Button";
+import { getToken } from "../../utils/authToken";
+import { fetchCourtById } from "../../services/api";
+import Loading from "../../smallcomponents/Loading";
 
 const SlotsPage = () => {
    const { day, id, date } = useParams();
@@ -27,6 +29,7 @@ const SlotsPage = () => {
       bookedDay: "",
       bookedDate: "",
       courtName: "",
+      amount: 0,
    });
 
    const [booked, setBooked] = useState(false);
@@ -89,7 +92,7 @@ const SlotsPage = () => {
 
    const token = getToken();
 
-   const court = courts.find((court) => court.id == id);
+   const { data: court, isLoading, error } = fetchCourtById(id, token);
 
    const formatStartTime = formatTime(timingsForDay.startingTime);
 
@@ -220,12 +223,14 @@ const SlotsPage = () => {
          setBookedSlots({
             day: day || "",
             date: date || "",
+            courtName: "",
             endTime: "",
             startTime: "",
             status: "BOOKED",
             bookedTime: "",
             bookedDay: "",
             bookedDate: "",
+            amount: 0,
          });
       }
    }, [booked]);
@@ -294,6 +299,7 @@ const SlotsPage = () => {
       setBookedSlots((prev) => ({
          ...prev,
          courtName: court.name,
+         amount: priceCalc,
       }));
       const today = DateTime.now();
       const currentTime = today.toFormat("HH:mm:ss");
@@ -306,6 +312,20 @@ const SlotsPage = () => {
       // setBookingDate(currentDate);
       // setBookingDay(currentDay);
    };
+
+   if (isLoading) return <Loading />;
+
+   if (error)
+      return (
+         <div className="p-4 mt-20 flex justify-center items-center">
+            <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
+               <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
+               <p className="mb-4 text-xl">
+                  Your session is expired. Please login
+               </p>
+            </div>
+         </div>
+      );
 
    return (
       <div className="text-black px-8 py-10 ">

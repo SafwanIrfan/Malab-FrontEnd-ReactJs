@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
-import appLogo from "../assets/applogo.svg";
+import appLogo from "../../assets/applogo.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import {
    ArrowRightIcon,
@@ -14,7 +14,7 @@ import {
    PersonIcon,
 } from "@radix-ui/react-icons";
 import { toast } from "react-toastify";
-import { fetchUserDetails } from "../services/api";
+import { fetchUserDetails } from "../../services/api";
 
 export const inputClassName =
    "px-10 font-sans outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/80 focus:border-sgreen-color/80 duration-300 py-2 rounded-full transition-all w-full";

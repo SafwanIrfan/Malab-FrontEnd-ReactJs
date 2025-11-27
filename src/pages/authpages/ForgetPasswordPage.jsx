@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { inputClassName } from "./RegisterPage";
-import { EnvelopeClosedIcon, MobileIcon } from "@radix-ui/react-icons";
+import { useEffect, useState } from "react";
+import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { ThumbsUpIcon } from "lucide-react";
 import { FaEye, FaEyeSlash, FaSpinner } from "react-icons/fa";
-import { fetchUserDetails } from "../services/api";
+import { fetchUserDetails } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 
 const ForgetPasswordPage = () => {
@@ -25,7 +24,7 @@ const ForgetPasswordPage = () => {
    const navigate = useNavigate();
 
    const emailSend = localStorage.getItem("emailSend");
-   let userData = JSON.parse(localStorage.getItem("userData"));
+   let userData = localStorage.getItem("userData");
    let tooManyAttempts = Number(localStorage.getItem("tooManyAttempts")) || 0;
 
    const { refetch: fetchUserData } = fetchUserDetails(

@@ -1,12 +1,12 @@
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import CourtCard from "../components/CourtCard";
+import CourtCard from "../../components/CourtCard";
 import { useQuery } from "@tanstack/react-query";
-import Loading from "../smallcomponents/Loading";
-import SearchBar from "../components/SearchBar";
-import { getDecodedToken, getToken } from "../utils/authToken";
+import Loading from "../../smallcomponents/Loading";
+import SearchBar from "../../components/SearchBar";
+import { getDecodedToken, getToken } from "../../utils/authToken";
 import { useContext, useEffect } from "react";
-import AppContext from "../contexts/Context";
+import AppContext from "../../contexts/Context";
 
 const HomePage = () => {
    const navigate = useNavigate();
@@ -45,7 +45,7 @@ const HomePage = () => {
       queryKey: ["courts"],
       queryFn: () =>
          axios
-            .get("http://localhost:8080/user/courts/NOT_APPROVED", {
+            .get("http://localhost:8080/user/courts/APPROVED", {
                headers: {
                   Authorization: `Bearer ${token}`,
                },
@@ -79,7 +79,7 @@ const HomePage = () => {
                )}
                <div className="flex justify-center my-2">
                   <SearchBar
-                     onClickSearchBar={() => navigate("/search/court")}
+                     onClickSearchBar={() => navigate("/user/search/court")}
                   />
                </div>
                <div className="flex justify-between mt-10">

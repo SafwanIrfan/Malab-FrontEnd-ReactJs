@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { getDecodedToken, getToken } from "../utils/authToken";
+import { getDecodedToken, getToken } from "../../utils/authToken";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import Loading from "../smallcomponents/Loading";
+import Loading from "../../smallcomponents/Loading";
 
 const OwnerDashboard = () => {
    const [usersCourt, setUsersCourt] = useState([]);
@@ -15,6 +15,40 @@ const OwnerDashboard = () => {
    const ownerId = decodedToken?.usersId;
 
    const navigate = useNavigate();
+
+   const {
+      data: ownerCourt,
+      isLoading,
+      error,
+   } = useQuery({
+      queryKey: ["court", ownerId],
+      queryFn: async () =>
+         await axios
+            .get(`http://localhost:8080/owner/${ownerId}/court`, {
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
+            })
+            .then((res) => res.data),
+      enabled: !!ownerId,
+   });
+
+   const {
+      data: ownerBookings,
+      isBookingLoading,
+      errorBooking,
+   } = useQuery({
+      queryKey: ["booking", ownerId],
+      queryFn: async () =>
+         await axios
+            .get(`http://localhost:8080/owner/court/${court}`, {
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
+            })
+            .then((res) => res.data),
+      enabled: !!ownerId,
+   });
 
    const fetchCourtByOwnerId = async () => {
       console.log("BAS KR");
@@ -55,11 +89,15 @@ const OwnerDashboard = () => {
       return <Loading />;
    }
 
-   return usersCourt.length > 0 ? (
+   if (error) {
+      return <p className="text-center mt-20">Error</p>;
+   }
+
+   return ownerCourt.length > 0 ? (
       <div className="flex-1 justify-center items-center px-8">
          {usersCourt.map((court) => (
             <div key={court.id} className="">
-               {court.courtStatus == "NOT_APPROVED" && (
+               {court.courtStatus == "NOT_APPROVED" ? (
                   <div className="flex flex-col min-h-screen justify-center items-center text-center text-balance">
                      <h1 className="text-4xl font-serif mb-2">
                         Your Court has been sent for approval.
@@ -68,6 +106,8 @@ const OwnerDashboard = () => {
                         It will take 2-3 days. Thanks for your patience
                      </p>
                   </div>
+               ) : (
+                  <div>{court?.courtName}</div>
                )}
             </div>
          ))}

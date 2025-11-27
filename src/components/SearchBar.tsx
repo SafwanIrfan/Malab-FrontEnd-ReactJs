@@ -10,7 +10,7 @@ interface Props {
 const SearchBar = ({ value, onChangeText, onClickSearchBar }: Props) => {
    const location = useLocation();
 
-   const isSearchPage = location.pathname == "/search/court";
+   const isSearchPage = location.pathname == "/user/search/court";
 
    return (
       <div className="overflow-hidden flex border-[1.5px] bg-white-color hover:border-[1.5px] hover:border-blackberry-color focus-within:border-blackberry-color  hover:bg-gray-100 text-xs w-full sm:text-sm sm:w-96 px-4 py-2 mt-2 mr-2  rounded-full shadow-md transition-all duration-500">

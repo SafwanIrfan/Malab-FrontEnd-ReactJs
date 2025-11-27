@@ -1,9 +1,9 @@
-import CourtCard from "../components/CourtCard";
-import Loading from "../smallcomponents/Loading";
-import useFetch from "../services/useFetch";
-import { fetchCourts } from "../services/api";
+import CourtCard from "../../components/CourtCard";
+import Loading from "../../smallcomponents/Loading";
+import useFetch from "../../services/useFetch";
+import { fetchCourts } from "../../services/api";
 import { useEffect, useState } from "react";
-import SearchBar from "../components/SearchBar";
+import SearchBar from "../../components/SearchBar";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 
 const SearchPage = () => {
@@ -26,6 +26,7 @@ const SearchPage = () => {
    useEffect(() => {
       const timeoutId = setTimeout(async () => {
          if (searchQuery.trim()) {
+            console.log(searchQuery);
             await loadCourts();
          } else {
             reset();
@@ -60,7 +61,7 @@ const SearchPage = () => {
 
             {!loading && !error && searchQuery.trim() && courts?.length > 0 && (
                <p className=" mt-4 text-xl text-black font-serif ">
-                  Search results for{" "}
+                  {`Showing ${courts?.length} results for`}{" "}
                   <span className="text-black font-bold">{searchQuery}</span>
                </p>
             )}

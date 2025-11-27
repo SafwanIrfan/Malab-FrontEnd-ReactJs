@@ -54,7 +54,7 @@ const CourtCard = (court) => {
       <Link
          key={court.id}
          className=" text-black rounded-lg shadow-2xl border-gray-500 hover:shadow-green-color cursor-pointer transition-all"
-         to={`/court/${court.id}`}
+         to={`/user/court/${court.id}`}
       >
          <div className="bg-green-color p-2 rounded-t">
             <h2 className="text-center text-xl font-sans font-black text-white">

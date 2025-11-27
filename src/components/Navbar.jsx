@@ -41,7 +41,7 @@ const Navbar = () => {
       <section className="border-b-2 border-blackberry-color shadow-xl">
          <div className="relative px-8 py-4 font-mono flex justify-between rounded-b-lg ">
             <div className="flex items-center text-center ">
-               <NavLink to="/" className="">
+               <NavLink to="/user" className="">
                   <img className=" w-28 md:w-28 mr-4" src={appLogo} />
                </NavLink>
             </div>
@@ -128,10 +128,10 @@ const Navbar = () => {
                </div>
                <button>
                   {decodedToken?.userImageUrl ? (
-                     <div className=" w-10 h-10 rounded-full p-4 border-2 border-black ">
+                     <div className=" w-10 h-10 rounded-full border-2 border-black ">
                         <img
-                           className="w-full object-cover"
-                           src={decodedToken.userImageUrl}
+                           className="rounded-full"
+                           src={decodedToken?.userImageUrl}
                         />
                      </div>
                   ) : (

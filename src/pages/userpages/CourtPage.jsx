@@ -8,13 +8,14 @@ import {
    FaHeart,
    FaTrash,
 } from "react-icons/fa";
-import AppContext from "../contexts/Context";
+import AppContext from "../../contexts/Context";
 import { toast } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Loading from "../smallcomponents/Loading";
+import Loading from "../../smallcomponents/Loading";
 import { CopyCheckIcon, CopyIcon, MapPin } from "lucide-react";
-import { getDecodedToken, getToken } from "../utils/authToken";
+import { getDecodedToken, getToken } from "../../utils/authToken";
+import { fetchCourtById } from "../../services/api";
 
 const CourtPage = () => {
    const { id } = useParams();
@@ -60,7 +61,7 @@ const CourtPage = () => {
                   Authorization: `Bearer ${token}`,
                },
             });
-            navigate("/");
+            navigate("/user");
             toast.success(`${court.name} successfully deleted.`);
          } catch (error) {
             console.log("Error deleting court : ", error);
@@ -69,22 +70,19 @@ const CourtPage = () => {
       }
    };
 
-   const {
-      data: court,
-      isLoading,
-      error,
-   } = useQuery({
-      queryKey: ["court", id],
-      queryFn: () =>
-         axios
-            .get(`http://localhost:8080/court/${id}`, {
-               headers: {
-                  Authorization: `Bearer ${token}`,
-               },
-            })
-            .then((res) => res.data),
-      enabled: !!id, // makes sure query runs only when id is available
-   });
+   const { data: court, isLoading, error } = fetchCourtById(id, token);
+   // useQuery({
+   //    queryKey: ["court", id],
+   //    queryFn: () =>
+   //       axios
+   //          .get(`http://localhost:8080/court/${id}`, {
+   //             headers: {
+   //                Authorization: `Bearer ${token}`,
+   //             },
+   //          })
+   //          .then((res) => res.data),
+   //    enabled: !!id, // makes sure query runs only when id is available
+   // });
 
    const copyUrl = async () => {
       try {
@@ -99,17 +97,18 @@ const CourtPage = () => {
    };
 
    if (isLoading) return <Loading />;
-   // if (error)
-   //    return (
-   //       <div className="p-4 mt-20 flex justify-center items-center">
-   //          <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
-   //             <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
-   //             <p className="mb-4 text-xl">
-   //                Your session is expired. Please login
-   //             </p>
-   //          </div>
-   //       </div>
-   //    );
+
+   if (error)
+      return (
+         <div className="p-4 mt-20 flex justify-center items-center">
+            <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
+               <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
+               <p className="mb-4 text-xl">
+                  Your session is expired. Please login
+               </p>
+            </div>
+         </div>
+      );
 
    return (
       <>
@@ -153,7 +152,7 @@ const CourtPage = () => {
                <section className="grid grid-cols-3 place-items-center gap-4 w-full my-10">
                   <div className="w-full">
                      <button
-                        onClick={() => navigate(`/court/${id}/edit`)}
+                        onClick={() => navigate(`/owner/court/${id}/edit`)}
                         className="text-xl text-white-color bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-4 transition-all"
                      >
                         <FaEdit />
@@ -219,7 +218,7 @@ const CourtPage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7   gap-4 text-center">
                      {oneWeek.map((week, index) => (
                         <Link
-                           to={`/timings/${court.id}/${week.day}/${week.date}`}
+                           to={`/user/timings/${court.id}/${week.day}/${week.date}`}
                            key={index}
                            className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color border-[1px] border-blackberry-color hover:text-black  rounded shadow-xl transition-all"
                         >

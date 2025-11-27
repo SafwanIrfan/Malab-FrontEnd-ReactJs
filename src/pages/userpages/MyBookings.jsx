@@ -2,8 +2,8 @@ import axios from "axios";
 import { format } from "date-fns";
 import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import AppContext from "../contexts/Context";
-import { getToken } from "../utils/authToken";
+import AppContext from "../../contexts/Context";
+import { getToken } from "../../utils/authToken";
 
 const formatDate = (date) => {
    const formattedDate = new Date(date); // 2025-05-10 -> 10th May 2025

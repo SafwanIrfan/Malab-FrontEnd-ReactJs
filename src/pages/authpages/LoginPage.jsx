@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
-import appLogo from "../assets/applogo.svg";
+import appLogo from "../../assets/applogo.svg";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import {
    ArrowRightIcon,
@@ -11,7 +11,7 @@ import {
    PersonIcon,
 } from "@radix-ui/react-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchUserDetails, URL_CONFIG } from "../services/api";
+import { fetchUserDetails, URL_CONFIG } from "../../services/api";
 
 const LoginPage = () => {
    const [googleLogin, setGoogleLogin] = useState(false);
@@ -103,7 +103,7 @@ const LoginPage = () => {
             toast.error("Please validate your account first!");
          } else {
             if (userDetails?.role === "ROLE_USER") {
-               navigate("/"); // Redirect after login
+               navigate("/user"); // Redirect after login
             } else if (userDetails?.role === "ROLE_OWNER") {
                navigate("/owner/dashboard");
             } else {

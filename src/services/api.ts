@@ -1,26 +1,26 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
-
-const jwtToken = localStorage?.getItem("token");
+import { getToken } from "../utils/authToken";
 
 export const URL_CONFIG = {
    BASE_URL: "http://localhost:8080",
-   headers: {
-      Type: "application/json",
-      Authorization: `Bearer ${jwtToken}`,
-   },
 };
 
 export const fetchCourts = async ({ query }: { query: string }) => {
    console.log("QUERY : ", query);
    const endPoint = query
-      ? `${URL_CONFIG.BASE_URL}/search/court?keyword=${encodeURIComponent(
+      ? `${URL_CONFIG.BASE_URL}/user/search/court?keyword=${encodeURIComponent(
            query
         )}`
       : `${URL_CONFIG.BASE_URL}/courts`;
 
-   const response = await axios.get(endPoint);
+   const response = await axios.get(endPoint, {
+      headers: {
+         Authorization: `Bearer ${getToken()}`,
+         "Content-Type": "application/json",
+      },
+   });
 
    if (!response) {
       throw new Error(`Failed to fetch courts`);
@@ -35,7 +35,7 @@ export const loginUser = async (credentials: { credentials: {} }) => {
    console.log(credentials);
    const response = await axios.post(endPoint, credentials, {
       headers: {
-         "Content-Type": URL_CONFIG.headers.Type,
+         "Content-Type": "application/json",
       },
    });
 
@@ -52,5 +52,20 @@ export const fetchUserDetails = (username: string) => {
       queryKey: ["user", username],
       queryFn: () => axios.get(`${URL_CONFIG.BASE_URL}/auth/user/${username}`),
       enabled: false,
+   });
+};
+
+export const fetchCourtById = (id: number, token: string) => {
+   return useQuery({
+      queryKey: ["court", id],
+      queryFn: () =>
+         axios
+            .get(`${URL_CONFIG.BASE_URL}/court/${id}`, {
+               headers: {
+                  Authorization: `Bearer ${token}`,
+               },
+            })
+            .then((res) => res.data),
+      enabled: !!id,
    });
 };

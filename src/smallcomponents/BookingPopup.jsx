@@ -1,16 +1,48 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "react-modal";
 import Button from "./Button";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { getDecodedToken, getToken } from "../utils/authToken";
+import axios from "axios";
+import { set } from "date-fns";
 
 Modal.setAppElement("#root"); // Ensure accessibility
 
 const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
    const [formData, setFormData] = useState({
-      name: "",
-      contact: "",
       paymentMethod: "card",
    });
+   const [user, setUser] = useState(null);
+   const [loading, setLoading] = useState(false);
+
+   const decodedToken = getDecodedToken();
+
+   useEffect(() => {
+      if (isOpen) {
+         fetchUserData();
+      }
+   }, [isOpen]);
+
+   const fetchUserData = async () => {
+      setLoading(true);
+      try {
+         const response = await axios.get(
+            `http://localhost:8080/auth/user/${decodedToken?.sub}`,
+            {
+               headers: {
+                  Authorization: `Bearer ${getToken()}`,
+                  "Content-Type": "application/json",
+               },
+            }
+         );
+         console.log(response.data);
+         setUser(response.data);
+      } catch (error) {
+         console.error("Error fetching user data:", error);
+      } finally {
+         setLoading(false);
+      }
+   };
 
    const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,8 +53,6 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
       onConfirm(formData);
       onClose();
       setFormData({
-         name: "",
-         contact: "",
          paymentMethod: "card",
       });
    };
@@ -43,33 +73,7 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
             </div>
          </div>
          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-10">
-               <div>
-                  <label className="block mb-2 text-xl">Name</label>
-                  <input
-                     type="text"
-                     name="name"
-                     placeholder="Enter your full name"
-                     value={formData.name}
-                     onChange={handleChange}
-                     required
-                     className="bg-white text-black w-full p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded"
-                  />
-               </div>
-
-               <div>
-                  <label className="block text-xl mb-2">Contact Number</label>
-                  <input
-                     type="text"
-                     name="contact"
-                     placeholder="03XXXXXXXXX"
-                     value={formData.contact}
-                     onChange={handleChange}
-                     required
-                     className="bg-white text-black w-full p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl  rounded"
-                  />
-               </div>
-            </div>
+            <div className="grid grid-cols-2 gap-10"></div>
 
             <label className="block mt-3 mb-2 text-xl font-semibold">
                Payment Method
