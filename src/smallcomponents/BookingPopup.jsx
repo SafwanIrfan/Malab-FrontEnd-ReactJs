@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import Modal from "react-modal";
 import Button from "./Button";
 import { Cross2Icon } from "@radix-ui/react-icons";
-import { getDecodedToken, getToken } from "../utils/authToken";
-import axios from "axios";
-import { set } from "date-fns";
 
 Modal.setAppElement("#root"); // Ensure accessibility
 
@@ -12,37 +9,6 @@ const BookingPopup = ({ isOpen, onClose, onConfirm, start, end, price }) => {
    const [formData, setFormData] = useState({
       paymentMethod: "card",
    });
-   const [user, setUser] = useState(null);
-   const [loading, setLoading] = useState(false);
-
-   const decodedToken = getDecodedToken();
-
-   useEffect(() => {
-      if (isOpen) {
-         fetchUserData();
-      }
-   }, [isOpen]);
-
-   const fetchUserData = async () => {
-      setLoading(true);
-      try {
-         const response = await axios.get(
-            `http://localhost:8080/auth/user/${decodedToken?.sub}`,
-            {
-               headers: {
-                  Authorization: `Bearer ${getToken()}`,
-                  "Content-Type": "application/json",
-               },
-            }
-         );
-         console.log(response.data);
-         setUser(response.data);
-      } catch (error) {
-         console.error("Error fetching user data:", error);
-      } finally {
-         setLoading(false);
-      }
-   };
 
    const handleChange = (e) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
