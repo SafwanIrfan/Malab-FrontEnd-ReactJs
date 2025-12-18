@@ -412,8 +412,8 @@ const RegisterPage = () => {
                         id="imageError"
                         className="block text-xl mb-2 font-serif text-green-color"
                      >
-                        <span className="text-red-500">*</span> Upload Your
-                        Image
+                        <span className="text-red-500">*</span>
+                        Upload Your Image
                      </label>
                      <input
                         type="file"
