@@ -50,64 +50,73 @@ const CourtCard = (court) => {
       addFavMutation.mutate(id);
    };
 
+   const isFavorited = court?.courtsFavorites?.length > 0 && token && 
+                       court.courtsFavorites?.some(fav => fav.id?.usersId === decoded?.usersId);
+
    return (
       <Link
          key={court.id}
-         className=" text-black rounded-lg shadow-2xl border-gray-500 hover:shadow-green-color cursor-pointer transition-all"
+         className="group block text-black rounded-xl shadow-lg border border-gray-200 hover:shadow-2xl hover:border-green-color/50 cursor-pointer transition-all duration-300 overflow-hidden bg-white transform hover:-translate-y-2"
          to={`/user/court/${court.id}`}
       >
-         <div className="bg-green-color p-2 rounded-t">
-            <h2 className="text-center text-xl font-sans font-black text-white">
-               {court.courtName.toUpperCase()}
-            </h2>
-         </div>
-         <div>
-            {court?.courtImageUrls?.length > 0 ? (
-               <img
-                  src={court?.courtImageUrls[0]?.url}
-                  alt="Court Image"
-                  className="w-full h-52 object-cover  "
-               />
-            ) : (
-               <div className="w-full h-52 rounded-b-lg font-thin flex justify-center items-center">
-                  NO IMAGE
-               </div>
-            )}
-            <div className=""></div>
+         <div className="relative overflow-hidden">
+            <div className="bg-gradient-to-r from-green-color to-sgreen-color p-3">
+               <h2 className="text-center text-lg sm:text-xl font-sans font-black text-white truncate">
+                  {court.courtName.toUpperCase()}
+               </h2>
+            </div>
+            <div className="relative">
+               {court?.courtImageUrls?.length > 0 ? (
+                  <div className="relative overflow-hidden">
+                     <img
+                        src={court?.courtImageUrls[0]?.url}
+                        alt={`${court.courtName} - Court Image`}
+                        className="w-full h-56 sm:h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+                     />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+               ) : (
+                  <div className="w-full h-56 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col justify-center items-center">
+                     <div className="text-gray-400 text-sm font-medium">No Image Available</div>
+                  </div>
+               )}
+            </div>
          </div>
 
-         <div className="px-4 pb-4">
-            <div className="flex justify-between my-2">
-               <p className="font-bold text-lg">{court.pricePerHour}/hour</p>
+         <div className="px-4 sm:px-5 pb-5 pt-4">
+            <div className="flex justify-between items-center mb-3">
                <div>
-                  <button
-                     onClick={(e) => {
-                        e.preventDefault(); // For not navigating
-                        handleAddFav(court?.id);
-                     }}
-                     className={
-                        court?.courtsFavorites?.length > 0 && token
-                           ? court.courtsFavorites?.id?.usersId ===
-                             decoded?.usersid
-                              ? "text-red-600 transition-all scale-110"
-                              : " transition-all"
-                           : ""
-                     }
-                  >
-                     <FaHeart className="text-xl ease-in-out transition-all" />
-                  </button>
+                  <p className="font-bold text-xl sm:text-2xl text-green-color">
+                     Rs {court.pricePerHour}
+                  </p>
+                  <p className="text-sm text-gray-500">per hour</p>
                </div>
+               <button
+                  onClick={(e) => {
+                     e.preventDefault();
+                     e.stopPropagation();
+                     handleAddFav(court?.id);
+                  }}
+                  className={`p-2 rounded-full transition-all duration-200 ${
+                     isFavorited
+                        ? "text-red-600 bg-red-50 scale-110"
+                        : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                  }`}
+                  aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+               >
+                  <FaHeart className={`text-xl transition-all ${isFavorited ? "fill-current" : ""}`} />
+               </button>
             </div>
-            <p className="mb-1">{court.description}</p>
-            <p className="text-gray-600 ">
-               {court.area}, {court.city}
+            <p className="text-gray-700 mb-2 line-clamp-2 text-sm sm:text-base">
+               {court.description || "No description available"}
             </p>
-            {/* <Link
-                                      className=" p-2 bg-green-color text-gray-200 hover:text-white hover:text- transition-all font-semibold rounded"
-                                      to={`/court/${court.id}`}
-                                   >
-                                      Show more details
-                                   </Link> */}
+            <div className="flex items-center gap-1 text-gray-600 text-sm">
+               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+               </svg>
+               <p className="truncate">{court.area}, {court.city}</p>
+            </div>
          </div>
       </Link>
    );

@@ -68,32 +68,43 @@ const HomePage = () => {
          {courts?.length >= 0 && (
             <div
                onClick={() => setShowNavbarBurger(false)}
-               className="p-10 text-black"
+               className="min-h-screen px-4 sm:px-6 lg:px-10 py-8 sm:py-10 text-black"
             >
                {decodedToken && (
-                  <div className="w-[400px] border-[1px] border-blackberry-color overflow-hidden mx-auto rounded-full  bg-green-color transition-all shadow-lg">
-                     <h1 className="text-center text-2xl py-2 px-10 text-white animate-marquee font-black ">
-                        {`Welcome ${decodedToken.sub}!`}
-                     </h1>
+                  <div className="max-w-md mx-auto mb-8">
+                     <div className="border-2 border-blackberry-color overflow-hidden rounded-full bg-gradient-to-r from-green-color to-sgreen-color transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 duration-300">
+                        <h1 className="text-center text-xl sm:text-2xl py-3 px-6 sm:px-10 text-white font-black animate-marquee">
+                           {`Welcome ${decodedToken.sub}!`}
+                        </h1>
+                     </div>
                   </div>
                )}
-               <div className="flex justify-center my-2">
-                  <SearchBar
-                     onClickSearchBar={() => navigate("/user/search/court")}
-                  />
+               <div className="flex justify-center my-6 sm:my-8">
+                  <div className="w-full max-w-2xl">
+                     <SearchBar
+                        onClickSearchBar={() => navigate("/user/search/court")}
+                        value=""
+                        onChangeText={() => {}}
+                     />
+                  </div>
                </div>
-               <div className="flex justify-between mt-10">
-                  <h1 className="text-2xl font-black mb-6">Available Courts</h1>
-                  {/* <Button
-                     title="Add Court"
-                     action={() => navigate("/add_court")}
-                  /> */}
+               <div className="flex justify-between items-center mt-12 mb-8">
+                  <h1 className="text-3xl sm:text-4xl font-black text-blackberry-color">
+                     Available Courts
+                  </h1>
                </div>
-               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  my-5 ">
-                  {courts.map((court) => (
-                     <CourtCard key={court.id} {...court} />
-                  ))}
-               </div>
+               {courts.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                     <p className="text-2xl text-gray-600 mb-4">No courts available at the moment</p>
+                     <p className="text-gray-500">Check back later for new courts!</p>
+                  </div>
+               ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 my-5">
+                     {courts.map((court) => (
+                        <CourtCard key={court.id} {...court} />
+                     ))}
+                  </div>
+               )}
             </div>
          )}
       </>

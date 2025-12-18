@@ -102,7 +102,7 @@ const CourtPage = () => {
       return (
          <div className="p-4 mt-20 flex justify-center items-center">
             <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
-               <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
+               <h1 className="text-5xl mb-2">OOPS!</h1>
                <p className="mb-4 text-xl">
                   Your session is expired. Please login
                </p>
@@ -110,120 +110,128 @@ const CourtPage = () => {
          </div>
       );
 
+   const isFavorited = court && court.courtsFavorites && court.courtsFavorites.length > 0 && 
+                       court.courtsFavorites?.some(fav => fav.id?.usersId === decoded?.usersId);
+
    return (
       <>
          {court && (
-            <div className="px-8 py-10 text-black transition-all">
+            <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-10 text-black transition-all max-w-7xl mx-auto">
                {court?.courtImageUrls?.length > 0 && (
-                  <section className=" items-center gap-2  flex justify-center">
+                  <section className="relative items-center gap-4 flex justify-center mb-8">
                      <button
-                        className={
+                        className={`rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 ${
                            imageIndex > 0
-                              ? "bg-gray-800 rounded-full w-10 h-10  hover:bg-black text-white-color transition-all"
+                              ? "bg-blackberry-color/80 hover:bg-blackberry-color text-white shadow-lg hover:scale-110"
                               : "invisible"
-                        }
-                        onClick={() => {
-                           setImageIndex(imageIndex - 1);
-                           console.log("img index : ", imageIndex);
-                        }}
+                        }`}
+                        onClick={() => setImageIndex(imageIndex - 1)}
+                        aria-label="Previous image"
                      >
-                        <FaArrowLeft className="mx-3" />
+                        <FaArrowLeft className="text-lg" />
                      </button>
-                     <img
-                        src={court.courtImageUrls[imageIndex].url}
-                        alt="Court Image"
-                        className="h-60 w-[693px] md:h-80 rounded object-contain "
-                     />
+                     <div className="relative overflow-hidden rounded-2xl shadow-2xl max-w-4xl">
+                        <img
+                           src={court.courtImageUrls[imageIndex].url}
+                           alt={`${court.courtName} - Image ${imageIndex + 1}`}
+                           className="h-64 sm:h-80 md:h-96 w-full object-cover"
+                        />
+                        <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+                           {imageIndex + 1} / {court.courtImageUrls.length}
+                        </div>
+                     </div>
                      <button
-                        className={
+                        className={`rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 ${
                            imageIndex < court.courtImageUrls.length - 1
-                              ? "bg-gray-800 rounded-full w-10 h-10 hover:bg-black text-white-color transition-all "
+                              ? "bg-blackberry-color/80 hover:bg-blackberry-color text-white shadow-lg hover:scale-110"
                               : "invisible"
-                        }
-                        onClick={() => {
-                           setImageIndex(imageIndex + 1);
-                           console.log("img index : ", imageIndex);
-                        }}
+                        }`}
+                        onClick={() => setImageIndex(imageIndex + 1)}
+                        aria-label="Next image"
                      >
-                        <FaArrowRight className="mx-3" />
+                        <FaArrowRight className="text-lg" />
                      </button>
                   </section>
                )}
-               <section className="grid grid-cols-3 place-items-center gap-4 w-full my-10">
-                  <div className="w-full">
+               <section className="grid grid-cols-3 place-items-center gap-4 w-full my-8">
+                  <div className="w-full flex justify-start">
                      <button
                         onClick={() => navigate(`/owner/court/${id}/edit`)}
-                        className="text-xl text-white-color bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-4 transition-all"
+                        className="text-xl text-white bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-3 transition-all shadow-md hover:shadow-lg"
+                        aria-label="Edit court"
                      >
                         <FaEdit />
                      </button>
                   </div>
-                  <div>
-                     <p className="text-blackberry-color text-4xl font-serif font-black">
+                  <div className="text-center">
+                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-blackberry-color">
                         {court.courtName.toUpperCase()}
-                     </p>
+                     </h1>
                   </div>
-                  <div className="w-full text-right">
+                  <div className="w-full flex justify-end">
                      <button
                         onClick={handleDelete}
-                        className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-4 text-black transition-all"
+                        className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-3 text-white transition-all shadow-md hover:shadow-lg"
+                        aria-label="Delete court"
                      >
                         <FaTrash />
                      </button>
                   </div>
                </section>
-               <section className="p-6 bg-white/70 border-[1px] border-blackberry-color rounded">
-                  <div className="flex justify-between">
-                     <p className="text-3xl font-bold mb-4">
-                        Rs {court.pricePerHour}
-                        <span className="font-normal">/hour</span>
-                     </p>
-                     <div className="flex gap-6 items-start ">
+               <section className="p-6 sm:p-8 bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl shadow-xl mb-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                     <div>
+                        <p className="text-3xl sm:text-4xl font-bold text-green-color">
+                           Rs {court.pricePerHour}
+                           <span className="text-xl font-normal text-gray-600">/hour</span>
+                        </p>
+                        <div className="text-lg font-semibold text-gray-600 mt-2">
+                           Total Bookings: <span className="text-green-color">{court?.totalBookings ?? 0}</span>
+                        </div>
+                     </div>
+                     <div className="flex gap-4 items-center">
                         <button
                            onClick={() => handleAddFav(court.id)}
-                           className={
-                              court.courtsFavorites.length > 0
-                                 ? court.courtsFavorites?.id?.usersId ===
-                                   decoded?.id
-                                    ? "text-red-600 transition-all"
-                                    : " transition-all"
-                                 : ""
-                           }
+                           className={`p-3 rounded-full transition-all duration-200 ${
+                              isFavorited
+                                 ? "text-red-600 bg-red-50"
+                                 : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                           }`}
+                           aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
                         >
-                           <FaHeart className="text-3xl hover:scale-110 duration-200 ease-in-out transition-all" />
+                           <FaHeart className={`text-3xl ${isFavorited ? "fill-current" : ""} hover:scale-110 duration-200 ease-in-out transition-all`} />
                         </button>
-                        <button onClick={copyUrl}>
+                        <button 
+                           onClick={copyUrl}
+                           className="p-3 rounded-full text-gray-400 hover:text-green-color hover:bg-green-50 transition-all duration-200"
+                           aria-label="Copy link"
+                        >
                            {copyState === "Idle" ? (
                               <CopyIcon className="size-8 hover:scale-110 duration-200 ease-in-out transition-all" />
                            ) : (
-                              <CopyCheckIcon className="size-8 transition-all scale-110 ease-in-out" />
+                              <CopyCheckIcon className="size-8 text-green-color scale-110 ease-in-out" />
                            )}
                         </button>
                      </div>
                   </div>
-                  <div>
-                     <div className="text-xl font-semibold">
-                        Total Bookings : {court?.totalBookings ?? 0}
-                     </div>
-                     <div className="flex gap-2 mt-2">
-                        <MapPin className="text-red-600  mt-1 h-5 w-5" />
-                        <p className="text-gray-700 text-xl">
-                           {court?.area}, {court?.city}
-                        </p>
-                     </div>
+                  <div className="flex items-start gap-3 pt-4 border-t border-gray-200">
+                     <MapPin className="text-red-600 mt-1 h-6 w-6 flex-shrink-0" />
+                     <p className="text-gray-700 text-lg sm:text-xl">
+                        {court?.area}, {court?.city}
+                     </p>
                   </div>
                </section>
-               <section className="bg-white/70 border-[1px] border-blackberry-color rounded-2 p-6 mt-6">
-                  <h3 className="text-3xl font-bold mb-4">View Slots</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7   gap-4 text-center">
+               <section className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-6 sm:p-8 shadow-xl">
+                  <h3 className="text-2xl sm:text-3xl font-bold mb-6 text-blackberry-color">View Available Slots</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4 text-center">
                      {oneWeek.map((week, index) => (
                         <Link
                            to={`/user/timings/${court.id}/${week.day}/${week.date}`}
                            key={index}
-                           className=" bg-green-color p-4 text-white-color hover:bg-sgreen-color border-[1px] border-blackberry-color hover:text-black  rounded shadow-xl transition-all"
+                           className="bg-gradient-to-br from-green-color to-sgreen-color p-4 text-white hover:from-sgreen-color hover:to-green-color border-2 border-blackberry-color hover:text-black rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1"
                         >
-                           <p>{week.day.toUpperCase()}</p>
-                           <p>{week.date}</p>
+                           <p className="font-bold text-sm sm:text-base">{week.day.toUpperCase()}</p>
+                           <p className="text-xs sm:text-sm mt-1">{week.date}</p>
                         </Link>
                      ))}
                   </div>

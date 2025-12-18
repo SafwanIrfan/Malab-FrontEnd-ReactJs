@@ -319,7 +319,7 @@ const SlotsPage = () => {
       return (
          <div className="p-4 mt-20 flex justify-center items-center">
             <div className="px-4 py-8 flex flex-col  text-center  rounded text-balance ">
-               <h1 className="text-5xl font-serif mb-2">OOPS!</h1>
+               <h1 className="text-5xl mb-2">OOPS!</h1>
                <p className="mb-4 text-xl">
                   Your session is expired. Please login
                </p>
@@ -328,42 +328,38 @@ const SlotsPage = () => {
       );
 
    return (
-      <div className="text-black px-8 py-10 ">
-         <div className="flex justify-center border-b-[1px] border-blackberry-color font-black font-serif py-2 mb-4">
-            <h3 className="text-3xl sm:text-4xl">{day.toUpperCase()}</h3>
+      <div className="text-black px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-6xl mx-auto">
+         <div className="flex justify-center border-b-2 border-blackberry-color font-black py-3 mb-6">
+            <h3 className="text-3xl sm:text-4xl text-blackberry-color">{day.toUpperCase()}</h3>
          </div>
          {formatStartTime != isNaN && formatEndTime != isNaN ? (
             <div>
-               <div className=" mb-8">
-                  <div className="flex flex-col sm:flex-row justify-evenly gap-4">
-                     <div>
-                        <h4 className="text-2xl text-green-color font-serif">
-                           Opening time{" "}
+               <div className="mb-8">
+                  <div className="flex flex-col sm:flex-row justify-center gap-6 sm:gap-12">
+                     <div className="bg-gradient-to-br from-green-color to-sgreen-color p-6 rounded-xl shadow-lg text-white">
+                        <h4 className="text-xl sm:text-2xl mb-2">
+                           Opening Time
                         </h4>
-                        <p className="font-bold text-xl">{formatStartTime}</p>
+                        <p className="font-bold text-2xl sm:text-3xl">{formatStartTime}</p>
                      </div>
-                     <div>
-                        <h4 className="text-2xl text-red-600 font-serif">
-                           Closing time{" "}
+                     <div className="bg-gradient-to-br from-red-500 to-red-600 p-6 rounded-xl shadow-lg text-white">
+                        <h4 className="text-xl sm:text-2xl mb-2">
+                           Closing Time
                         </h4>
-                        <p className="font-bold text-xl">
+                        <p className="font-bold text-2xl sm:text-3xl">
                            {formatEndTime ? formatEndTime : "CLOSED"}
                         </p>
                      </div>
                   </div>
                </div>
 
-               {/* <p className="text-red-500 font-black text-balance p-4 text-center text-4xl">
-                  CLOSED
-               </p> */}
-
-               <div className=" border-[1px] bg-white/70 border-blackberry-color px-4 py-6 mb-10 rounded ">
-                  <h2 className="text-2xl sm:text-3xl font-serif mb-6 sm:text-center">
-                     Choose your slot
+               <div className="border-2 bg-white/90 backdrop-blur-sm border-blackberry-color px-6 sm:px-8 py-8 mb-10 rounded-2xl shadow-xl">
+                  <h2 className="text-2xl sm:text-3xl mb-8 text-center text-blackberry-color">
+                     Choose Your Slot
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 place-items-start  sm:place-items-center">
-                     <div className="mb-4 sm:mb-0">
-                        <label className="mr-2 text-xl font-serif">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                     <div>
+                        <label className="block mb-3 text-lg sm:text-xl text-gray-700">
                            Starting Time
                         </label>
                         <select
@@ -371,26 +367,25 @@ const SlotsPage = () => {
                            name="startTime"
                            id="startTime"
                            onChange={handleSlotChange}
-                           onFocus=""
-                           className="bg-black mt-2 sm:mt-0 text-white p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded"
+                           className="w-full bg-white border-2 border-blackberry-color hover:border-green-color focus:border-green-color focus:ring-2 focus:ring-green-color/20 text-black p-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                            <option value="" disabled hidden>
-                              00:00
+                              Select start time
                            </option>
                            {availableSlots.map((slot) => (
                               <option
-                                 className="p-2  "
                                  key={slot}
                                  value={slot || ""}
                                  disabled={isBooked(slot)}
+                                 className={isBooked(slot) ? "text-gray-400" : ""}
                               >
-                                 {slot}
+                                 {slot} {isBooked(slot) && "(Booked)"}
                               </option>
                            ))}
                         </select>
                      </div>
                      <div>
-                        <label className="mr-3.5 text-xl font-serif">
+                        <label className="block mb-3 text-lg sm:text-xl text-gray-700">
                            Ending Time
                         </label>
                         <select
@@ -398,35 +393,35 @@ const SlotsPage = () => {
                            name="endTime"
                            id="endTime"
                            onChange={handleSlotChange}
-                           className="bg-black mt-2 sm:mt-0 text-white p-2 border-2 border-blackberry-color focus:outline-none focus:shadow-xl rounded "
+                           className="w-full bg-white border-2 border-blackberry-color hover:border-green-color focus:border-green-color focus:ring-2 focus:ring-green-color/20 text-black p-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
                         >
                            <option value="" disabled hidden>
-                              00:00
+                              Select end time
                            </option>
                            {availableSlots.map((slot) => {
                               return (
                                  <option
-                                    className="p-2 "
                                     key={slot}
                                     value={slot || ""}
                                     disabled={isBooked(slot)}
+                                    className={isBooked(slot) ? "text-gray-400" : ""}
                                  >
-                                    {slot}
+                                    {slot} {isBooked(slot) && "(Booked)"}
                                  </option>
                               );
                            })}
                         </select>
                      </div>
                   </div>
-                  <p className="mt-4">
-                     <span className="text-sm sm:text-base text-balance font-bold">
-                        Note :{" "}
-                     </span>{" "}
-                     You can select timings only within the court&apos;s opening
-                     and closing hours. Additionally, already booked slots
-                     cannot be chosen.
-                  </p>
-                  <div className="flex sm:justify-center mt-6 ">
+                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-6">
+                     <p className="text-sm sm:text-base text-balance">
+                        <span className="font-bold text-blue-700">Note: </span>
+                        You can select timings only within the court&apos;s opening
+                        and closing hours. Additionally, already booked slots
+                        cannot be chosen.
+                     </p>
+                  </div>
+                  <div className="flex justify-center mt-6">
                      <Button title="Book Slot" action={handleBookSlot} />
                   </div>
                   <BookingPopup
@@ -440,11 +435,13 @@ const SlotsPage = () => {
                </div>
             </div>
          ) : (
-            <div>
-               {" "}
-               <p className="text-red-500 font-black text-balance p-4 text-center text-4xl">
-                  CLOSED
-               </p>
+            <div className="flex justify-center items-center py-20">
+               <div className="text-center">
+                  <p className="text-red-500 font-black text-balance p-4 text-4xl sm:text-5xl mb-4">
+                     CLOSED
+                  </p>
+                  <p className="text-gray-600 text-lg">This court is closed on {day}</p>
+               </div>
             </div>
          )}
       </div>

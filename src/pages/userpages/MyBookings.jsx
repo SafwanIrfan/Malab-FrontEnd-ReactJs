@@ -17,27 +17,47 @@ const BookingCard = (props) => {
 
    const { formatTime } = useContext(AppContext);
 
-   console.log(book);
-
    if (!book) return null;
+   
+   const statusColors = {
+      incoming: "from-blue-500 to-blue-600",
+      ongoing: "from-green-color to-sgreen-color",
+      previous: "from-gray-400 to-gray-500"
+   };
+
    return (
-      <div onClick={() => setShowNavbarBurger(false)} className="mt-2">
+      <div onClick={() => setShowNavbarBurger(false)} className="mt-4">
          {book.status === bookingStatus && (
-            <div className="bg-white/70 p-4 flex-col border-[1px] border-blackberry-color rounded shadow-lg">
-               <h1 className="text-3xl text-black font-serif">
-                  {book.courtName}
-               </h1>
-               <h1 className="text-xl  font-semibold">
-                  {formatDate(book.date)}
-               </h1>
-               <p className="transition-all ">{book.day}</p>
-               <div className="flex gap-2">
-                  <p className="text-green-color font-semibold">
-                     {formatTime(book.startTime)}
-                  </p>{" "}
-                  <p className="text-red-500 font-semibold">
-                     {formatTime(book.endTime)}
-                  </p>
+            <div className="bg-white/90 backdrop-blur-sm flex-col border-2 border-blackberry-color rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 overflow-hidden">
+               <div className={`w-full h-2.5 bg-gradient-to-r ${statusColors[bookingStatus] || "from-gray-400 to-gray-500"}`}></div>
+               <div className="p-5 sm:p-6">
+                  <h1 className="text-2xl sm:text-3xl text-black font-bold mb-2">
+                     {book.courtName}
+                  </h1>
+               <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-700">
+                     {formatDate(book.date)}
+                  </h2>
+               </div>
+               <p className="text-gray-600 mb-4 capitalize font-medium">{book.day}</p>
+               <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                     <div className="w-3 h-3 rounded-full bg-green-color"></div>
+                     <p className="text-green-color font-semibold text-lg">
+                        {formatTime(book.startTime)}
+                     </p>
+                  </div>
+                  <span className="text-gray-400">→</span>
+                  <div className="flex items-center gap-2">
+                     <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                     <p className="text-red-500 font-semibold text-lg">
+                        {formatTime(book.endTime)}
+                     </p>
+                  </div>
+               </div>
                </div>
             </div>
          )}
@@ -170,88 +190,95 @@ const MyBookings = () => {
    };
 
    return (
-      <section onClick={() => setShowNavbarBurger(false)}>
-         <nav className="px-8 pt-8 pb-6  shadow-lg flex gap-8">
-            <section className="text-balance">
-               <div>
-                  <button
-                     onClick={() => toggleOpen("incomingBookings")}
-                     className={
-                        open.incomingBookings
-                           ? " border-b-2 pb-2 border-b-green-color  sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
-                     }
-                  >
-                     Incoming bookings
-                  </button>
-               </div>
-            </section>
+      <section onClick={() => setShowNavbarBurger(false)} className="min-h-screen">
+         <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-4 bg-white/50 backdrop-blur-sm border-b-2 border-blackberry-color">
+            <h1 className="text-3xl sm:text-4xl font-black text-blackberry-color mb-6">My Bookings</h1>
+            <nav className="flex flex-wrap gap-4 sm:gap-8">
+               <button
+                  onClick={() => toggleOpen("incomingBookings")}
+                  className={`px-4 py-2 text-base sm:text-xl font-semibold transition-all duration-200 rounded-lg ${
+                     open.incomingBookings
+                        ? "bg-blue-500 text-white shadow-lg"
+                        : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                  }`}
+               >
+                  Incoming Bookings
+               </button>
+               <button
+                  onClick={() => toggleOpen("ongoingBookings")}
+                  className={`px-4 py-2 text-base sm:text-xl font-semibold transition-all duration-200 rounded-lg ${
+                     open.ongoingBookings
+                        ? "bg-green-color text-white shadow-lg"
+                        : "text-gray-700 hover:bg-green-50 hover:text-green-color"
+                  }`}
+               >
+                  Ongoing Bookings
+               </button>
+               <button
+                  onClick={() => toggleOpen("previousBookings")}
+                  className={`px-4 py-2 text-base sm:text-xl font-semibold transition-all duration-200 rounded-lg ${
+                     open.previousBookings
+                        ? "bg-gray-500 text-white shadow-lg"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-600"
+                  }`}
+               >
+                  Previous Bookings
+               </button>
+            </nav>
+         </div>
 
-            <section className="text-balance">
-               <div className="flex flex-col">
-                  <button
-                     onClick={() => toggleOpen("ongoingBookings")}
-                     className={
-                        open.ongoingBookings
-                           ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
-                     }
-                  >
-                     Ongoing bookings
-                  </button>
-               </div>
-            </section>
-
-            <section className="text-balance">
-               <div className="flex flex-col">
-                  <button
-                     onClick={() => toggleOpen("previousBookings")}
-                     className={
-                        open.previousBookings
-                           ? " border-b-2 pb-2 border-b-green-color sm:text-xl font-semibold transition-all"
-                           : "hover:border-b-2 pb-2 hover:border-b-green-color/20 sm:text-xl font-semibold transition-all"
-                     }
-                  >
-                     Previous bookings
-                  </button>
-               </div>
-            </section>
-         </nav>
-
-         <section>
+         <section className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
             {open.incomingBookings && (
-               <div className="flex-col transition-all px-8 py-8">
-                  {sortedBookings.map((book) => (
-                     <BookingCard
-                        key={book.id}
-                        bookingStatus="incoming"
-                        {...book}
-                     />
-                  ))}
+               <div className="space-y-4">
+                  {sortedBookings.filter(b => b.status === "incoming").length === 0 ? (
+                     <div className="text-center py-12">
+                        <p className="text-xl text-gray-500">No incoming bookings</p>
+                     </div>
+                  ) : (
+                     sortedBookings.map((book) => (
+                        <BookingCard
+                           key={book.id}
+                           bookingStatus="incoming"
+                           {...book}
+                        />
+                     ))
+                  )}
                </div>
             )}
 
             {open.ongoingBookings && (
-               <div className="flex-col transition-all px-8 py-8">
-                  {sortedBookings.map((book) => (
-                     <BookingCard
-                        key={book.id}
-                        bookingStatus="ongoing"
-                        {...book}
-                     />
-                  ))}
+               <div className="space-y-4">
+                  {sortedBookings.filter(b => b.status === "ongoing").length === 0 ? (
+                     <div className="text-center py-12">
+                        <p className="text-xl text-gray-500">No ongoing bookings</p>
+                     </div>
+                  ) : (
+                     sortedBookings.map((book) => (
+                        <BookingCard
+                           key={book.id}
+                           bookingStatus="ongoing"
+                           {...book}
+                        />
+                     ))
+                  )}
                </div>
             )}
 
             {open.previousBookings && (
-               <div className="flex-col transition-all px-8 py-8">
-                  {sortedBookings.map((book) => (
-                     <BookingCard
-                        key={book.id}
-                        bookingStatus="previous"
-                        {...book}
-                     />
-                  ))}
+               <div className="space-y-4">
+                  {sortedBookings.filter(b => b.status === "previous").length === 0 ? (
+                     <div className="text-center py-12">
+                        <p className="text-xl text-gray-500">No previous bookings</p>
+                     </div>
+                  ) : (
+                     sortedBookings.map((book) => (
+                        <BookingCard
+                           key={book.id}
+                           bookingStatus="previous"
+                           {...book}
+                        />
+                     ))
+                  )}
                </div>
             )}
          </section>

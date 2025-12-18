@@ -7,10 +7,42 @@
 html,
 body {
    background-color: #eee8f3;
+   scroll-behavior: smooth;
+   font-family: 'Poppins', sans-serif;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
    -webkit-appearance: none;
    margin: 0;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+   width: 10px;
+}
+
+::-webkit-scrollbar-track {
+   background: #eee8f3;
+}
+
+::-webkit-scrollbar-thumb {
+   background: #006A67;
+   border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+   background: #03c988;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Focus styles */
+*:focus-visible {
+   outline: 2px solid #03c988;
+   outline-offset: 2px;
 }

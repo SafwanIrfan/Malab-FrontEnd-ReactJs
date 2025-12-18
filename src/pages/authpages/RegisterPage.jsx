@@ -222,13 +222,13 @@ const RegisterPage = () => {
                <h2 className="text-2xl font-bold text-green-color mb-1">
                   CREATE ACCOUNT
                </h2>
-               <p className="mb-4 text-gray-500 font-serif ">
+               <p className="mb-4 text-gray-500 ">
                   {role === "ROLE_USER"
                      ? "Join us and Play with Ease"
                      : "Add your personal information"}
                </p>
 
-               <form className="font-serif" onSubmit={handleSubmit}>
+               <form onSubmit={handleSubmit}>
                   <div id="usernameError">
                      <label className="block mb-2 text-xl text-green-color">
                         <span className="text-red-500">*</span> Username
@@ -410,7 +410,7 @@ const RegisterPage = () => {
                   <div className="flex flex-col gap-0.2 mt-4">
                      <label
                         id="imageError"
-                        className="block text-xl mb-2 font-serif text-green-color"
+                        className="block text-xl mb-2 text-green-color"
                      >
                         <span className="text-red-500">*</span>
                         Upload Your Image
@@ -468,7 +468,7 @@ const RegisterPage = () => {
                </form>
 
                <div className="flex justify-end mt-2 gap-2 items-center">
-                  <p className="font-serif">Have an account?</p>
+                  <p>Have an account?</p>
                   <button
                      onClick={() => navigate("/auth/login")}
                      className="group flex bg-white font-sans font-semibold items-center gap-2 py-1 px-6 border-[1.5px] border-black rounded"

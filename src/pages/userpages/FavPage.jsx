@@ -6,6 +6,7 @@ import Button from "../../smallcomponents/Button";
 import { getToken } from "../../utils/authToken";
 import { useContext } from "react";
 import AppContext from "../../contexts/Context";
+import { FaHeart } from "react-icons/fa";
 
 const FavPage = () => {
    const { usersId } = useParams();
@@ -59,25 +60,31 @@ const FavPage = () => {
       return (
          <div
             onClick={() => setShowNavbarBurger(false)}
-            className="px-8 flex flex-col gap-4 justify-center items-center min-h-screen"
+            className="px-4 sm:px-8 flex flex-col gap-6 justify-center items-center min-h-screen"
          >
-            <h1 className="text-green-color text-3xl text-center text-balance">
-               You have not any favorite courts
+            <div className="bg-white/80 backdrop-blur-sm rounded-full p-8 shadow-lg mb-4">
+               <FaHeart className="text-6xl text-red-500" />
+            </div>
+            <h1 className="text-green-color text-2xl sm:text-3xl text-center text-balance font-bold">
+               You don't have any favorite courts yet
             </h1>
-
-            <Button title="See Courts" action={() => navigate("/")} />
+            <p className="text-gray-600 text-center">Start adding courts to your favorites!</p>
+            <Button title="Browse Courts" action={() => navigate("/user")} />
          </div>
       );
    }
 
-   console.log(userCourtsFav);
-
    return (
-      <section className="p-10">
-         <h2 className="text-center text-3xl font-black">
-            Your Choice Matters...
-         </h2>
-         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10  my-5 ">
+      <section className="px-4 sm:px-6 lg:px-10 py-6 sm:py-10 min-h-screen">
+         <div className="text-center mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-black text-blackberry-color mb-2">
+               Your Choice Matters...
+            </h2>
+            <p className="text-gray-600 text-lg">
+               {userCourtsFav?.length || 0} favorite court{userCourtsFav?.length !== 1 ? 's' : ''}
+            </p>
+         </div>
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
             {userCourtsFav?.map((court) => (
                <CourtCard key={court.id} {...court} />
             ))}

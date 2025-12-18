@@ -153,7 +153,7 @@ const ForgetPasswordPage = () => {
       <section>
          {!canReset && (
             <div className="flex flex-col items-center mt-20 px-8">
-               <h1 className="text-4xl font-serif ">Verification</h1>
+               <h1 className="text-4xl">Verification</h1>
                <p className="mt-2 text-balance text-center text-gray-800">
                   We will verify you by sending you a link on your email
                </p>
@@ -187,7 +187,7 @@ const ForgetPasswordPage = () => {
 
                {error && (
                   <div>
-                     <p className="text-red-500 font-serif mt-4">{error}</p>
+                     <p className="text-red-500  mt-4">{error}</p>
                   </div>
                )}
 
@@ -195,7 +195,7 @@ const ForgetPasswordPage = () => {
                   <section>
                      <div className="flex flex-col  items-center justify-center mt-6 ">
                         <ThumbsUpIcon className=" w-10 h-10" />
-                        <h2 className="text-xl  font-serif mt-2">
+                        <h2 className="text-xl   mt-2">
                            Email sent successfully!
                         </h2>
                      </div>

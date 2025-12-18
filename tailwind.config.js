@@ -3,6 +3,9 @@ export default {
    content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
    theme: {
       extend: {
+         fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+         },
          keyframes: {
             marquee: {
                "100%": { transform: "translateX(100%)" },
