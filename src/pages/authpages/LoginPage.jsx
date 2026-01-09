@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
 import axios from "axios";
-import appLogo from "../../assets/applogo.svg";
+import appLogo from "../../assets/MALABLOGO.png";
 import { FaEye, FaEyeSlash } from "react-icons/fa6";
 import {
    ArrowRightIcon,
@@ -159,7 +159,7 @@ const LoginPage = () => {
    return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #eee8f3, white, #eee8f3)' }}>
          <div className="flex py-6 px-6 sm:px-8 justify-start text-green-color">
-            <img className="transition-transform hover:scale-105 duration-300" src={appLogo} alt="PlayWithEase Logo" />
+            <img className="w-24 md:w-32 transition-transform hover:scale-105 duration-300" src={appLogo} alt="PlayWithEase Logo" />
          </div>
          <div className="flex justify-center items-center my-6 sm:my-10 px-4 sm:px-8 pb-8">
             <div className="w-full max-w-md text-black border-2 border-blackberry-color p-6 sm:p-8 rounded-2xl bg-white/95 backdrop-blur-sm shadow-2xl transition-all hover:shadow-3xl">

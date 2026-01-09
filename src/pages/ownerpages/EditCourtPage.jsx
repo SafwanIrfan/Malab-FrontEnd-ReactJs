@@ -4,10 +4,11 @@ import { format, parse } from "date-fns";
 import { useNavigate, useParams } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import { toast } from "react-toastify";
+import { getToken } from "../../utils/authToken";
 
 const AddCourtPage = () => {
    const navigate = useNavigate();
-   const jwtToken = localStorage.getItem("token");
+   const jwtToken = getToken();
    const { id } = useParams();
 
    const [court, setCourt] = useState({
@@ -20,6 +21,9 @@ const AddCourtPage = () => {
    const [oldImages, setOldImages] = useState([]);
    const [newImages, setNewImages] = useState([]);
    const [loading, setLoading] = useState(false);
+   const [initialCourt, setInitialCourt] = useState(null);
+   const [initialTimings, setInitialTimings] = useState(null);
+   const [initialOldImages, setInitialOldImages] = useState([]);
    const [timings, setTimings] = useState([
       { day: "Monday", startingTime: "", endingTime: "" },
       { day: "Tuesday", startingTime: "", endingTime: "" },
@@ -95,20 +99,39 @@ const AddCourtPage = () => {
          });
 
          const data = response.data;
-         setCourt({
+         console.log(data);
+         const courtData = {
             id: data.id,
-            courtName: data.courtName,
-            description: data.description,
-            pricePerHour: data.pricePerHour,
-            city: data.city,
-            area: data.area,
-            imageUrls: data.imageUrls,
-         });
-         setTimings(data.timings); // Assuming backend sends timings array
-         setOldImages(data.imageUrls || []); // Assuming backend sends image URLs
-         console.log(data.imageUrls);
+            courtName: data.courtName || "",
+            description: data.description || "",
+            pricePerHour: data.pricePerHour || "",
+            city: data.city || "",
+            area: data.area || "",
+            imageUrls: data.courtImageUrls || [],
+         };
+         const timingsData = data.timings || [
+            { day: "Monday", startingTime: "", endingTime: "" },
+            { day: "Tuesday", startingTime: "", endingTime: "" },
+            { day: "Wednesday", startingTime: "", endingTime: "" },
+            { day: "Thursday", startingTime: "", endingTime: "" },
+            { day: "Friday", startingTime: "", endingTime: "" },
+            { day: "Saturday", startingTime: "", endingTime: "" },
+            { day: "Sunday", startingTime: "", endingTime: "" },
+         ];
+         const imagesData = data.courtImageUrls || [];
+         
+         setCourt(courtData);
+         setTimings(timingsData);
+         setOldImages(imagesData);
+         
+         // Store initial state for comparison
+         setInitialCourt(courtData);
+         setInitialTimings(JSON.parse(JSON.stringify(timingsData)));
+         setInitialOldImages(JSON.parse(JSON.stringify(imagesData)));
       } catch (error) {
          console.log("Error fetching court : ", error);
+         toast.error("Failed to load court details. Please try again.");
+         navigate("/owner/dashboard");
       }
    };
 
@@ -153,31 +176,62 @@ const AddCourtPage = () => {
       setNewImages((prev) => [...prev, ...files]);
    };
 
-   const handleImageDelete = (indexToRemove) => {
-      console.log(courtId);
-      console.log("DELETE IMG : ", indexToRemove);
-      // setSelectedImages((prevImages) =>
-      //    prevImages.filter((_, index) => index !== indexToRemove)
-      const confirm = window.confirm(
-         "Are you sure you want to permenantly delete this picture?"
-      );
-      if (confirm) {
+   const handleImageDelete = async (imageId) => {
+      if (!imageId) {
+         toast.error("Image ID is missing");
+         return;
+      }
+      if (window.confirm(
+         "Are you sure you want to permanently delete this picture?"
+      )) {
          try {
-            axios.delete(
-               `http://localhost:8080/court/${courtId}/image/${indexToRemove}`,
+            await axios.delete(
+               `http://localhost:8080/owner/court/${courtId}/image/${imageId}`,
                {
                   headers: {
                      Authorization: `Bearer ${jwtToken}`,
                   },
                }
             );
-            navigate(`/court/${id}/edit`);
             toast.success("Image removed successfully.");
+            // Refresh the court data
+            fetchCourt();
          } catch (error) {
             console.log("Error deleting image : ", error);
             toast.error("Failed to delete image.");
          }
       }
+   };
+
+   // Check if form has changes
+   const hasChanges = () => {
+      if (!initialCourt || !initialTimings) return false;
+
+      // Check court data changes
+      const courtChanged = 
+         court.courtName !== initialCourt.courtName ||
+         court.description !== initialCourt.description ||
+         String(court.pricePerHour) !== String(initialCourt.pricePerHour) ||
+         court.city !== initialCourt.city ||
+         court.area !== initialCourt.area;
+
+      // Check timings changes - normalize both arrays for comparison
+      const normalizeTimings = (timingsArray) => {
+         return timingsArray.map(t => ({
+            day: t.day,
+            startingTime: t.startingTime || "",
+            endingTime: t.endingTime || ""
+         }));
+      };
+      const timingsChanged = JSON.stringify(normalizeTimings(timings)) !== 
+                           JSON.stringify(normalizeTimings(initialTimings));
+
+      // Check images changes (new images added or old images deleted)
+      const getImageIds = (images) => images.map(img => img?.id).filter(id => id != null).sort();
+      const imagesChanged = newImages.length > 0 || 
+         JSON.stringify(getImageIds(oldImages)) !== JSON.stringify(getImageIds(initialOldImages));
+
+      return courtChanged || timingsChanged || imagesChanged;
    };
 
    const handleSubmit = async (e) => {
@@ -186,8 +240,8 @@ const AddCourtPage = () => {
       console.log("Final Court Data: ", { ...court, timings });
       try {
          for (let timing of timings) {
-            if (timing.startingTime === timing.endingTime) {
-               alert(`Opening and closing cannot be same at ${timing.day}`);
+            if (timing.startingTime && timing.endingTime && timing.startingTime === timing.endingTime) {
+               toast.error(`Opening and closing time cannot be same on ${timing.day}`);
                setLoading(false);
                return;
             }
@@ -195,7 +249,7 @@ const AddCourtPage = () => {
          court.pricePerHour = Number(court.pricePerHour);
          console.log("Court", court);
          // 1️⃣ Save Court (without images)
-         await axios.put(`http://localhost:8080/court/${id}/edit`, court, {
+         await axios.put(`http://localhost:8080/owner/court/${id}/edit`, court, {
             headers: {
                Authorization: `Bearer ${jwtToken}`,
                "Content-Type": "application/json",
@@ -208,11 +262,11 @@ const AddCourtPage = () => {
             const formData = new FormData();
             console.log(newImages);
             newImages.forEach((img) => {
-               formData.append("files", img);
+               formData.append("courtFiles", img);
             });
 
             await axios.post(
-               `http://localhost:8080/court/${courtId}/addImage`,
+               `http://localhost:8080/owner/court/${courtId}/addImage`,
                formData,
                {
                   headers: {
@@ -225,7 +279,7 @@ const AddCourtPage = () => {
          console.log("Timings : ", timings);
 
          await axios.post(
-            `http://localhost:8080/court/${courtId}/add_timings`,
+            `http://localhost:8080/owner/court/${courtId}/add_timings`,
             timings,
             {
                headers: {
@@ -236,54 +290,40 @@ const AddCourtPage = () => {
          );
 
          setLoading(false);
-         alert("Court added successfully!");
-         setCourt({
-            courtName: "",
-            description: "",
-            city: "",
-            area: "",
-            pricePerHour: "",
-         });
-         setTimings([
-            { day: "Monday", startingTime: "", endingTime: "" },
-            { day: "Tuesday", startingTime: "", endingTime: "" },
-            { day: "Wednesday", startingTime: "", endingTime: "" },
-            { day: "Thursday", startingTime: "", endingTime: "" },
-            { day: "Friday", startingTime: "", endingTime: "" },
-            { day: "Saturday", startingTime: "", endingTime: "" },
-            { day: "Sunday", startingTime: "", endingTime: "" },
-         ]);
-
-         setOldImages([]);
-         navigate("/");
+         toast.success("Court updated successfully!");
+         navigate("/owner/dashboard");
       } catch (error) {
          setLoading(false);
-         console.error("Error adding court:", error);
+         console.error("Error updating court:", error);
+         toast.error("Failed to update court. Please try again.");
       }
    };
 
    return (
-      <div className="p-8 w-auto mx-auto text-black space-y-4">
-         <h2 className="text-4xl font-black  border-b-2 border-green-color text-center p-4">
-            Add Court
-         </h2>
-         <div>
-            <div className="pt-4 grid grid-cols-2 gap-6">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-10 max-w-6xl mx-auto text-black">
+         <div className="mb-8">
+            <h2 className="text-3xl sm:text-4xl font-black text-blackberry-color border-b-2 border-green-color text-center pb-4 mb-6">
+               Edit Court
+            </h2>
+         </div>
+         <div className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-6 sm:p-8 shadow-xl">
+            <form onSubmit={handleSubmit} className="space-y-6">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                {/* Court Name Input */}
                <div>
                   <label
-                     htmlFor="name"
-                     className="mb-2 block text-xl font-medium"
+                     htmlFor="courtName"
+                     className="mb-2 block text-lg sm:text-xl font-semibold text-green-color"
                   >
                      <span className="text-red-500">*</span> Court Name
                   </label>
                   <input
                      type="text"
-                     name="name"
-                     id="name"
-                     value={court.name}
+                     name="courtName"
+                     id="courtName"
+                     value={court.courtName}
                      onChange={handleInputChange}
-                     className="w-full p-2 rounded-md text-black focus:outline-none border-2 border-green-color focus:border-sgreen-color"
+                     className="w-full px-4 py-3 rounded-xl text-black focus:outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50"
                      placeholder="Enter court name"
                      required
                   />
@@ -292,16 +332,17 @@ const AddCourtPage = () => {
                <div>
                   <label
                      htmlFor="description"
-                     className="mb-2 text-xl block  font-medium"
+                     className="mb-2 block text-lg sm:text-xl font-semibold text-green-color"
                   >
                      <span className="text-red-500">*</span> Court Description
                   </label>
-                  <input
+                  <textarea
                      name="description"
                      id="description"
                      value={court.description}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
+                     rows="3"
+                     className="w-full px-4 py-3 rounded-xl text-black focus:outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50 resize-none"
                      placeholder="Enter court description"
                      required
                   />
@@ -310,7 +351,7 @@ const AddCourtPage = () => {
                <div>
                   <label
                      htmlFor="pricePerHour"
-                     className="text-xl block mb-2 font-medium"
+                     className="mb-2 block text-lg sm:text-xl font-semibold text-green-color"
                   >
                      <span className="text-red-500">*</span> Price per hour
                   </label>
@@ -320,35 +361,54 @@ const AddCourtPage = () => {
                      id="pricePerHour"
                      value={court.pricePerHour}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
-                     placeholder="Enter court price/hour"
+                     className="w-full px-4 py-3 rounded-xl text-black focus:outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50"
+                     placeholder="Enter price per hour (Rs)"
                      required
                   />
                </div>
 
                <div>
                   <label
-                     htmlFor="location"
-                     className="text-xl block mb-2 font-medium"
+                     htmlFor="city"
+                     className="mb-2 block text-lg sm:text-xl font-semibold text-green-color"
                   >
-                     <span className="text-red-500">*</span> Court Location
+                     <span className="text-red-500">*</span> City
                   </label>
                   <input
                      type="text"
-                     name="location"
-                     id="location"
-                     value={court.location}
+                     name="city"
+                     id="city"
+                     value={court.city}
                      onChange={handleInputChange}
-                     className="w-full p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
-                     placeholder="Enter court location"
+                     className="w-full px-4 py-3 rounded-xl text-black focus:outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50"
+                     placeholder="Enter city"
                      required
                   />
                </div>
 
-               <div>
+               <div className="md:col-span-2">
+                  <label
+                     htmlFor="area"
+                     className="mb-2 block text-lg sm:text-xl font-semibold text-green-color"
+                  >
+                     <span className="text-red-500">*</span> Area
+                  </label>
+                  <input
+                     type="text"
+                     name="area"
+                     id="area"
+                     value={court.area}
+                     onChange={handleInputChange}
+                     className="w-full px-4 py-3 rounded-xl text-black focus:outline-none border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50"
+                     placeholder="Enter area"
+                     required
+                  />
+               </div>
+
+               <div className="md:col-span-2">
                   <label
                      htmlFor="images"
-                     className="block text-xl mb-2 font-medium"
+                     className="block text-lg sm:text-xl mb-3 font-semibold text-green-color"
                   >
                      Upload Images
                   </label>
@@ -357,88 +417,90 @@ const AddCourtPage = () => {
                      id="images"
                      onChange={handleImageChange}
                      multiple
-                     className="w-60 cursor-pointer"
+                     className="w-full sm:w-auto px-4 py-2 rounded-xl cursor-pointer border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 duration-300 transition-all bg-white-color/50 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-green-color file:text-white file:cursor-pointer file:hover:bg-sgreen-color file:transition-all"
                      accept="image/*"
                   />
 
                   {oldImages.length == 0 && newImages.length == 0 ? (
-                     <p className="py-2 text-red-600">
-                        Note: Uploading no images result in bad impression
+                     <p className="mt-3 p-3 bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 rounded-lg text-sm">
+                        <strong>Note:</strong> Uploading no images may result in a bad impression for users
                      </p>
                   ) : (
-                     <div className="flex gap-4 mt-2">
+                     <div className="flex flex-wrap gap-4 mt-4">
                         {oldImages.map((image, index) => (
-                           <div key={index} className="relative">
+                           <div key={image.id || index} className="relative group">
                               <button
-                                 onClick={() =>
-                                    handleImageDelete(court.imageUrls[index].id)
-                                 }
-                                 className="absolute top-1 right-1 bg-red-500 rounded-full p-1 hover:text-lg transition-all"
+                                 onClick={(e) => {
+                                    e.preventDefault();
+                                    handleImageDelete(image.id);
+                                 }}
+                                 className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transition-all z-10"
+                                 aria-label="Delete image"
                               >
-                                 <FaTrash />
+                                 <FaTrash className="w-3 h-3" />
                               </button>
                               <img
-                                 className="border-2 border-black object-cover cursor-pointer w-24 h-24"
+                                 className="border-2 border-blackberry-color object-cover cursor-pointer w-24 h-24 sm:w-32 sm:h-32 rounded-lg hover:scale-105 transition-transform duration-200"
                                  src={image.url}
+                                 alt={`Court image ${index + 1}`}
                                  onClick={() =>
                                     window.open(image.url, "_blank")
                                  }
-                              ></img>
+                              />
                            </div>
                         ))}
-                        <div className="flex gap-4">
-                           {newImages.map((file, index) => (
-                              <div
-                                 key={index}
-                                 className=" relative  inline-block"
-                              >
-                                 <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Selected ${index}`}
-                                    onClick={() =>
-                                       window.open(
-                                          URL.createObjectURL(file),
-                                          "_blank"
-                                       )
-                                    }
-                                    className="w-24 h-24 object-cover cursor-pointer border-2 shadow-lg border-green-color transition-all"
-                                 />
-                                 <p className="absolute  text-red-600 font-bold rounded-full p-2 text-xs transition-all">
-                                    Not saved yet
-                                 </p>
+                        {newImages.map((file, index) => (
+                           <div
+                              key={index}
+                              className="relative group"
+                           >
+                              <img
+                                 src={URL.createObjectURL(file)}
+                                 alt={`New image ${index + 1}`}
+                                 onClick={() =>
+                                    window.open(
+                                       URL.createObjectURL(file),
+                                       "_blank"
+                                    )
+                                 }
+                                 className="w-24 h-24 sm:w-32 sm:h-32 object-cover cursor-pointer border-2 border-green-color rounded-lg hover:scale-105 transition-transform duration-200"
+                              />
+                              <div className="absolute bottom-0 left-0 right-0 bg-green-color/90 text-white text-xs font-semibold py-1 px-2 rounded-b-lg">
+                                 New
                               </div>
-                           ))}
-                        </div>
+                           </div>
+                        ))}
                      </div>
                   )}
                </div>
             </div>
 
-            <div className="mt-10">
-               <h4 className="text-xl mb-2 font-medium">
-                  {" "}
-                  <span className="text-red-500">*</span> Add Timings
+            <div className="mt-8">
+               <h4 className="text-xl sm:text-2xl mb-4 font-semibold text-blackberry-color">
+                  <span className="text-red-500">*</span> Court Timings
                </h4>
-               <div className="border-2 rounded border-green-color">
+               <div className="border-2 border-blackberry-color rounded-xl overflow-hidden">
                   {timings.map((timing, index) => (
                      <div
                         className={
                            index < timings.length - 1
-                              ? "grid grid-cols-3 place-items-center p-4 border-b-2 border-green-color"
-                              : "grid grid-cols-3 place-items-center p-4"
+                              ? "grid grid-cols-1 md:grid-cols-3 gap-4 p-4 sm:p-6 border-b-2 border-blackberry-color bg-white/50 hover:bg-white/70 transition-colors"
+                              : "grid grid-cols-1 md:grid-cols-3 gap-4 p-4 sm:p-6 bg-white/50 hover:bg-white/70 transition-colors"
                         }
                         key={index}
                      >
-                        <h3 className="text-green-color font-black text-xl">
-                           {timing.day}
-                        </h3>
+                        <div className="flex items-center">
+                           <h3 className="text-green-color font-black text-lg sm:text-xl">
+                              {timing.day}
+                           </h3>
+                        </div>
 
-                        <div className=" flex p-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                            <label
-                              className="mr-2 py-2"
+                              className="text-sm sm:text-base font-medium text-gray-700 whitespace-nowrap"
                               htmlFor={`startingTime-${index}`}
                            >
-                              Opening Time :{" "}
+                              Opening Time:
                            </label>
                            <select
                               value={convertTo12Hr(timing.startingTime)}
@@ -451,43 +513,24 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className=" p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="w-full sm:w-auto px-4 py-2 border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 rounded-xl transition-all bg-white"
                            >
                               <option value="" disabled hidden>
-                                 00:00
+                                 Select time
                               </option>
                               {allTimeSlots.map((slot) => (
-                                 <option
-                                    className="p-2  "
-                                    key={slot}
-                                    value={slot || ""}
-                                 >
+                                 <option key={slot} value={slot || ""}>
                                     {slot}
                                  </option>
                               ))}
                            </select>
-                           {/* <input
-                              type="time"
-                              id={`startingTime-${index}`}
-                              value={timing.startingTime}
-                              onChange={(e) =>
-                                 handleTimingsChange(
-                                    index,
-                                    "startingTime",
-                                    e.target.value
-                                 )
-                              }
-                              className=" p-2  focus:outline-none border-2 border-green-color focus:border-sgreen-color rounded-md text-black"
-                              placeholder="Enter starting time :"
-                              required
-                           /> */}
                         </div>
-                        <div className="flex p-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                            <label
-                              className="mr-2 py-2"
+                              className="text-sm sm:text-base font-medium text-gray-700 whitespace-nowrap"
                               htmlFor={`endingTime-${index}`}
                            >
-                              Closing Time :{" "}
+                              Closing Time:
                            </label>
                            <select
                               value={convertTo12Hr(timing.endingTime)}
@@ -500,17 +543,13 @@ const AddCourtPage = () => {
                                     e.target.value
                                  )
                               }
-                              className="p-2 border-2 border-green-color focus:outline-none focus:border-sgreen-color rounded"
+                              className="w-full sm:w-auto px-4 py-2 border-2 border-sgreen-color/40 hover:border-sgreen-color/60 focus:border-sgreen-color focus:ring-2 focus:ring-sgreen-color/20 rounded-xl transition-all bg-white"
                            >
                               <option value="" disabled hidden>
-                                 00:00
+                                 Select time
                               </option>
                               {allTimeSlots.map((slot) => (
-                                 <option
-                                    className="p-2  "
-                                    key={slot}
-                                    value={slot || ""}
-                                 >
+                                 <option key={slot} value={slot || ""}>
                                     {slot}
                                  </option>
                               ))}
@@ -521,17 +560,38 @@ const AddCourtPage = () => {
                </div>
             </div>
 
-            {/* File Upload Input */}
-
             {/* Submit Button */}
-            <button
-               onClick={handleSubmit}
-               type="submit"
-               className="w-full text-xl font-bold mt-6 bg-green-500  p-4 rounded-md hover:bg-green-600 text-black transition-all"
-               disabled={loading}
-            >
-               {loading ? "Submitting..." : "Save Court"}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 mt-8 pt-6 border-t-2 border-gray-200">
+               <button
+                  onClick={(e) => {
+                     e.preventDefault();
+                     navigate("/owner/dashboard");
+                  }}
+                  type="button"
+                  className="w-full sm:w-auto px-6 sm:px-8 py-3 font-semibold border-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 rounded-xl shadow-md hover:shadow-lg"
+               >
+                  Cancel
+               </button>
+               <button
+                  type="submit"
+                  disabled={loading || !hasChanges()}
+                  className="flex-1 px-6 sm:px-8 py-3 font-semibold border-2 border-blackberry-color text-white bg-green-color hover:bg-sgreen-color hover:text-black transition-all duration-200 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:bg-green-color disabled:hover:text-white"
+                  title={!hasChanges() ? "No changes to save" : ""}
+               >
+                  {loading ? (
+                     <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Updating...
+                     </span>
+                  ) : (
+                     "Update Court"
+                  )}
+               </button>
+            </div>
+            </form>
          </div>
       </div>
    );

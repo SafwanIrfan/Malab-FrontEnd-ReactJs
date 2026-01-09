@@ -4,7 +4,7 @@ import NavbarBuger from "../smallcomponents/NavbarBuger";
 import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AppContext from "../contexts/Context";
-import appLogo from "../assets/applogo.svg";
+import appLogo from "../assets/MALABLOGO.png";
 import { AvatarIcon } from "@radix-ui/react-icons";
 import { clearAuth, getDecodedToken, getToken } from "../utils/authToken";
 import ConfirmationModal from "../smallcomponents/ConfirmationModal";
@@ -50,7 +50,7 @@ const Navbar = () => {
             <div className="flex items-center">
                <NavLink to="/user" className="group">
                   <img 
-                     className="w-28 md:w-32 mr-4 transition-transform duration-300 group-hover:scale-105" 
+                     className="w-24 md:w-32 mr-4 transition-transform duration-300 group-hover:scale-105" 
                      src={appLogo} 
                      alt="PlayWithEase Logo"
                   />

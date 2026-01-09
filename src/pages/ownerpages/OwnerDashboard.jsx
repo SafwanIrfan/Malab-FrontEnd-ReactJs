@@ -8,11 +8,18 @@ import { toast } from "react-toastify";
 import ConfirmationModal from "../../smallcomponents/ConfirmationModal";
 import { format } from "date-fns";
 import Modal from "react-modal";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 Modal.setAppElement("#root");
 
 // Booking Details Modal Component
-const BookingDetailsModal = ({ isOpen, onClose, booking, userDetails, loading }) => {
+const BookingDetailsModal = ({
+   isOpen,
+   onClose,
+   booking,
+   userDetails,
+   loading,
+}) => {
    const formatTime = (time) => {
       if (!time) return "";
       const timeStr = time.toString();
@@ -44,8 +51,18 @@ const BookingDetailsModal = ({ isOpen, onClose, booking, userDetails, loading })
                onClick={onClose}
                aria-label="Close modal"
             >
-               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+               <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+               >
+                  <path
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth={2}
+                     d="M6 18L18 6M6 6l12 12"
+                  />
                </svg>
             </button>
 
@@ -74,9 +91,15 @@ const BookingDetailsModal = ({ isOpen, onClose, booking, userDetails, loading })
                               />
                            )}
                            <div className="flex-1 space-y-2">
-                              <p className="text-lg font-semibold">{userDetails.fullName}</p>
-                              <p className="text-gray-600">{userDetails.email}</p>
-                              <p className="text-gray-600">{userDetails.phoneNo}</p>
+                              <p className="text-lg font-semibold">
+                                 {userDetails.fullName}
+                              </p>
+                              <p className="text-gray-600">
+                                 {userDetails.email}
+                              </p>
+                              <p className="text-gray-600">
+                                 {userDetails.phoneNo}
+                              </p>
                            </div>
                         </div>
                      </div>
@@ -85,32 +108,52 @@ const BookingDetailsModal = ({ isOpen, onClose, booking, userDetails, loading })
                   {/* Booking Information */}
                   <div className="space-y-4">
                      <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <span className="text-gray-600 font-medium">Booking Date:</span>
-                        <span className="text-lg font-semibold">{formatDate(booking.date)}</span>
+                        <span className="text-gray-600 font-medium">
+                           Booking Date:
+                        </span>
+                        <span className="text-lg font-semibold">
+                           {formatDate(booking.date)}
+                        </span>
                      </div>
                      <div className="flex justify-between items-center pb-3 border-b border-gray-200">
                         <span className="text-gray-600 font-medium">Day:</span>
-                        <span className="text-lg font-semibold capitalize">{booking.day}</span>
-                     </div>
-                     <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <span className="text-gray-600 font-medium">Time Slot:</span>
-                        <span className="text-lg font-semibold">
-                           {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                        <span className="text-lg font-semibold capitalize">
+                           {booking.day}
                         </span>
                      </div>
                      <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <span className="text-gray-600 font-medium">Booked On:</span>
+                        <span className="text-gray-600 font-medium">
+                           Time Slot:
+                        </span>
                         <span className="text-lg font-semibold">
-                           {formatDate(booking.bookedDate)} at {formatTime(booking.bookedTime)}
+                           {formatTime(booking.startTime)} -{" "}
+                           {formatTime(booking.endTime)}
                         </span>
                      </div>
                      <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                        <span className="text-gray-600 font-medium">Booked Day:</span>
-                        <span className="text-lg font-semibold capitalize">{booking.bookedDay}</span>
+                        <span className="text-gray-600 font-medium">
+                           Booked On:
+                        </span>
+                        <span className="text-lg font-semibold">
+                           {formatDate(booking.bookedDate)} at{" "}
+                           {formatTime(booking.bookedTime)}
+                        </span>
+                     </div>
+                     <div className="flex justify-between items-center pb-3 border-b border-gray-200">
+                        <span className="text-gray-600 font-medium">
+                           Booked Day:
+                        </span>
+                        <span className="text-lg font-semibold capitalize">
+                           {booking.bookedDay}
+                        </span>
                      </div>
                      <div className="flex justify-between items-center pt-2">
-                        <span className="text-gray-600 font-medium">Amount:</span>
-                        <span className="text-2xl font-black text-green-color">Rs {booking.amount}</span>
+                        <span className="text-gray-600 font-medium">
+                           Amount:
+                        </span>
+                        <span className="text-2xl font-black text-green-color">
+                           Rs {booking.amount}
+                        </span>
                      </div>
                   </div>
                </div>
@@ -147,7 +190,7 @@ const OwnerBookingCard = ({ booking, onClick }) => {
    const statusColors = {
       incoming: "from-blue-500 to-blue-600",
       ongoing: "from-green-color to-sgreen-color",
-      previous: "from-purple-400 to-purple-500"
+      previous: "from-purple-400 to-purple-500",
    };
 
    if (!booking) return null;
@@ -157,22 +200,40 @@ const OwnerBookingCard = ({ booking, onClick }) => {
          onClick={onClick}
          className="mt-4 cursor-pointer bg-white/90 backdrop-blur-sm flex-col border-2 border-blackberry-color rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 overflow-hidden"
       >
-         <div className={`w-full h-2.5 bg-gradient-to-r ${statusColors[booking.status] || "from-purple-400 to-purple-500"}`}></div>
+         <div
+            className={`w-full h-2.5 bg-gradient-to-r ${
+               statusColors[booking.status] || "from-purple-400 to-purple-500"
+            }`}
+         ></div>
          <div className="p-5 sm:p-6">
             <div className="flex justify-between items-start mb-3">
                <div>
                   <div className="flex items-center gap-2 mb-2">
-                     <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                     <svg
+                        className="w-5 h-5 text-gray-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                     >
+                        <path
+                           strokeLinecap="round"
+                           strokeLinejoin="round"
+                           strokeWidth={2}
+                           d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                      </svg>
                      <h2 className="text-lg sm:text-xl font-semibold text-gray-700">
                         {formatDate(booking.date)}
                      </h2>
                   </div>
-                  <p className="text-gray-600 mb-2 capitalize font-medium">{booking.day}</p>
+                  <p className="text-gray-600 mb-2 capitalize font-medium">
+                     {booking.day}
+                  </p>
                </div>
                <div className="text-right">
-                  <p className="text-2xl font-black text-green-color">Rs {booking.amount}</p>
+                  <p className="text-2xl font-black text-green-color">
+                     Rs {booking.amount}
+                  </p>
                </div>
             </div>
             <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
@@ -197,17 +258,20 @@ const OwnerBookingCard = ({ booking, onClick }) => {
 
 // Statistics Card Component
 const StatCard = ({ title, value, icon, color = "green-color" }) => {
-   const colorClass = color === "green-color" ? "text-green-color" : "text-gray-700";
+   const colorClass =
+      color === "green-color" ? "text-green-color" : "text-gray-700";
    return (
       <div className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-200">
          <div className="flex items-center justify-between">
             <div>
-               <p className="text-gray-600 text-sm sm:text-base mb-2">{title}</p>
-               <p className={`text-3xl sm:text-4xl font-black ${colorClass}`}>{value}</p>
+               <p className="text-gray-600 text-sm sm:text-base mb-2">
+                  {title}
+               </p>
+               <p className={`text-3xl sm:text-4xl font-black ${colorClass}`}>
+                  {value}
+               </p>
             </div>
-            {icon && (
-               <div className={`${colorClass} text-4xl`}>{icon}</div>
-            )}
+            {icon && <div className={`${colorClass} text-4xl`}>{icon}</div>}
          </div>
       </div>
    );
@@ -225,6 +289,7 @@ const OwnerDashboard = () => {
    const navigate = useNavigate();
 
    const [showLogoutModal, setShowLogoutModal] = useState(false);
+   const [showDeleteModal, setShowDeleteModal] = useState(false);
    const [bookings, setBookings] = useState([]);
    const [processedBookings, setProcessedBookings] = useState([]);
    const [selectedBooking, setSelectedBooking] = useState(null);
@@ -238,17 +303,23 @@ const OwnerDashboard = () => {
    const [loadingStats, setLoadingStats] = useState(false);
 
    // Date inputs for stats
-   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
+   const [selectedDate, setSelectedDate] = useState(
+      new Date().toISOString().split("T")[0]
+   );
    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
    const [selectedWeek, setSelectedWeek] = useState(getWeekNumber(new Date()));
-   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+   const [selectedMonth, setSelectedMonth] = useState(
+      new Date().getMonth() + 1
+   );
 
    function getWeekNumber(date) {
-      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const d = new Date(
+         Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+      );
       const dayNum = d.getUTCDay() || 7;
       d.setUTCDate(d.getUTCDate() + 4 - dayNum);
       const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+      return Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
    }
 
    const handleLogout = async () => {
@@ -259,6 +330,27 @@ const OwnerDashboard = () => {
       clearAuth();
       toast.success("Successfully Logged Out!");
       navigate("/auth/login");
+   };
+
+   const handleDelete = () => {
+      setShowDeleteModal(true);
+   };
+
+   const confirmDelete = async () => {
+      try {
+         await axios.delete(`http://localhost:8080/court/${court.id}/delete`, {
+            headers: {
+               Authorization: `Bearer ${token}`,
+            },
+         });
+         toast.success(`${court.courtName} successfully deleted.`);
+         navigate("/owner/dashboard");
+         // Refresh the page or redirect
+         window.location.reload();
+      } catch (error) {
+         console.log("Error deleting court : ", error);
+         toast.error(`There was a problem deleting ${court.courtName}`);
+      }
    };
 
    const fetchCourtByOwnerId = async () => {
@@ -277,7 +369,9 @@ const OwnerDashboard = () => {
          return response.data;
       } catch (error) {
          setError(true);
-         setErrorMessage(error.response?.data?.message || "Error fetching court data");
+         setErrorMessage(
+            error.response?.data?.message || "Error fetching court data"
+         );
          console.log("Court not found : ", error);
          throw error;
       } finally {
@@ -382,7 +476,9 @@ const OwnerDashboard = () => {
                   }
 
                   const start = new Date(
-                     `${startDate.toISOString().split("T")[0]}T${booking.startTime}`
+                     `${startDate.toISOString().split("T")[0]}T${
+                        booking.startTime
+                     }`
                   );
                   const end = new Date(
                      `${endDate.toISOString().split("T")[0]}T${booking.endTime}`
@@ -416,7 +512,14 @@ const OwnerDashboard = () => {
          const courtId = usersCourt[0].id;
          fetchStats(courtId, statsFilter);
       }
-   }, [statsFilter, selectedDate, selectedYear, selectedWeek, selectedMonth, usersCourt]);
+   }, [
+      statsFilter,
+      selectedDate,
+      selectedYear,
+      selectedWeek,
+      selectedMonth,
+      usersCourt,
+   ]);
 
    const handleBookingClick = async (booking) => {
       setSelectedBooking(booking);
@@ -437,7 +540,9 @@ const OwnerDashboard = () => {
          if (booking.startTime < "12:00:00") {
             date.setDate(date.getDate() + 1);
          }
-         return new Date(`${date.toISOString().split("T")[0]}T${booking.startTime}`).getTime();
+         return new Date(
+            `${date.toISOString().split("T")[0]}T${booking.startTime}`
+         ).getTime();
       };
       return getTimestamp(a) - getTimestamp(b);
    });
@@ -449,7 +554,9 @@ const OwnerDashboard = () => {
    if (error) {
       return (
          <div className="flex justify-center items-center min-h-screen">
-            <p className="text-center text-xl text-red-500">Error: {errorMessage}</p>
+            <p className="text-center text-xl text-red-500">
+               Error: {errorMessage}
+            </p>
          </div>
       );
    }
@@ -461,8 +568,18 @@ const OwnerDashboard = () => {
          <div className="flex flex-col min-h-screen justify-center items-center px-4 sm:px-8 text-balance">
             <div className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-8 sm:p-12 shadow-xl text-center max-w-2xl">
                <div className="mb-6">
-                  <svg className="w-32 h-32 mx-auto text-green-color" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  <svg
+                     className="w-32 h-32 mx-auto text-green-color"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                  >
+                     <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                     />
                   </svg>
                </div>
                <p className="text-3xl sm:text-4xl md:text-5xl text-center text-blackberry-color font-black mb-4">
@@ -487,8 +604,18 @@ const OwnerDashboard = () => {
          <div className="flex flex-col min-h-screen justify-center items-center text-center text-balance">
             <div className="bg-yellow-50 border-2 border-yellow-200 rounded-2xl p-8 sm:p-12 shadow-xl">
                <div className="mb-6">
-                  <svg className="w-24 h-24 mx-auto text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                     className="w-24 h-24 mx-auto text-yellow-500"
+                     fill="none"
+                     stroke="currentColor"
+                     viewBox="0 0 24 24"
+                  >
+                     <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                     />
                   </svg>
                </div>
                <h1 className="text-3xl sm:text-4xl mb-4 text-blackberry-color">
@@ -503,7 +630,10 @@ const OwnerDashboard = () => {
    }
 
    // Calculate total money earned
-   const totalMoneyEarned = bookings.reduce((sum, booking) => sum + (booking.amount || 0), 0);
+   const totalMoneyEarned = bookings.reduce(
+      (sum, booking) => sum + (booking.amount || 0),
+      0
+   );
 
    return (
       <>
@@ -521,7 +651,36 @@ const OwnerDashboard = () => {
                      Logout
                   </button>
                </div>
-               <p className="text-xl text-gray-600">Welcome back, {court.courtName}!</p>
+            </div>
+
+            {/* Court Management Section */}
+            <div className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-6 sm:p-8 mb-8 shadow-lg">
+               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                  <div>
+                     <h2 className="text-2xl sm:text-3xl font-black text-blackberry-color">
+                        {court.courtName}
+                     </h2>
+                   
+                  </div>
+                  <div className="flex gap-3">
+                     <button
+                        onClick={() => navigate(`/owner/court/${court.id}/edit`)}
+                        className="flex items-center gap-2 bg-green-color hover:bg-sgreen-color hover:text-black text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        aria-label="Edit court"
+                     >
+                        <FaEdit className="w-4 h-4" />
+                        <span>Edit Court</span>
+                     </button>
+                     <button
+                        onClick={handleDelete}
+                        className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                        aria-label="Delete court"
+                     >
+                        <FaTrash className="w-4 h-4" />
+                        <span>Delete Court</span>
+                     </button>
+                  </div>
+               </div>
             </div>
 
             {/* Statistics Cards */}
@@ -542,7 +701,9 @@ const OwnerDashboard = () => {
 
             {/* Statistics Filter */}
             <div className="bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl p-6 mb-8 shadow-lg">
-               <h2 className="text-2xl font-black text-blackberry-color mb-4">Statistics</h2>
+               <h2 className="text-2xl font-black text-blackberry-color mb-4">
+                  Statistics
+               </h2>
                <div className="flex flex-wrap gap-4 mb-4">
                   <button
                      onClick={() => setStatsFilter("daily")}
@@ -601,14 +762,18 @@ const OwnerDashboard = () => {
                            type="number"
                            placeholder="Year"
                            value={selectedYear}
-                           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                           onChange={(e) =>
+                              setSelectedYear(parseInt(e.target.value))
+                           }
                            className="border-2 border-blackberry-color rounded-lg px-4 py-2 w-24"
                         />
                         <input
                            type="number"
                            placeholder="Week"
                            value={selectedWeek}
-                           onChange={(e) => setSelectedWeek(parseInt(e.target.value))}
+                           onChange={(e) =>
+                              setSelectedWeek(parseInt(e.target.value))
+                           }
                            className="border-2 border-blackberry-color rounded-lg px-4 py-2 w-24"
                            min="1"
                            max="52"
@@ -621,14 +786,18 @@ const OwnerDashboard = () => {
                            type="number"
                            placeholder="Year"
                            value={selectedYear}
-                           onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                           onChange={(e) =>
+                              setSelectedYear(parseInt(e.target.value))
+                           }
                            className="border-2 border-blackberry-color rounded-lg px-4 py-2 w-24"
                         />
                         <input
                            type="number"
                            placeholder="Month"
                            value={selectedMonth}
-                           onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+                           onChange={(e) =>
+                              setSelectedMonth(parseInt(e.target.value))
+                           }
                            className="border-2 border-blackberry-color rounded-lg px-4 py-2 w-24"
                            min="1"
                            max="12"
@@ -640,7 +809,9 @@ const OwnerDashboard = () => {
                         type="number"
                         placeholder="Year"
                         value={selectedYear}
-                        onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+                        onChange={(e) =>
+                           setSelectedYear(parseInt(e.target.value))
+                        }
                         className="border-2 border-blackberry-color rounded-lg px-4 py-2 w-24"
                      />
                   )}
@@ -654,15 +825,21 @@ const OwnerDashboard = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div className="bg-gray-50 rounded-lg p-4">
                         <p className="text-gray-600 mb-2">Bookings</p>
-                        <p className="text-2xl font-black text-green-color">{statsData.totalBookings || 0}</p>
+                        <p className="text-2xl font-black text-green-color">
+                           {statsData.totalBookings || 0}
+                        </p>
                      </div>
                      <div className="bg-gray-50 rounded-lg p-4">
                         <p className="text-gray-600 mb-2">Money Earned</p>
-                        <p className="text-2xl font-black text-green-color">Rs {statsData.moneyEarned || 0}</p>
+                        <p className="text-2xl font-black text-green-color">
+                           Rs {statsData.moneyEarned || 0}
+                        </p>
                      </div>
                   </div>
                ) : (
-                  <p className="text-gray-500 text-center py-4">No statistics available</p>
+                  <p className="text-gray-500 text-center py-4">
+                     No statistics available
+                  </p>
                )}
             </div>
 
@@ -750,6 +927,18 @@ const OwnerDashboard = () => {
             confirmText="Logout"
             cancelText="Cancel"
             isDanger={false}
+         />
+
+         {/* Delete Court Confirmation Modal */}
+         <ConfirmationModal
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={confirmDelete}
+            title="Delete Court"
+            message={`Are you sure you want to delete "${court.courtName}"? This action cannot be undone and all associated bookings will be lost.`}
+            confirmText="Delete"
+            cancelText="Cancel"
+            isDanger={true}
          />
       </>
    );

@@ -4,9 +4,7 @@ import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import {
    FaArrowLeft,
    FaArrowRight,
-   FaEdit,
    FaHeart,
-   FaTrash,
 } from "react-icons/fa";
 import AppContext from "../../contexts/Context";
 import { toast } from "react-toastify";
@@ -51,23 +49,6 @@ const CourtPage = () => {
          return;
       }
       addFavMutation.mutate(id);
-   };
-
-   const handleDelete = async () => {
-      if (window.confirm("Are you sure you want to delete this court?")) {
-         try {
-            await axios.delete(`http://localhost:8080/court/${id}/delete`, {
-               headers: {
-                  Authorization: `Bearer ${token}`,
-               },
-            });
-            navigate("/user");
-            toast.success(`${court.name} successfully deleted.`);
-         } catch (error) {
-            console.log("Error deleting court : ", error);
-            toast.error(`There was a problem occur in deleting ${court.name}`);
-         }
-      }
    };
 
    const { data: court, isLoading, error } = fetchCourtById(id, token);
@@ -153,30 +134,10 @@ const CourtPage = () => {
                      </button>
                   </section>
                )}
-               <section className="grid grid-cols-3 place-items-center gap-4 w-full my-8">
-                  <div className="w-full flex justify-start">
-                     <button
-                        onClick={() => navigate(`/owner/court/${id}/edit`)}
-                        className="text-xl text-white bg-green-color hover:bg-sgreen-color hover:text-black rounded-full p-3 transition-all shadow-md hover:shadow-lg"
-                        aria-label="Edit court"
-                     >
-                        <FaEdit />
-                     </button>
-                  </div>
-                  <div className="text-center">
-                     <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-blackberry-color">
-                        {court.courtName.toUpperCase()}
-                     </h1>
-                  </div>
-                  <div className="w-full flex justify-end">
-                     <button
-                        onClick={handleDelete}
-                        className="text-xl bg-red-500 hover:bg-red-600 rounded-full p-3 text-white transition-all shadow-md hover:shadow-lg"
-                        aria-label="Delete court"
-                     >
-                        <FaTrash />
-                     </button>
-                  </div>
+               <section className="text-center w-full my-8">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-blackberry-color">
+                     {court.courtName.toUpperCase()}
+                  </h1>
                </section>
                <section className="p-6 sm:p-8 bg-white/90 backdrop-blur-sm border-2 border-blackberry-color rounded-2xl shadow-xl mb-6">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
